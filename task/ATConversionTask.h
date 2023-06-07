@@ -18,6 +18,8 @@ class ATConversionTask : public LKTask
         void Exec(Option_t*);
         bool EndOfRun();
 
+        //void LeftorRight_new(Int_t evtbegin, Int_t evtend);
+
     private:
         TClonesArray *fChannelArray = nullptr;
 
@@ -39,27 +41,26 @@ class ATConversionTask : public LKTask
         Int_t   mmWaveformX[1030][512];   //[mmMul][time]
         Int_t   mmWaveformY[1030][512];   //[mmMul][time]
 
-        /// 0 = Left Strip 
-        /// 1 = Right Strip 
-        /// 2 = Left Chain 
-        /// 3 = Right Chain 
-        /// 4 = Low Center 
-        /// 5 = High Center 
-        /// 6 = Forward Si 
-        /// 7 = Forward CsI 
-        /// 8 = MMJr 
-        /// 10 = CENS X6 
-        /// 11 = CENS CSI 
-        /// 100 = External inputs 
-        /// initialized by -1
+        int kLeftStrip   = 0;
+        int kRightStrip  = 1;
+        int kLeftChain   = 2;
+        int kRightChain  = 3;
+        int kLowCenter   = 4;
+        int kHighCenter  = 5;
+        int kForwardSi   = 6;
+        int kForwardCsI  = 7;
+        int kMMJr        = 8;
+        int kCENSX6      = 10;
+        int kCENSCsI     = 11;
+        int kExternal    = 100;
         Int_t type[3][4][4][68];
-        /// 0 for left 
-        /// 1 for right 
-        /// 2 for center(front) 
-        /// 10 for bottom-left(X6) 
-        /// 11 for bottom-right(X6) 
-        /// nothing for CsI(CENS) 
-        /// initialized by -1
+
+        int kLeft          = 0;
+        int kRight         = 1;
+        int kCenterFront   = 2;
+        int kBottomLeftX6  = 10;
+        int kBottomRightX6 = 11;
+        int kCsI           = -1; // ??
         Int_t DetLoc[3][4][4][68];
 
         const Int_t mmnum = 1024; // # of all channels
@@ -68,49 +69,7 @@ class ATConversionTask : public LKTask
         const Int_t CsInum = 64; // 1chan*64det
         //const Int_t mmjrnum = 68; // should be changed but...
 
-        Int_t mmasad[1024];
-        Int_t mmaget[1024];
-        Int_t mmdchan[1024];
-        Int_t mmx[1024];
-        Int_t mmy[1024];
-        Int_t mmpx[4][4][64];
-        Int_t mmpy[4][4][64]; // [mmAsad][mmAget][dchan]
-
-        Int_t siasad[45];
-        Int_t siaget[45];
-        Int_t sichan[45];
-        Int_t six[45];
-        Int_t siy[45];
-        Int_t sipos[45]; // x: 0-4 | y: 0-1 | pos: 1,2,3,4 (in circle)
-        Int_t sipx[4][4][68];
-        Int_t sipy[4][4][68];
-        Int_t sistrip[4][4][68];
-        Int_t sidet[4][4][68]; // px: 0-4 | py: 0-1 | strip: 1,2,3,4 (in circle) | sidet: 0-9
-
-        Int_t fcsidet[68]; // 0-9
-
-        Int_t X6asad[600];
-        Int_t X6aget[600];
-        Int_t X6chan[600];
-        Int_t X6flag[600];
-        Int_t X6detnum[600];
-        Int_t X6pos[600]; // flag: 0(junc) & 1(ohm) && 10(bottom junc) & 11(bottom ohm) | detnum: 0-32(max) | pos: 1-16(channel from the official doc.)
-        Int_t X6det[4][4][68];
-        Int_t X6strip[4][4][68];
-        Int_t X6ud[4][4][68]; // det: 1? for LS, 2? for RS, 10? for LB, 20? for RB | strip: 1-8(junc) & 1-4(ohm) | ud: 0(pin side) & 1
-
-        Int_t CsIasad[64];
-        Int_t CsIaget[64];
-        Int_t CsIchan[64];
-        Int_t CsICTnum[64];
-        Int_t CsIpinflag[64];
-        Int_t CsItoX6det[64]; //should be changed
-        Int_t CsICT[4][4][68];
-        Int_t CsIpin[4][4][68];
-        Int_t CsIX6det[4][4][68]; // CT: 1-64 | pin: 1 for X6 pin side | X6det: matching X6 num
-
-
-    ClassDef(ATConversionTask, 1)
+    ClassDef(ATConversionTask, 1);
 };
 
 #endif

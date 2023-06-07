@@ -1,6 +1,6 @@
 #include "ATConversionTask.h"
 
-ClassImp(ATConversionTask)
+ClassImp(ATConversionTask);
 
 ATConversionTask::ATConversionTask()
 :LKTask("ATConversionTask","")
@@ -15,24 +15,80 @@ bool ATConversionTask::Init()
 
     //SetBranch()
     {
+        //Int_t   mmMul;
+        //Int_t   mmHit;
+        //Int_t   mmEventIdx;
+        //Int_t   mmFrameNo[1030];   //[mmMul]
+        //Int_t   mmDecayNo[1030];   //[mmMul]
+        //Int_t   mmCobo[1030];   //[mmMul]
+        //Int_t   mmAsad[1030];   //[mmMul]
+        //Int_t   mmAget[1030];   //[mmMul]
+        //Int_t   mmChan[1030];   //[mmMul]
+        //Float_t mmTime[1030];   //[mmMul]
+        //Float_t mmEnergy[1030];   //[mmMul]
+        //Int_t   mmWaveformX[1030][512];   //[mmMul][time]
+        //Int_t   mmWaveformY[1030][512];   //[mmMul][time]
         fInputTree -> SetBranchAddress("mmMul",&mmMul);
-        fInputTree -> SetBranchAddress("mmHit",&mmHit);
-        fInputTree -> SetBranchAddress("mmEventIdx",&mmEventIdx);
-        fInputTree -> SetBranchAddress("mmFrameNo",mmFrameNo);
-        fInputTree -> SetBranchAddress("mmDecayNo",mmDecayNo);
+        //fInputTree -> SetBranchAddress("mmHit",&mmHit);
+        //fInputTree -> SetBranchAddress("mmEventIdx",&mmEventIdx);
+        //fInputTree -> SetBranchAddress("mmFrameNo",mmFrameNo);
+        //fInputTree -> SetBranchAddress("mmDecayNo",mmDecayNo);
         fInputTree -> SetBranchAddress("mmCobo",mmCobo);
         fInputTree -> SetBranchAddress("mmAsad",mmAsad);
         fInputTree -> SetBranchAddress("mmAget",mmAget);
         fInputTree -> SetBranchAddress("mmChan",mmChan);
-        fInputTree -> SetBranchAddress("mmTime",mmTime);
-        fInputTree -> SetBranchAddress("mmEnergy",mmEnergy);
-        fInputTree -> SetBranchAddress("mmWaveformX",mmWaveformX);
+        //fInputTree -> SetBranchAddress("mmTime",mmTime);
+        //fInputTree -> SetBranchAddress("mmEnergy",mmEnergy);
+        //fInputTree -> SetBranchAddress("mmWaveformX",mmWaveformX);
         fInputTree -> SetBranchAddress("mmWaveformY",mmWaveformY);
         Int_t fNumEvents = fInputTree -> GetEntries();
     }
 
     // SetDetType()
     {
+        Int_t mmasad[1024];
+        Int_t mmaget[1024];
+        Int_t mmdchan[1024];
+        Int_t mmx[1024];
+        Int_t mmy[1024];
+        Int_t mmpx[4][4][64];
+        Int_t mmpy[4][4][64]; // [mmAsad][mmAget][dchan]
+
+        Int_t siasad[45];
+        Int_t siaget[45];
+        Int_t sichan[45];
+        Int_t six[45];
+        Int_t siy[45];
+        Int_t sipos[45]; // x: 0-4 | y: 0-1 | pos: 1,2,3,4 (in circle)
+        Int_t sipx[4][4][68];
+        Int_t sipy[4][4][68];
+        Int_t sistrip[4][4][68];
+        Int_t sidet[4][4][68]; // px: 0-4 | py: 0-1 | strip: 1,2,3,4 (in circle) | sidet: 0-9
+
+        Int_t fcsidet[68]; // 0-9
+
+        Int_t X6asad[600];
+        Int_t X6aget[600];
+        Int_t X6chan[600];
+        Int_t X6flag[600];
+        Int_t X6detnum[600];
+        Int_t X6pos[600]; // flag: 0(junc) & 1(ohm) && 10(bottom junc) & 11(bottom ohm) | detnum: 0-32(max) | pos: 1-16(channel from the official doc.)
+        Int_t X6det[4][4][68];
+        Int_t X6strip[4][4][68];
+        Int_t X6ud[4][4][68]; // det: 1? for LS, 2? for RS, 10? for LB, 20? for RB | strip: 1-8(junc) & 1-4(ohm) | ud: 0(pin side) & 1
+
+        Int_t CsIasad[64];
+        Int_t CsIaget[64];
+        Int_t CsIchan[64];
+        Int_t CsICTnum[64];
+        Int_t CsIpinflag[64];
+        Int_t CsItoX6det[64]; //should be changed
+        Int_t CsICT[4][4][68];
+        Int_t CsIpin[4][4][68];
+        Int_t CsIX6det[4][4][68]; // CT: 1-64 | pin: 1 for X6 pin side | X6det: matching X6 num
+
+
+
         // initialized by -1
         for(Int_t i=0; i<3; i++) for(Int_t j=0; j<4; j++) for(Int_t k=0; k<4; k++) for(Int_t l=0; l<68; l++) 
         {
@@ -42,14 +98,13 @@ bool ATConversionTask::Init()
 
         // MMS: 0 = Left Strip | 1 = Right Strip | 2 = Left Chain | 3 = Right Chain | 4 = Low Center | 5 = High Center
         Int_t line = 0;
-        ifstream mapmm;
-        const char *mapmmFileName = fPar -> GetParString("ATConversionTask/mapmm");
-        mapmm.open(mapmmFileName);
-        if(mapmm.fail()==true) lk_error << "error: mapchantomm" << endl;
+        TString mapmmFileName = fPar -> GetParString("ATConversionTask/mapmm");
+        ifstream mapmm(mapmmFileName);
+        if(mapmm.fail()==true) lk_error << "error: mapchantomm " << mapmmFileName << endl;
         while(mapmm.good())
         {
             mapmm >> mmasad[line] >> mmaget[line] >> mmdchan[line] >> mmx[line] >> mmy[line];
-            //cout << Form("%dth %d_%d_%d_%d",line,0,mmasad[line],mmaget[line],mmdchan[line]) << endl;
+            //lk_debug << Form("%dth %d_%d_%d_%d",line,0,mmasad[line],mmaget[line],mmdchan[line]) << endl;
             line++;
             if(line==mmnum) break;
         }
@@ -63,34 +118,34 @@ bool ATConversionTask::Init()
             mmpy[mmasad[i]][mmaget[i]][mmdchan[i]]=mmy[i];
             if(mmx[i]==-1)
             {
-                if(mmasad[i]==2) type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = 0;
-                else type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = 1;
+                if(mmasad[i]==2) type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = kLeftStrip;
+                else type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = kRightStrip;
             }
             else
             {
                 if(mmx[i]>=0 && mmx[i]<64) 
                 {
-                    type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = 2;
+                    type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = kLeftChain;
                 }
                 else if(mmx[i]>69)
                 {
-                    type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = 3;
+                    type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = kRightChain;
                 }
                 else if(mmx[i]>=65 && mmx[i]<69) 
                 {
-                    if(mmasad[i]==0 && mmaget[i]==3) type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = 5;
-                    else type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = 4;
+                    if(mmasad[i]==0 && mmaget[i]==3) type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = kHighCenter;
+                    else type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = kLowCenter;
                 }
                 else if(mmx[i]==64 || mmx[i]==69)
                 {
                     if(mmaget[i]==3)
                     {
-                        if(mmdchan[i]>15) type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = 4;
-                        else type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = 5;
+                        if(mmdchan[i]>15) type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = kLowCenter;
+                        else type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = kHighCenter;
                     }
                     else
                     {
-                        type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = 4;
+                        type[0][mmasad[i]][mmaget[i]][mmdchan[i]] = kLowCenter;
                     }
                 }
             }
@@ -100,9 +155,9 @@ bool ATConversionTask::Init()
         // Forward Si
         line = 0;
         ifstream mapsi;
-        const char *mapsiFileName = fPar -> GetParString("ATConversionTask/mapsi");
+        TString mapsiFileName = fPar -> GetParString("ATConversionTask/mapsi");
         mapsi.open(mapsiFileName);
-        if(mapsi.fail()==true) lk_error << "error: mapchantosi" << endl;
+        if(mapsi.fail()==true) lk_error << "error: mapchantosi " << mapsiFileName << endl;
         while(mapsi.good())
         {
             mapsi >> siasad[line] >> siaget[line] >> sichan[line] >> six[line] >> siy[line] >> sipos[line];
@@ -111,11 +166,11 @@ bool ATConversionTask::Init()
             sipy[siasad[line]][siaget[line]][sichan[line]] = siy[line];
             sistrip[siasad[line]][siaget[line]][sichan[line]] = sipos[line];
             sidet[siasad[line]][siaget[line]][sichan[line]] = 2*(4-six[line])+(1-siy[line]);
-            type[1][siasad[line]][siaget[line]][sichan[line]] = 6;
+            type[1][siasad[line]][siaget[line]][sichan[line]] = kForwardSi;
 
-            if(six[line]==2) DetLoc[1][siasad[line]][siaget[line]][sichan[line]] = 2;
-            else if(six[line]==0 || six[line]==1) DetLoc[1][siasad[line]][siaget[line]][sichan[line]] = 0;
-            else if(six[line]==3 || six[line]==4) DetLoc[1][siasad[line]][siaget[line]][sichan[line]] = 1;
+                 if(six[line]==2)                 DetLoc[1][siasad[line]][siaget[line]][sichan[line]] = kCenterFront;
+            else if(six[line]==0 || six[line]==1) DetLoc[1][siasad[line]][siaget[line]][sichan[line]] = kLeft;
+            else if(six[line]==3 || six[line]==4) DetLoc[1][siasad[line]][siaget[line]][sichan[line]] = kRight;
 
             line++;
             if(line==sinum) break;
@@ -136,48 +191,45 @@ bool ATConversionTask::Init()
         fcsidet[33] = 6;
         fcsidet[36] = 8;
         fcsidet[41] = 9;
-        type[1][1][0][2] = 7;
-        type[1][1][0][7] = 7;
-        type[1][1][0][10] = 7;
-        type[1][1][0][16] = 7;
-        type[1][1][0][19] = 7;
-        type[1][1][0][25] = 7;
-        type[1][1][0][28] = 7;
-        type[1][1][0][33] = 7;
-        type[1][1][0][36] = 7;
-        type[1][1][0][41] = 7;
-        DetLoc[1][1][0][2] = 1; //0
-        DetLoc[1][1][0][7] = 1; //1
-        DetLoc[1][1][0][10] = 1; //3
-        DetLoc[1][1][0][16] = 1; //2
-        DetLoc[1][1][0][19] = 2; //4
-        DetLoc[1][1][0][25] = 2; //5
-        DetLoc[1][1][0][28] = 0; //7
-        DetLoc[1][1][0][33] = 0; //6
-        DetLoc[1][1][0][36] = 0; //8
-        DetLoc[1][1][0][41] = 0; //9
+        type[1][1][0][2]  = kForwardCsI;
+        type[1][1][0][7]  = kForwardCsI;
+        type[1][1][0][10] = kForwardCsI;
+        type[1][1][0][16] = kForwardCsI;
+        type[1][1][0][19] = kForwardCsI;
+        type[1][1][0][25] = kForwardCsI;
+        type[1][1][0][36] = kForwardCsI;
+        type[1][1][0][41] = kForwardCsI;
+        DetLoc[1][1][0][2]  = kRight; //0
+        DetLoc[1][1][0][7]  = kRight; //1
+        DetLoc[1][1][0][10] = kRight; //3
+        DetLoc[1][1][0][16] = kRight; //2
+        DetLoc[1][1][0][19] = kCenterFront; //4
+        DetLoc[1][1][0][25] = kCenterFront; //5
+        DetLoc[1][1][0][28] = kLeft; //7
+        DetLoc[1][1][0][33] = kLeft; //6
+        DetLoc[1][1][0][36] = kLeft; //8
+        DetLoc[1][1][0][41] = kLeft; //9
 
         // External inputs
-        type[1][1][2][2] = 100; //SBD
-        type[1][1][2][7] = 100; //BM1
-        type[1][1][2][10] = 100; //BM2
-        type[1][1][2][16] = 100; //
-        type[1][1][2][19] = 100; //BM shaping | BM1
-        type[1][1][2][25] = 100; // | BM2
-        type[1][1][2][33] = 100; // | BM shaping
-
-        type[1][1][3][2] = 100; //RF-PPACa
-        type[1][1][3][7] = 100; //PPACa-PPACb
-        type[1][1][3][10] = 100; //BM-PPACa
-        type[1][1][3][16] = 100; //BM raw
-        type[1][1][3][19] = 100; //L0
+        type[1][1][2][2]  = kExternal; //SBD
+        type[1][1][2][7]  = kExternal; //BM1
+        type[1][1][2][10] = kExternal; //BM2
+        type[1][1][2][16] = kExternal; //
+        type[1][1][2][19] = kExternal; //BM shaping | BM1
+        type[1][1][2][25] = kExternal; // | BM2
+        type[1][1][2][33] = kExternal; // | BM shaping
+        type[1][1][3][2]  = kExternal; //RF-PPACa
+        type[1][1][3][7]  = kExternal; //PPACa-PPACb
+        type[1][1][3][10] = kExternal; //BM-PPACa
+        type[1][1][3][16] = kExternal; //BM raw
+        type[1][1][3][19] = kExternal; //L0
 
         // CENS X6
         line = 0;
         ifstream mapX6;
-        const char *mapX6FileName = fPar -> GetParString("ATConversionTask/mapX6");
+        TString mapX6FileName = fPar -> GetParString("ATConversionTask/mapX6");
         mapX6.open(mapX6FileName);
-        if(mapX6.fail()==true) lk_error << "error: mapchantoX6" << endl;
+        if(mapX6.fail()==true) lk_error << "error: mapchantoX6 " << mapX6FileName << endl;
         while(mapX6.good())
         {
             mapX6 >> X6asad[line] >> X6aget[line] >> X6chan[line] >> X6flag[line] >> X6detnum[line] >> X6pos[line];
@@ -186,12 +238,12 @@ bool ATConversionTask::Init()
             else if(X6flag[line]==1) X6strip[X6asad[line]][X6aget[line]][X6chan[line]] = X6pos[line];
             X6ud[X6asad[line]][X6aget[line]][X6chan[line]] = (X6pos[line]+1)%2;
             //cout << X6asad[line] << " " <<  X6aget[line] << " " <<  X6chan[line] << " " << X6det[X6asad[line]][X6aget[line]][X6chan[line]] << " " << X6strip[X6asad[line]][X6aget[line]][X6chan[line]] << " " << X6ud[X6asad[line]][X6aget[line]][X6chan[line]] << " " << endl;
-            type[2][X6asad[line]][X6aget[line]][X6chan[line]] = 10;
+            type[2][X6asad[line]][X6aget[line]][X6chan[line]] = kCENSX6;
 
-            if(X6asad[line]==0 && X6aget[line]!=3) DetLoc[2][X6asad[line]][X6aget[line]][X6chan[line]] = 10;
-            else if(X6asad[line]==1 && X6aget[line]!=3) DetLoc[2][X6asad[line]][X6aget[line]][X6chan[line]] = 11;
-            else if(X6asad[line]==2 && X6aget[line]!=3) DetLoc[2][X6asad[line]][X6aget[line]][X6chan[line]] = 0;
-            else if(X6asad[line]==3 && X6aget[line]!=3) DetLoc[2][X6asad[line]][X6aget[line]][X6chan[line]] = 1;
+                 if(X6asad[line]==0 && X6aget[line]!=3) DetLoc[2][X6asad[line]][X6aget[line]][X6chan[line]] = kBottomRightX6;
+            else if(X6asad[line]==1 && X6aget[line]!=3) DetLoc[2][X6asad[line]][X6aget[line]][X6chan[line]] = kBottomLeftX6;
+            else if(X6asad[line]==2 && X6aget[line]!=3) DetLoc[2][X6asad[line]][X6aget[line]][X6chan[line]] = kLeft;
+            else if(X6asad[line]==3 && X6aget[line]!=3) DetLoc[2][X6asad[line]][X6aget[line]][X6chan[line]] = kRight;
 
             line++;
             if(line==X6num) break;
@@ -203,9 +255,9 @@ bool ATConversionTask::Init()
         // CENS CsI
         line = 0;
         ifstream mapCsI;
-        const char *mapCsIFileName = fPar -> GetParString("ATConversionTask/mapCsI");
+        TString mapCsIFileName = fPar -> GetParString("ATConversionTask/mapCsI");
         mapCsI.open(mapCsIFileName);
-        if(mapCsI.fail()==true) lk_error << "error: mapchantoCsI" << endl;
+        if(mapCsI.fail()==true) lk_error << "error: mapchantoCsI " << mapCsIFileName << endl;
         while(mapCsI.good())
         {
             mapCsI >> CsIasad[line] >> CsIaget[line] >> CsIchan[line] >> CsICTnum[line] >> CsIpinflag[line] >> CsItoX6det[line];
@@ -213,7 +265,7 @@ bool ATConversionTask::Init()
             CsIpin[CsIasad[line]][CsIaget[line]][CsIchan[line]] = CsIpinflag[line];
             CsIX6det[CsIasad[line]][CsIaget[line]][CsIchan[line]] = CsItoX6det[line];
 
-            type[2][CsIasad[line]][CsIaget[line]][CsIchan[line]] = 11;
+            type[2][CsIasad[line]][CsIaget[line]][CsIchan[line]] = kCENSCsI;
             line++;
             if(line==CsInum) break;
         }
@@ -293,7 +345,7 @@ bool ATConversionTask::EndOfRun()
 
         if(mmCobo[hit]==0 && !(mmChan[hit]==11 || mmChan[hit]==22 || mmChan[hit]==45 || mmChan[hit]==56))
         {
-            if(type[0][mmAsad[hit]][mmAget[hit]][dchan]==4) 
+            if(type[0][mmAsad[hit]][mmAget[hit]][dchan]==kLowCenter) 
             {
                 if(mmpy[mmAsad[hit]][mmAget[hit]][dchan]<64)
                 {
@@ -677,65 +729,51 @@ bool ATConversionTask::EndOfRun()
 }
 
 /*
-void LeftorRight_new(Int_t evtbegin, Int_t evtend)
+void ATConversionTask::LeftorRight_new(Int_t evtbegin, Int_t evtend)
 {
     // output: SiBLR 0 for left | 1 for right | 2 for front center | 3 for more than 1 event | 9 for bad
-    SetBranch();
-    SetDetType();
 
     Int_t goodevt = 0;
     Int_t siLhit, siRhit, siChit, X6Lhit, X6Rhit;
 
     for(Int_t evt=evtbegin; evt<evtend; evt++)
     {
-	fInputTree -> GetEntry(evt);
-	GoodSiEntry[evt] = 9999;
-	siLhit = 0;
-	siRhit = 0;
-	siChit = 0;
-	X6Lhit = 0;
-	X6Rhit = 0;
-	for(Int_t hit=0; hit<mmMul; hit++)
-	{
-	    if(!(mmChan[hit]==11 || mmChan[hit]==22 || mmChan[hit]==45 || mmChan[hit]==56))
-	    {
-		if(type[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]==6)
-		{
-		    if(DetLoc[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]==0) siLhit++;
-		    else if(DetLoc[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]==1) siRhit++;
-		    else if(DetLoc[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]==2) siChit++;
-		}
-		else if(type[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]==10)
-		{
-		    if(DetLoc[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]%10==0) X6Lhit++;
-		    else if(DetLoc[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]%10==1) X6Rhit++;
-		}
-	    }
-	}
+        fInputTree -> GetEntry(evt);
+        GoodSiEntry[evt] = 9999;
+        siLhit = 0;
+        siRhit = 0;
+        siChit = 0;
+        X6Lhit = 0;
+        X6Rhit = 0;
+        for(Int_t hit=0; hit<mmMul; hit++)
+        {
+            if(!(mmChan[hit]==11 || mmChan[hit]==22 || mmChan[hit]==45 || mmChan[hit]==56))
+            {
+                if(type[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]==kForwardSi)
+                {
+                         if(DetLoc[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]==kLeft) siLhit++;
+                    else if(DetLoc[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]==kRight) siRhit++;
+                    else if(DetLoc[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]==kCenterFront) siChit++;
+                }
+                else if(type[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]==kCENSX6)
+                {
+                         if(DetLoc[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]%10==0) X6Lhit++;
+                    else if(DetLoc[mmCobo[hit]][mmAsad[hit]][mmAget[hit]][mmChan[hit]]%10==1) X6Rhit++;
+                }
+            }
+        }
 
-	// not considered about center,,,
-	if(siLhit==2)
-	{
-	    if(siRhit<2 && X6Lhit<3 && X6Rhit<3) SiBLR[evt]=0;
-	}
-	else if(siRhit==2)
-	{
-	    if(siLhit<2 && X6Lhit<3 && X6Rhit<3) SiBLR[evt]=1;
-	}
-	else if(X6Lhit==3)
-	{
-	    if(siLhit<2 && siRhit<3 && X6Rhit<3) SiBLR[evt]=0;
-	}
-	else if(X6Rhit==3)
-	{
-	    if(siLhit<2 && siRhit<3 && X6Lhit<3) SiBLR[evt]=1;
-	}
-	else if(siChit==2) SiBLR[evt]=2;
-	else SiBLR[evt] = 9;
+        // not considered about center,,,
+             if(siLhit==2) { if(siRhit<2 && X6Lhit<3 && X6Rhit<3) SiBLR[evt]=0; }
+        else if(siRhit==2) { if(siLhit<2 && X6Lhit<3 && X6Rhit<3) SiBLR[evt]=1; }
+        else if(X6Lhit==3) { if(siLhit<2 && siRhit<3 && X6Rhit<3) SiBLR[evt]=0; }
+        else if(X6Rhit==3) { if(siLhit<2 && siRhit<3 && X6Lhit<3) SiBLR[evt]=1; }
+        else if(siChit==2) SiBLR[evt]=2;
+        else SiBLR[evt] = 9;
 
-	cout << Form("siL: %d | siR: %d | siC: %d | X6L: %d | X6R: %d  ->  %d", siLhit, siRhit, siChit, X6Lhit, X6Rhit, SiBLR[evt]) << endl;
-	if(SiBLR[evt]!=9) goodevt++;
+        lk_info << Form("siL: %d | siR: %d | siC: %d | X6L: %d | X6R: %d  ->  %d", siLhit, siRhit, siChit, X6Lhit, X6Rhit, SiBLR[evt]) << endl;
+        if(SiBLR[evt]!=9) goodevt++;
     }
-    cout << "goodevt " << goodevt << endl;
+    lk_info << "goodevt " << goodevt << endl;
 }
 */

@@ -1,5 +1,5 @@
-ATConversionTask/inputFile  ~/data/texat/run_0824.dat.19-03-23_23h42m36s.38.root
-ATConversionTask/mapmm      ~/data/txtfiles/mapchantomm.txt
-ATConversionTask/mapsi      ~/data/txtfiles/mapchantosi_CRIB.txt
-ATConversionTask/mapX6      ~/data/txtfiles/mapchantoX6_CRIB.txt
-ATConversionTask/mapCsI     ~/data/txtfiles/mapchantoCsI_CRIB.txt
+ATConversionTask/inputFile  /home/ejungwoo/data/texat/run_0824.dat.19-03-23_23h42m36s.38.root
+ATConversionTask/mapmm      /home/ejungwoo/data/texat/txtfiles/mapchantomm.txt
+ATConversionTask/mapsi      /home/ejungwoo/data/texat/txtfiles/mapchantosi_CRIB.txt
+ATConversionTask/mapX6      /home/ejungwoo/data/texat/txtfiles/mapchantoX6_CRIB.txt
+ATConversionTask/mapCsI     /home/ejungwoo/data/texat/txtfiles/mapchantoCsI_CRIB.txt
