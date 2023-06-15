@@ -1,0 +1,10 @@
+RawData/persistency true
+#Hit/persistency true
+
+*LKRun/RunName  texat 824 raw
+
+TTRootConversionTask/inputFileName /home/ejungwoo/data/texat/run_0824.dat.19-03-23_23h42m36s.38.root # inputFileName
+TTRootConversionTask/mapmmFileName /home/ejungwoo/data/texat/txtfiles/mapchantomm.txt # mapmmFileName
+TTRootConversionTask/mapsiFileName /home/ejungwoo/data/texat/txtfiles/mapchantosi_CRIB.txt # mapsiFileName
+TTRootConversionTask/mapX6FileName /home/ejungwoo/data/texat/txtfiles/mapchantoX6_CRIB.txt # mapX6FileName
+TTRootConversionTask/mapCsIFileName /home/ejungwoo/data/texat/txtfiles/mapchantoCsI_CRIB.txt # mapCsIFileName
