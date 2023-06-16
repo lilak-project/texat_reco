@@ -1,24 +1,28 @@
 #include "TTRootConversionTask.h"
 #include "MMChannel.h"
+#include "TTEventHeader.h"
 
 ClassImp(TTRootConversionTask);
 
-TTRootConversionTask::TTRootConversionTask() 
+TTRootConversionTask::TTRootConversionTask()
 {
     ;
 }
 
-bool TTRootConversionTask::Init() 
+bool TTRootConversionTask::Init()
 {
     // Put intialization todos here which are not iterative job though event
     lx_info << "Initializing TTRootConversionTask" << std::endl;
-    
+
     fInputFileName = fPar -> GetParString("TTRootConversionTask/inputFileName");
     fmapmmFileName = fPar -> GetParString("TTRootConversionTask/mapmmFileName");
     fmapsiFileName = fPar -> GetParString("TTRootConversionTask/mapsiFileName");
     fmapX6FileName = fPar -> GetParString("TTRootConversionTask/mapX6FileName");
     fmapCsIFileName = fPar -> GetParString("TTRootConversionTask/mapCsIFileName");
-    
+
+    fEventHeader = new TClonesArray("TTEventHeader",1);
+    fRun -> RegisterBranch("EventHeader", fEventHeader);
+
     fChannelArray = new TClonesArray("MMChannel",200);
     fRun -> RegisterBranch("RawData", fChannelArray);
 
@@ -90,9 +94,8 @@ bool TTRootConversionTask::Init()
         Int_t CsIX6det[4][4][68]; // CT: 1-64 | pin: 1 for X6 pin side | X6det: matching X6 num
 
 
-
         // initialized by -1
-        for(Int_t i=0; i<3; i++) for(Int_t j=0; j<4; j++) for(Int_t k=0; k<4; k++) for(Int_t l=0; l<68; l++) 
+        for(Int_t i=0; i<3; i++) for(Int_t j=0; j<4; j++) for(Int_t k=0; k<4; k++) for(Int_t l=0; l<68; l++)
         {
             fType[i][j][k][l] = eType::kNon;
             fDetLoc[i][j][k][l] = eDetLoc::kNon;
@@ -124,7 +127,7 @@ bool TTRootConversionTask::Init()
             }
             else
             {
-                if(mmx[i]>=0 && mmx[i]<64) 
+                if(mmx[i]>=0 && mmx[i]<64)
                 {
                     fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kLeftChain;
                 }
@@ -132,7 +135,7 @@ bool TTRootConversionTask::Init()
                 {
                     fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kRightChain;
                 }
-                else if(mmx[i]>=65 && mmx[i]<69) 
+                else if(mmx[i]>=65 && mmx[i]<69)
                 {
                     if(mmasad[i]==0 && mmaget[i]==3) fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kHighCenter;
                     else fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kLowCenter;
@@ -276,44 +279,102 @@ bool TTRootConversionTask::Init()
 }
 
 
-void TTRootConversionTask::Exec(Option_t *option) 
+void TTRootConversionTask::Exec(Option_t *option)
 {
     fInputTree -> GetEntry(fRun->GetCurrentEventID());
-    
-    for (int iHit = 0; iHit < fmmMult; ++iHit)
+
+    Int_t SiBLR = 0;
+    Int_t siLhit = 0;
+    Int_t siRhit = 0;
+    Int_t siChit = 0;
+    Int_t X6Lhit = 0;
+    Int_t X6Rhit = 0;
+    for(Int_t iChannel=0; iChannel<fmmMult; iChannel++)
     {
-        /*
-        int channelID = fmmChan[iHit];
-        int channelID2 = 0;
+        if(!(fmmChan[iChannel]==11 || fmmChan[iChannel]==22 || fmmChan[iChannel]==45 || fmmChan[iChannel]==56))
+        {
+            if(fType[fmmCobo[iChannel]][fmmAsad[iChannel]][fmmAget[iChannel]][fmmChan[iChannel]]==eType::kForwardSi)
+            {
+                if(fDetLoc[fmmCobo[iChannel]][fmmAsad[iChannel]][fmmAget[iChannel]][fmmChan[iChannel]]==eDetLoc::kLeft) siLhit++;
+                else if(fDetLoc[fmmCobo[iChannel]][fmmAsad[iChannel]][fmmAget[iChannel]][fmmChan[iChannel]]==eDetLoc::kRight) siRhit++;
+                else if(fDetLoc[fmmCobo[iChannel]][fmmAsad[iChannel]][fmmAget[iChannel]][fmmChan[iChannel]]==eDetLoc::kCenterFront) siChit++;
+            }
+            else if(fType[fmmCobo[iChannel]][fmmAsad[iChannel]][fmmAget[iChannel]][fmmChan[iChannel]]==eType::kCENSX6)
+            {
+                auto dl = fDetLoc[fmmCobo[iChannel]][fmmAsad[iChannel]][fmmAget[iChannel]][fmmChan[iChannel]];
+                //kLeft,          // 0
+                //kRight,         // 1
+                //kCenterFront,   // 2
+                //kBottomLeftX6,  // 10
+                //kBottomRightX6, // 11
+                //kCsI,           // -1
+                //     if(fDetLoc[fmmCobo[iChannel]][fmmAsad[iChannel]][fmmAget[iChannel]][fmmChan[iChannel]]%10==eDetLoc::kLeft) X6Lhit++;
+                //else if(fDetLoc[fmmCobo[iChannel]][fmmAsad[iChannel]][fmmAget[iChannel]][fmmChan[iChannel]]%10==eDetLoc::kRight) X6Rhit++;
+                     if(fDetLoc[fmmCobo[iChannel]][fmmAsad[iChannel]][fmmAget[iChannel]][fmmChan[iChannel]]==eDetLoc::kBottomLeftX6) X6Lhit++;
+                else if(fDetLoc[fmmCobo[iChannel]][fmmAsad[iChannel]][fmmAget[iChannel]][fmmChan[iChannel]]==eDetLoc::kBottomRightX6) X6Rhit++;
+            }
+        }
+    }
 
-             if(                channelID<11) channelID2 = channelID;
-        else if(channelID>11 && channelID<22) channelID2 = channelID - 1;
-        else if(channelID>22 && channelID<45) channelID2 = channelID - 2;
-        else if(channelID>45 && channelID<56) channelID2 = channelID - 3;
-        else if(channelID>56                ) channelID2 = channelID - 4;
-        */
+    // not considered about center,,,
+         if(siLhit==2) { if(siRhit<2 && X6Lhit<3 && X6Rhit<3) SiBLR=0; }
+    else if(siRhit==2) { if(siLhit<2 && X6Lhit<3 && X6Rhit<3) SiBLR=1; }
+    else if(X6Lhit==3) { if(siLhit<2 && siRhit<3 && X6Rhit<3) SiBLR=0; }
+    else if(X6Rhit==3) { if(siLhit<2 && siRhit<3 && X6Lhit<3) SiBLR=1; }
+    else if(siChit==2) SiBLR=2;
+    else SiBLR = 9;
 
-        auto channel = (MMChannel *) fChannelArray -> ConstructedAt(iHit);
-        channel -> SetFrameNo(fmmFrameNo[iHit]);
-        channel -> SetDecayNo(fmmDecayNo[iHit]);
-        channel -> SetCobo(fmmCobo[iHit]);
-        channel -> SetAsad(fmmAsad[iHit]);
-        channel -> SetAget(fmmAget[iHit]);
-        channel -> SetChan(fmmChan[iHit]);
-        channel -> SetTime(fmmTime[iHit]);
-        channel -> SetEnergy(fmmEnergy[iHit]);
-        channel -> SetWaveformX(fmmWaveformX[iHit]);
-        channel -> SetWaveformY(fmmWaveformY[iHit]);
+    auto header = (TTEventHeader*) fEventHeader -> ConstructedAt(0);
+    header -> SetSiLhit(siLhit);
+    header -> SetSiRhit(siRhit);
+    header -> SetSiChit(siChit);
+    header -> SetX6Lhit(X6Lhit);
+    header -> SetX6Rhit(X6Rhit);
+    header -> SetSiBLR(SiBLR);
 
-        //if (iHit==0 || iHit==1) channel -> Print();
+    if (SiBLR==9)  {
+        lk_info << "TTRootConversionTask: Bad Event! "
+            << Form("siL: %d | siR: %d | siC: %d | X6L: %d | X6R: %d  ->  %d", siLhit, siRhit, siChit, X6Lhit, X6Rhit, SiBLR)
+            << std::endl;
+        header -> SetIsGoodEvent(false);
+        return;
+    }
+
+    header -> SetIsGoodEvent(true);
+
+    for (int iChannel = 0; iChannel < fmmMult; ++iChannel)
+    {
+        int chan = fmmChan[iChannel];
+        int dchan = 0;
+
+             if(           chan<11) dchan = chan;
+        else if(chan>11 && chan<22) dchan = chan - 1;
+        else if(chan>22 && chan<45) dchan = chan - 2;
+        else if(chan>45 && chan<56) dchan = chan - 3;
+        else if(chan>56           ) dchan = chan - 4;
+
+        auto channel = (MMChannel *) fChannelArray -> ConstructedAt(iChannel);
+        channel -> SetFrameNo(fmmFrameNo[iChannel]);
+        channel -> SetDecayNo(fmmDecayNo[iChannel]);
+        channel -> SetCobo(fmmCobo[iChannel]);
+        channel -> SetAsad(fmmAsad[iChannel]);
+        channel -> SetAget(fmmAget[iChannel]);
+        channel -> SetChan(fmmChan[iChannel]);
+        channel -> SetDChan(dchan);
+        channel -> SetTime(fmmTime[iChannel]);
+        channel -> SetEnergy(fmmEnergy[iChannel]);
+        channel -> SetWaveformX(fmmWaveformX[iChannel]);
+        channel -> SetWaveformY(fmmWaveformY[iChannel]);
+
+        //if (iChannel==0 || iChannel==1) channel -> Print();
     }
 
     //lk_debug << fmmMult << " " << fmmChan[10] << " " << fmmWaveformY[10][0] << endl;
-    
-    lk_info << "TTRootConversionTask container found " << fChannelArray -> GetEntriesFast() << " channels" << std::endl;
+
+    lk_info << "TTRootConversionTask found " << fChannelArray -> GetEntriesFast() << " channels" << std::endl;
 }
 
-bool TTRootConversionTask::EndOfRun() 
+bool TTRootConversionTask::EndOfRun()
 {
     return true;
 }

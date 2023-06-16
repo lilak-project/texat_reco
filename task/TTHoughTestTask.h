@@ -1,12 +1,11 @@
-#ifndef TTROOTCONVERSIONTASK_HH
-#define TTROOTCONVERSIONTASK_HH
+#ifndef TTHOUGHTESTTASK_HH
+#define TTHOUGHTESTTASK_HH
 
 #include "TClonesArray.h"
 #include "LKLogger.h"
 #include "LKParameterContainer.h"
 #include "LKRun.h"
 #include "LKTask.h"
-#include <iostream>
 
 /*
  * Remove this comment block after reading it through
@@ -18,15 +17,15 @@
  * - Write Exec() or/and EndOfRun() method.
  */
 
-
 /**
- * Simple conversion from pre-converted root file
+ * Test hough transform from raw data
+ * produce root file containing histograms of hough transform result
  */
-class TTRootConversionTask : public LKTask
+class TTHoughTestTask : public LKTask
 {
     public:
-        TTRootConversionTask();
-        virtual ~TTRootConversionTask() {}
+        TTHoughTestTask();
+        virtual ~TTHoughTestTask() { ; }
 
         enum class eType
         {
@@ -64,23 +63,6 @@ class TTRootConversionTask : public LKTask
         TClonesArray *fEventHeader = nullptr;
         TClonesArray *fChannelArray = nullptr;
 
-        TString      fInputFileName;
-        TFile*       fInputFile;
-        TTree*       fInputTree;
-        Int_t        fmmMult;
-        Int_t        fmmHit;
-        Int_t        fmmEventIdx;
-        Int_t        fmmFrameNo[1030];    ///< [mmMult]
-        Int_t        fmmDecayNo[1030];    ///< [mmMult]
-        Int_t        fmmCobo[1030];       ///< [mmMult]
-        Int_t        fmmAsad[1030];       ///< [mmMult]
-        Int_t        fmmAget[1030];       ///< [mmMult]
-        Int_t        fmmChan[1030];       ///< [mmMult]
-        Float_t      fmmTime[1030];       ///< [mmMult]
-        Float_t      fmmEnergy[1030];     ///< [mmMult]
-        Int_t        fmmWaveformX[1030][512];  ///< [mmMult][time]
-        Int_t        fmmWaveformY[1030][512];  ///< [mmMult][time]
-
         eType        fType[3][4][4][68];
         eDetLoc      fDetLoc[3][4][4][68];
         const Int_t  fmmnum = 1024;       ///<  # of all channels
@@ -92,7 +74,38 @@ class TTRootConversionTask : public LKTask
         TString      fmapX6FileName;
         TString      fmapCsIFileName;
 
-    ClassDef(TTRootConversionTask,1);
+        Int_t mmpx[4][4][64];
+        Int_t mmpy[4][4][64]; // [mmAsad][mmAget][dchan]
+
+        const Int_t MaxBuck = 512;
+
+        TH2D *timing_dt_xy;
+        TH2D *timing_dt_zy;
+        TH2D *timing_dt_xz;
+
+        Int_t track_px[512];
+        Int_t track_py[512];
+
+        // Beam setup
+        Int_t Beam_med = 180; //CRIB
+        Int_t Beam_er = 40; //0822
+        Int_t Bi = Beam_med-Beam_er;
+        Int_t Bf = Beam_med+Beam_er;
+        Int_t Bw = 150; //0822 chain width
+        Int_t BwT = 100; //0822 chain width for find timing
+
+        TH1D* LCWaveFormbyPixel[6];
+        TH1D* HWaveFormbyPixel[64];
+        TH1D *HWaveFormbyPixel_temp;
+        TH2D* Hough_xt;
+        TH2D* fhough_xt;
+        TH2D* Hough_zt;
+        TH2D* fhough_zt;
+        TH2D* fhough_xz;
+        TH2D* fhough_xz_check;
+
+
+    ClassDef(TTHoughTestTask,1);
 };
 
 #endif
