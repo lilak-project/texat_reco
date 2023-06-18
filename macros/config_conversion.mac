@@ -1,10 +1,12 @@
+*LKRun/RunName texat 824 raw
+
 RawData/persistency true
 Hit/persistency true
 
-*LKRun/RunName  texat 824 raw
+hostname e{lilak_hostuser}
 
-TTRootConversionTask/inputFileName  e{HOME}/data/texat/run_0824.dat.19-03-23_23h42m36s.38.root # inputFileName
-TTRootConversionTask/mapmmFileName  e{HOME}/data/texat/txtfiles/mapchantomm.txt # mapmmFileName
-TTRootConversionTask/mapsiFileName  e{HOME}/data/texat/txtfiles/mapchantosi_CRIB.txt # mapsiFileName
-TTRootConversionTask/mapX6FileName  e{HOME}/data/texat/txtfiles/mapchantoX6_CRIB.txt # mapX6FileName
-TTRootConversionTask/mapCsIFileName e{HOME}/data/texat/txtfiles/mapchantoCsI_CRIB.txt # mapCsIFileName
+@mary.lan.ejungwoo/TTRootConversionTask/inputFileName  /Users/ejungwoo/data/texat/run_0824.dat.19-03-23_23h42m36s.38.root
+@mary.lan.ejungwoo/TTRootConversionTask/mapmmFileName  /Users/ejungwoo/data/texat/txtfiles/mapchantomm.txt
+@mary.lan.ejungwoo/TTRootConversionTask/mapsiFileName  /Users/ejungwoo/data/texat/txtfiles/mapchantosi_CRIB.txt
+@mary.lan.ejungwoo/TTRootConversionTask/mapX6FileName  /Users/ejungwoo/data/texat/txtfiles/mapchantoX6_CRIB.txt
+@mary.lan.ejungwoo/TTRootConversionTask/mapCsIFileName /Users/ejungwoo/data/texat/txtfiles/mapchantoCsI_CRIB.txt
