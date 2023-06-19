@@ -6,6 +6,7 @@
 #include "LKParameterContainer.h"
 #include "LKRun.h"
 #include "LKTask.h"
+#include "TexAT2.h"
 
 /*
  * Remove this comment block after reading it through
@@ -27,55 +28,17 @@ class TTHoughTestTask : public LKTask
         TTHoughTestTask();
         virtual ~TTHoughTestTask() { ; }
 
-        enum class eType
-        {
-            kNon,
-            kLeftStrip,     // 0
-            kRightStrip,    // 1
-            kLeftChain,     // 2
-            kRightChain,    // 3
-            kLowCenter,     // 4
-            kHighCenter,    // 5
-            kForwardSi,     // 6
-            kForwardCsI,    // 7
-            kMMJr,          // 8
-            kCENSX6,        // 10
-            kCENSCsI,       // 11
-            kExternal,      // 100
-        };
-
-        enum class eDetLoc
-        {
-            kNon,
-            kLeft,          // 0
-            kRight,         // 1
-            kCenterFront,   // 2
-            kBottomLeftX6,  // 10
-            kBottomRightX6, // 11
-            kCsI,           // -1
-        };
-
         bool Init();
         void Exec(Option_t *option="");
         bool EndOfRun();
 
     private:
+        TexAT2 *fDetector = nullptr;
+
         TClonesArray *fEventHeader = nullptr;
         TClonesArray *fChannelArray = nullptr;
 
-        eType        fType[3][4][4][68];
-        eDetLoc      fDetLoc[3][4][4][68];
-        const Int_t  fmmnum = 1024;       ///<  # of all channels
-        const Int_t  fsinum = 45;         ///<  quadrant*9
-        const Int_t  fX6num = 600;        ///<  20chan*30det
-        const Int_t  fCsInum = 64;        ///<  1chan*64det
-        TString      fmapmmFileName;
-        TString      fmapsiFileName;
-        TString      fmapX6FileName;
-        TString      fmapCsIFileName;
-
-        Int_t mmpx[4][4][64];
-        Int_t mmpy[4][4][64]; // [mmAsad][mmAget][dchan]
+        TString fHistDataPath;
 
         const Int_t MaxBuck = 512;
 

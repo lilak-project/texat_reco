@@ -6,7 +6,15 @@ Hit/persistency true
 hostname e{lilak_hostuser}
 
 @mary.lan.ejungwoo/TTRootConversionTask/inputFileName  /Users/ejungwoo/data/texat/run_0824.dat.19-03-23_23h42m36s.38.root
-@mary.lan.ejungwoo/TTRootConversionTask/mapmmFileName  /Users/ejungwoo/data/texat/txtfiles/mapchantomm.txt
-@mary.lan.ejungwoo/TTRootConversionTask/mapsiFileName  /Users/ejungwoo/data/texat/txtfiles/mapchantosi_CRIB.txt
-@mary.lan.ejungwoo/TTRootConversionTask/mapX6FileName  /Users/ejungwoo/data/texat/txtfiles/mapchantoX6_CRIB.txt
-@mary.lan.ejungwoo/TTRootConversionTask/mapCsIFileName /Users/ejungwoo/data/texat/txtfiles/mapchantoCsI_CRIB.txt
+@mary.lan.ejungwoo/TexAT2/mapmmFileName  /Users/ejungwoo/data/texat/txtfiles/mapchantomm.txt
+@mary.lan.ejungwoo/TexAT2/mapsiFileName  /Users/ejungwoo/data/texat/txtfiles/mapchantosi_CRIB.txt
+@mary.lan.ejungwoo/TexAT2/mapX6FileName  /Users/ejungwoo/data/texat/txtfiles/mapchantoX6_CRIB.txt
+@mary.lan.ejungwoo/TexAT2/mapCsIFileName /Users/ejungwoo/data/texat/txtfiles/mapchantoCsI_CRIB.txt
+
+@bell.ejungwoo/TTRootConversionTask/inputFileName  /home/ejungwoo/data/texat/run_0824.dat.19-03-23_23h42m36s.38.root
+@bell.ejungwoo/TexAT2/mapmmFileName  /home/ejungwoo/data/texat/txtfiles/mapchantomm.txt
+@bell.ejungwoo/TexAT2/mapsiFileName  /home/ejungwoo/data/texat/txtfiles/mapchantosi_CRIB.txt
+@bell.ejungwoo/TexAT2/mapX6FileName  /home/ejungwoo/data/texat/txtfiles/mapchantoX6_CRIB.txt
+@bell.ejungwoo/TexAT2/mapCsIFileName /home/ejungwoo/data/texat/txtfiles/mapchantoCsI_CRIB.txt
+
+TTHoughTestTask/HistDataPath e{PWD}/data
