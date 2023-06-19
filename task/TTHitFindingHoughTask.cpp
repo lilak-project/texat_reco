@@ -1,53 +1,43 @@
-#include "TTHoughTestTask.h"
+#include "TTHitFindingHoughTask.h"
 #include "TTEventHeader.h"
 #include "MMChannel.h"
 #include "LKHit.h"
 
-ClassImp(TTHoughTestTask);
+ClassImp(TTHitFindingHoughTask);
 
-TTHoughTestTask::TTHoughTestTask()
+TTHitFindingHoughTask::TTHitFindingHoughTask()
 {
-    fName = "TTHoughTestTask";
+    fName = "TTHitFindingHoughTask";
 }
 
-bool TTHoughTestTask::Init()
+bool TTHitFindingHoughTask::Init()
 {
-    // Put intialization todos here which are not iterative job though event
-    lx_info << "Initializing TTHoughTestTask" << std::endl;
+    lx_info << "Initializing TTHitFindingHoughTask" << std::endl;
 
     fDetector = (TexAT2 *) fRun -> GetDetector();
 
     fEventHeader = fRun -> GetBranchA("EventHeader");
     fChannelArray = fRun -> GetBranchA("RawData");
-
-    fHistDataPath = fPar -> GetParString("TTHoughTestTask/HistDataPath");
+    fHitArray = new TClonesArray("LKHit",200);
 
     timing_dt_xy = new TH2D("timing_dt_xy","Y(vertical) vs Chain location;mmpx;dT(Beam-Chain)",134,0,134,300,-150,150);
     timing_dt_zy = new TH2D("timing_dt_zy","Y(vertical) vs Strip location;mmpy;dT(Beam-Strip)",128,0,128,300,-150,150);
     timing_dt_xz = new TH2D("timing_dt_xz","Chain location vs Strip location;mmpx;mmpy",134,0,134,64,0,128);
 
-    //for(Int_t i=0; i<512; i++) track_px[i] = 9999;
-    //for(Int_t i=0; i<512; i++) track_py[i] = 9999;
-
-    int evt = 0;;
     for(Int_t i=0; i<6; i++)
-        LCWaveFormbyPixel[i] = new TH1D(Form("LCenter%d_%d",i+64,evt),Form("LC%dWaveForm_%d",i+64,evt),2*Beam_er,Bi,Bf);
+        LCWaveFormbyPixel[i] = new TH1D("LCenter","",2*Beam_er,Bi,Bf);
 
     for(Int_t i=0; i<64; i++)
-        HWaveFormbyPixel[i] = new TH1D(Form("H_%d_%d",i,evt),Form("H_%d",evt),512,0,512);
+        HWaveFormbyPixel[i] = new TH1D("HWaveFormbyPixel","",512,0,512);
 
-    HWaveFormbyPixel_temp = new TH1D(Form("H_%dt",evt),Form("H_%dt",evt),512,0,512);
+    HWaveFormbyPixel_temp = new TH1D("HWaveFormbyPixel_temp","",512,0,512);
     Hough_xt = new TH2D("Hough_xt","Hough_xt;theta;radius",1800,0,180,268,-134,134);
-    fhough_xt = new TH2D("fhough_xt","fhough_xt;mmpx;dT(Beam-Chain)",134,0,134,300,-150,150);
     Hough_zt = new TH2D("Hough_zt","Hough_zt;theta;radius",1800,0,180,256,-128,128);
-    fhough_zt = new TH2D("fhough_zt","fhough_zt;mmpx;dT(Beam-Chain)",128,0,128,300,-150,150);
-    fhough_xz = new TH2D("fhough_xz","fhough_xz;mmpx;mmpy",134,0,134,128,0,128);
-    fhough_xz_check = new TH2D("fhough_xz_check","fhough_xz_check;mmpx;mmpy",134,0,134,128,0,128);
 
     return true;
 }
 
-void TTHoughTestTask::Exec(Option_t *option)
+void TTHitFindingHoughTask::Exec(Option_t *option)
 {
     auto header = (TTEventHeader *) fEventHeader -> At(0);
     if (header->GetIsGoodEvent()==false)
@@ -217,7 +207,6 @@ void TTHoughTestTask::Exec(Option_t *option)
     }
     if(num_chain==0) return;
 
-    //TH1D *HWaveFormbyPixel_temp = new TH1D(Form("H_%dt",evt),Form("H_%dt",evt),512,0,512);
     HWaveFormbyPixel_temp -> Reset("ICES");
     HWaveFormbyPixel_temp -> SetNameTitle(Form("H_%dt",evt),Form("H_%dt",evt));
     for(Int_t j=0; j<num_chain; j++) //chain
@@ -233,7 +222,6 @@ void TTHoughTestTask::Exec(Option_t *option)
         }
         HWaveFormbyPixel_temp->Reset();
     }
-    //lx_info << "where?" << endl;
     for(Int_t i=0; i<6; i++)
     {
         ChainT[i] = ChainT[i]/num_chain;
@@ -244,12 +232,7 @@ void TTHoughTestTask::Exec(Option_t *option)
             whereisbeam = i;
         }
     }
-    //lx_info << "where?" << endl;
-    //lx_info << evt << ": " << Timing[whereisbeam]-ChainT[whereisbeam] << " at " << loc_chain << " BT" << endl;
-    //lx_info << "where?" << endl;
 
-
-    // ================================================== Draw Y vs Chain
     Int_t ChainT_all[64]; // [chain]
     for(Int_t j=0; j<64; j++) ChainT_all[j] = 0;
     Int_t loc_chain_all[64];
@@ -312,21 +295,9 @@ void TTHoughTestTask::Exec(Option_t *option)
     for(Int_t i=0; i<num_chain; i++)
     {
         timing_dt_xy -> Fill(loc_chain_all[i],(BeamT-ChainT_all[i]));
-        //BeamT-ChainT_all[i]+256
         track_px[BeamT-ChainT_all[i]+256] = loc_chain_all[i];
-        //lx_info << evt << ": " << BeamT-ChainT_all[i] << " at " << loc_chain_all[i] << endl;
     }
     for(Int_t i=0; i<64; i++) HWaveFormbyPixel[i] -> Reset();
-
-
-    //modify timing_dt_xy
-    //for(Int_t i=0; i<num_chain; i++)
-    //{
-    //    for(Int_t time=-150; time<150; time++)
-    //    {
-    //        if((timing_dt_xy -> ProjectionY() -> GetBinContent(time+151))>3 && (BeamT-ChainT_all[i])==time) ChainT_all[i]=9999;
-    //    }
-    //}
 
     for(Int_t time=-150; time<150; time++)
     {
@@ -342,7 +313,6 @@ void TTHoughTestTask::Exec(Option_t *option)
     }
 
     Double_t rad_xt;
-    //TH2D* Hough_xt = new TH2D("Hough_xt","Hough_xt;theta;radius",1800,0,180,268,-134,134);
     Hough_xt -> Reset("ICES");
     for(Int_t i=0; i<num_chain; i++)
     {
@@ -366,31 +336,16 @@ void TTHoughTestTask::Exec(Option_t *option)
     {
         if((Hough_xt -> ProjectionY("pjy",i,i+1) -> GetMaximum())>=maxbinxt)
         {
-            //numxt++;
             maxbinxt = Hough_xt -> ProjectionY("pjy",i,i+1) -> GetMaximum();
             thetaxt =  Hough_xt -> GetXaxis() -> GetBinCenter(i);
-            //thetaxt = (thetaxt*(numxt-1) + Hough_xt -> GetXaxis() -> GetBinCenter(i))/numxt;
             radxt =  Hough_xt -> GetYaxis() -> GetBinCenter(Hough_xt -> ProjectionY("pjy",i,i+1) -> GetMaximumBin());
-            //radxt = (radxt*(numxt-1) + Hough_xt -> GetYaxis() -> GetBinCenter(Hough_xt -> ProjectionY("pjy",i,i+1) -> GetMaximumBin()))/numxt;
         }
     }
 
-    //lx_info << thetaxt << " " << radxt << endl;
     Double_t tanxt = TMath::Tan(thetaxt*TMath::DegToRad());
     Double_t sinxt = TMath::Sin(thetaxt*TMath::DegToRad());
     Double_t cosxt = TMath::Cos(thetaxt*TMath::DegToRad());
-    //TH2D* fhough_xt = new TH2D("fhough_xt","fhough_xt;mmpx;dT(Beam-Chain)",134,0,134,300,-150,150);
-    fhough_xt -> Reset("ICES");
-    for(Double_t i=-150; i<150; i+=0.1)
-        if(-i*tanxt+radxt*(cosxt+sinxt*tanxt)>0 && -i*tanxt+radxt*(cosxt+sinxt*tanxt)<134)
-            fhough_xt -> Fill(-i*tanxt+radxt*(cosxt+sinxt*tanxt),i);
-    for(Int_t i=0; i<num_chain; i++)
-    {
-        fhough_xt -> Fill(loc_chain_all[i],(BeamT-ChainT_all[i]),100);
-    }
-    // ================================================== Draw Y vs Chain
 
-    // ================================================== Draw Y vs Strip
     Int_t StripT_all[128]; // [strip]
     for(Int_t j=0; j<128; j++) StripT_all[j] = 0;
     Int_t loc_strip_all[128];
@@ -400,7 +355,6 @@ void TTHoughTestTask::Exec(Option_t *option)
 
     while(1)
     {
-        //if(num_strip==1 || whereisx==0 || whereisx==133) break;
         if(whereisz==128) break; //should be changed depend on L/R since R is soooo noisy
         else
         {
@@ -446,17 +400,8 @@ void TTHoughTestTask::Exec(Option_t *option)
     {
         timing_dt_zy -> Fill(loc_strip_all[i],(BeamT-StripT_all[i]));
         track_py[BeamT-StripT_all[i]+256] = loc_strip_all[i];
-        //lx_info << evt << ": " << BeamT-StripT_all[i] << " at " << loc_strip_all[i] << endl;
     }
 
-    //modify timing_dt_zy
-    //for(Int_t i=0; i<num_strip; i++)
-    //{
-    //    for(Int_t time=-150; time<150; time++)
-    //    {
-    //        if((timing_dt_zy -> ProjectionY() -> GetBinContent(time+151))>3 && (BeamT-StripT_all[i])==time) StripT_all[i]=9999;
-    //    }
-    //}
     for(Int_t time=-150; time<150; time++)
     {
         if((timing_dt_zy -> ProjectionY() -> GetBinContent(time+151))>3)
@@ -471,7 +416,6 @@ void TTHoughTestTask::Exec(Option_t *option)
     }
 
     Double_t rad_zt;
-    //TH2D* Hough_zt = new TH2D("Hough_zt","Hough_zt;theta;radius",1800,0,180,256,-128,128);
     Hough_zt -> Reset("ICES");
     for(Int_t i=0; i<num_strip; i++)
     {
@@ -495,34 +439,15 @@ void TTHoughTestTask::Exec(Option_t *option)
     {
         if((Hough_zt -> ProjectionY("pjy",i,i+1) -> GetMaximum())>=maxbinzt)
         {
-            //numzt++;
             maxbinzt = Hough_zt -> ProjectionY("pjy",i,i+1) -> GetMaximum();
             thetazt =  Hough_zt -> GetXaxis() -> GetBinCenter(i);
-            //thetazt = (thetazt*(numzt-1) + Hough_zt -> GetXaxis() -> GetBinCenter(i))/numzt;
             radzt =  Hough_zt -> GetYaxis() -> GetBinCenter(Hough_zt -> ProjectionY("pjy",i,i+1) -> GetMaximumBin());
-            //radzt = (radzt*(numzt-1) + Hough_zt -> GetYaxis() -> GetBinCenter(Hough_zt -> ProjectionY("pjy",i,i+1) -> GetMaximumBin()))/numzt;
         }
     }
 
-    //lx_info << thetazt << " " << radzt << endl;
     Double_t tanzt = TMath::Tan(thetazt*TMath::DegToRad());
     Double_t sinzt = TMath::Sin(thetazt*TMath::DegToRad());
     Double_t coszt = TMath::Cos(thetazt*TMath::DegToRad());
-    //TF1* fhough_zt = new TF1("fhough_zt","[0]*x+[1]",0,128);
-    //fhough_zt -> SetParameter(0,-1/tanzt);
-    //fhough_zt -> SetParameter(1,radzt*(coszt/tanzt+sinzt));
-    //TH2D* fhough_zt = new TH2D("fhough_zt","fhough_zt;mmpx;dT(Beam-Chain)",128,0,128,300,-150,150);
-
-    fhough_zt -> Reset("ICES");
-    for(Double_t i=-150; i<150; i+=0.1)
-        if(-i*tanzt+radzt*(coszt+sinzt*tanzt)>0 && -i*tanzt+radzt*(coszt+sinzt*tanzt)<128)
-            fhough_zt -> Fill(-i*tanzt+radzt*(coszt+sinzt*tanzt),i);
-
-    for(Int_t i=0; i<num_strip; i++)
-    {
-        fhough_zt -> Fill(loc_strip_all[i],(BeamT-StripT_all[i]),100);
-    }
-    // ================================================== Draw Y vs Strip
 
     for(Int_t i=0; i<512; i++)
     {
@@ -535,68 +460,18 @@ void TTHoughTestTask::Exec(Option_t *option)
         }
     }
 
-    //for(Int_t i=0; i<6; i++) LCWaveFormbyPixel[i] -> Delete(); // XXX Why delete?
-    //for(Int_t i=0; i<64; i++) HWaveFormbyPixel[i] -> Delete(); // XXX Why delete?
-
-    //TF1* fhough_xz = new TF1("fhough_xz","[0]*x+[1]",0,134);
-    //fhough_xz -> SetParameter(0,tanxt/tanzt);
-    //fhough_xz -> SetParameter(1,radxt*(-sinxt*tanxt/tanzt - cosxt/tanzt)+radzt*(coszt/tanzt + sinzt));
-    //TH2D* fhough_xz = new TH2D("fhough_xz","fhough_xz;mmpx;mmpy",134,0,134,128,0,128);
-    fhough_xz -> Reset("ICES");
     for(Double_t i=-150; i<150; i+=0.1)
-        if((-i*tanxt+radxt*(cosxt+sinxt*tanxt)>0 && -i*tanxt+radxt*(cosxt+sinxt*tanxt)<134)&&(-i*tanzt+radzt*(coszt+sinzt*tanzt)>0 && -i*tanzt+radzt*(coszt+sinzt*tanzt)<128))
-            fhough_xz -> Fill(-i*tanxt+radxt*(cosxt+sinxt*tanxt),-i*tanzt+radzt*(coszt+sinzt*tanzt));
+        if(  (-i*tanxt+radxt*(cosxt+sinxt*tanxt)>0 && -i*tanxt+radxt*(cosxt+sinxt*tanxt)<134)
+           &&(-i*tanzt+radzt*(coszt+sinzt*tanzt)>0 && -i*tanzt+radzt*(coszt+sinzt*tanzt)<128))
+        {
+            fHitArray -> Get
+            TVector3(-i*tanxt+radxt*(cosxt+sinxt*tanxt),i,-i*tanzt+radzt*(coszt+sinzt*tanzt));
+        }
 
-    //TH2D* fhough_xz_check = new TH2D("fhough_xz_check","fhough_xz_check;mmpx;mmpy",134,0,134,128,0,128);
-    fhough_xz_check -> Reset();
-    for(Double_t i=0; i<134; i+=0.1) fhough_xz_check -> Fill(i,i*(tanzt/tanxt)-radxt*(tanzt*cosxt/tanxt+tanzt*sinxt)+radzt*(coszt+sinzt*tanzt));
-
-    /*
-    TCanvas* cvs_dt = new TCanvas("cvs_dt","cvs_dt",1800,1500);
-    cvs_dt -> Divide(3,3);
-    cvs_dt -> cd(1);
-    timing_dt_xy -> Draw("colz");
-    cvs_dt -> cd(2);
-    timing_dt_zy -> Draw("colz");
-    cvs_dt -> cd(3);
-    timing_dt_xz -> Draw("colz");
-    cvs_dt -> cd(4);
-    //Hough_xt -> Draw("colz");
-    fhough_xt -> Draw("colz");
-    cvs_dt -> cd(5);
-    //Hough_zt -> Draw("colz");
-    fhough_zt -> Draw("colz");
-    cvs_dt -> cd(6);
-    fhough_xz -> Draw("colz");
-    cvs_dt -> cd(7);
-    Hough_xt -> Draw("colz");
-    cvs_dt -> cd(8);
-    Hough_zt -> Draw("colz");
-    cvs_dt -> cd(9);
-    fhough_xz_check -> Draw("colz");
-    cvs_dt -> SaveAs(Form("./drawing/evt%d_track.jpg",evt));
-    */
-
-    TString fileName = Form("%s/%s_%04d_%d.root", fHistDataPath.Data(), fRun->GetRunName().Data(), fRun->GetRunID(), evt);
-    lx_info << "Creating " << fileName << endl;
-    auto file = new TFile(fileName.Data(),"recreate");
-    timing_dt_xy -> Write();
-    timing_dt_zy -> Write();
-    timing_dt_xz -> Write();
-    //for(Int_t i=0; i<6; i++) LCWaveFormbyPixel[i] -> Write();
-    //for(Int_t i=0; i<64; i++) HWaveFormbyPixel[i] -> Write();
-    HWaveFormbyPixel_temp -> Write();
-    Hough_xt  -> Write();
-    fhough_xt -> Write();
-    Hough_zt  -> Write();
-    fhough_zt -> Write();
-    fhough_xz -> Write();
-    fhough_xz_check -> Write();
-
-    lx_info << "TTHoughTestTask" << std::endl;
+    lx_info << "TTHitFindingHoughTask" << std::endl;
 }
 
-bool TTHoughTestTask::EndOfRun()
+bool TTHitFindingHoughTask::EndOfRun()
 {
     return true;
 }
