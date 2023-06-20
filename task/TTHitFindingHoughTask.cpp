@@ -1,6 +1,7 @@
 #include "TTHitFindingHoughTask.h"
 #include "MMChannel.h"
 #include "LKHit.h"
+#include "LKLinearTrack.h"
 
 ClassImp(TTHitFindingHoughTask);
 
@@ -15,10 +16,12 @@ bool TTHitFindingHoughTask::Init()
 
     fDetector = (TexAT2 *) fRun -> GetDetector();
 
-    fEventHeader = (TTEventHeader *) fRun -> GetBranch("EventHeader");
+    fEventHeader  = (TTEventHeader *) fRun -> KeepBranch("EventHeader");
     fChannelArray = fRun -> GetBranchA("RawData");
-    fHitArray = new TClonesArray("LKHit",200);
-    fRun -> RegisterBranch("HoughHit",fHitArray);
+    fHitArray     = fRun -> RegisterBranchA("HoughHit","LKHit",200);
+    fTrackArray   = fRun -> RegisterBranchA("HoughTrack","LKLinearTrack",10);
+
+    fHitFitter = new LKHitArray();
 
     timing_dt_xy = new TH2D("timing_dt_xy","Y(vertical) vs Chain location;mmpx;dT(Beam-Chain)",134,0,134,300,-150,150);
     timing_dt_zy = new TH2D("timing_dt_zy","Y(vertical) vs Strip location;mmpy;dT(Beam-Strip)",128,0,128,300,-150,150);
@@ -39,6 +42,8 @@ bool TTHitFindingHoughTask::Init()
 
 void TTHitFindingHoughTask::Exec(Option_t *option)
 {
+    fEventHeader -> SetIsMMEvent(false);
+
     if (fEventHeader->GetIsGoodEvent()==false)
         return;
 
@@ -179,7 +184,9 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
             continue;
         }
     }
-    if(num_chain==0) return;
+    if(num_chain==0) {
+        return;
+    }
 
     HWaveFormbyPixel_temp -> Reset("ICES");
     for(Int_t j=0; j<num_chain; j++) //chain
@@ -250,7 +257,9 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
             continue;
         }
     }
-    if(num_chain==0) return;
+    if(num_chain==0) {
+        return;
+    }
 
     Int_t evt = fRun -> GetCurrentEventID();
     for(Int_t j=0; j<num_chain; j++) //chain
@@ -358,7 +367,9 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
             continue;
         }
     }
-    if(num_strip==0) return;
+    if(num_strip==0) {
+        return;
+    }
 
     for(Int_t j=0; j<num_strip; j++) //strip
     {
@@ -434,21 +445,38 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
         }
     }
 
+    fHitFitter -> Clear();
+
     int countHits = 0;
     for(Double_t i=-150; i<150; i+=0.1) {
         if(  (-i*tanxt+radxt*(cosxt+sinxt*tanxt)>0 && -i*tanxt+radxt*(cosxt+sinxt*tanxt)<134)
            &&(-i*tanzt+radzt*(coszt+sinzt*tanzt)>0 && -i*tanzt+radzt*(coszt+sinzt*tanzt)<128))
         {
             auto hit = (LKHit *) fHitArray -> ConstructedAt(countHits++);
-            //lk_debug << -i*tanxt+radxt*(cosxt+sinxt*tanxt) << " " << i << " " << -i*tanzt+radzt*(coszt+sinzt*tanzt) << endl;
             hit -> SetPosition(-i*tanxt+radxt*(cosxt+sinxt*tanxt),i,-i*tanzt+radzt*(coszt+sinzt*tanzt));
+            fHitFitter -> AddHit(hit);
         }
     }
+
+    auto track = (LKLinearTrack *) fTrackArray -> ConstructedAt(0);
+    auto line = fHitFitter -> FitLine();
+    track -> SetLine(&line);
+
+    fEventHeader -> SetIsMMEvent(true);
 
     lx_info << "TTHitFindingHoughTask" << std::endl;
 }
 
 bool TTHitFindingHoughTask::EndOfRun()
 {
+    for (auto iEvent=0; iEvent<100; ++iEvent) {
+        lk_debug << iEvent << endl;
+        fRun -> GetEvent(iEvent);
+        if (fEventHeader->GetIsMMEvent()==false)
+            continue;
+        auto track = (LKLinearTrack *) fTrackArray -> At(0);
+        track -> Print();
+    }
+
     return true;
 }

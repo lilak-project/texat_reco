@@ -44,6 +44,7 @@ class TTEventHeader : public LKContainer
         void Copy(TObject &object) const;
 
         bool GetIsGoodEvent() const  { return fIsGoodEvent; }
+        bool GetIsMMEvent() const  { return fIsMMEvent; }
         Int_t GetSiBLR() const  { return fSiBLR; }
         Int_t GetSiLhit() const  { return fsiLhit; }
         Int_t GetSiRhit() const  { return fsiRhit; }
@@ -52,6 +53,7 @@ class TTEventHeader : public LKContainer
         Int_t GetX6Rhit() const  { return fX6Rhit; }
 
         void SetIsGoodEvent(bool isGoodEvent) { fIsGoodEvent = isGoodEvent; }
+        void SetIsMMEvent(bool isMMEvent) { fIsMMEvent = isMMEvent; }
         void SetSiBLR(Int_t SiBLR) { fSiBLR = SiBLR; }
         void SetSiLhit(Int_t siLhit) { fsiLhit = siLhit; }
         void SetSiRhit(Int_t siRhit) { fsiRhit = siRhit; }
@@ -59,7 +61,8 @@ class TTEventHeader : public LKContainer
         void SetX6Lhit(Int_t X6Lhit) { fX6Lhit = X6Lhit; }
         void SetX6Rhit(Int_t X6Rhit) { fX6Rhit = X6Rhit; }
 
-        bool         fIsGoodEvent = true;
+        bool         fIsGoodEvent = false;
+        bool         fIsMMEvent = false;
         Int_t        fSiBLR = -1;
         Int_t        fsiLhit = -1;
         Int_t        fsiRhit = -1;

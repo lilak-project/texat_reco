@@ -6,6 +6,7 @@
 #include "LKParameterContainer.h"
 #include "LKRun.h"
 #include "LKTask.h"
+#include "LKHitArray.h"
 #include "TexAT2.h"
 #include "TTEventHeader.h"
 
@@ -36,9 +37,12 @@ class TTHitFindingHoughTask : public LKTask
     private:
         TexAT2 *fDetector = nullptr;
 
-        TTEventHeader *fEventHeader = nullptr;
-        TClonesArray *fChannelArray = nullptr;
-        TClonesArray *fHitArray = nullptr;
+        TTEventHeader* fEventHeader = nullptr;
+        TClonesArray* fChannelArray = nullptr;
+        TClonesArray* fHitArray = nullptr;
+        TClonesArray* fTrackArray = nullptr;
+
+        LKHitArray* fHitFitter;
 
         TString fHistDataPath;
 

@@ -10,7 +10,8 @@ TTEventHeader::TTEventHeader()
 void TTEventHeader::Clear(Option_t *option)
 {
     LKContainer::Clear(option);
-    fIsGoodEvent = true;
+    fIsGoodEvent = false;
+    fIsMMEvent = false;
     fSiBLR = -1;
     fsiLhit = -1;
     fsiRhit = -1;
@@ -22,15 +23,15 @@ void TTEventHeader::Clear(Option_t *option)
 void TTEventHeader::Print(Option_t *option) const
 {
     // You will probability need to modify here
-    LKContainer::Print();
-    lx_info << "TTEventHeader container" << std::endl;
-    lx_info << "fIsGoodEvent : " << fIsGoodEvent << std::endl;
-    lx_info << "SiBLR : " << fSiBLR << std::endl;
-    lx_info << "siLhit : " << fsiLhit << std::endl;
-    lx_info << "siRhit : " << fsiRhit << std::endl;
-    lx_info << "siChit : " << fsiChit << std::endl;
-    lx_info << "X6Lhit : " << fX6Lhit << std::endl;
-    lx_info << "X6Rhit : " << fX6Rhit << std::endl;
+    lx_info << "good mm B / L R C / XL XR :"
+        << " " << fIsGoodEvent
+        << " " << fIsMMEvent
+        << " " << fSiBLR
+        << " / " << fsiLhit
+        << " " << fsiRhit
+        << " " << fsiChit
+        << " / " << fX6Lhit
+        << " " << fX6Rhit << std::endl;
 }
 
 void TTEventHeader::Copy(TObject &object) const
@@ -39,6 +40,7 @@ void TTEventHeader::Copy(TObject &object) const
     LKContainer::Copy(object);
     auto objCopy = (TTEventHeader &) object;
     objCopy.SetIsGoodEvent(fIsGoodEvent);
+    objCopy.SetIsMMEvent(fIsMMEvent);
     objCopy.SetSiBLR(fSiBLR);
     objCopy.SetSiLhit(fsiLhit);
     objCopy.SetSiRhit(fsiRhit);
