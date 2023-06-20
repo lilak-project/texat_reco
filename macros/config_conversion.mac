@@ -1,5 +1,7 @@
 *LKRun/RunName texat 824 raw
 
+HoughHit/persistency true
+HoughTrack/persistency true
 RawData/persistency true
 Hit/persistency true
 

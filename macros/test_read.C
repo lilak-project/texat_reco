@@ -1,10 +1,9 @@
-void test_read(TString inputFileName = "/Users/ejungwoo/lilak/data/texat_0824.raw.master.44.41dbcda.root")
+void test_read()
 {
     auto run = new LKRun();
-    run -> AddInputFile(inputFileName);
+    run -> AddInputFile("data/texat_0824.raw.master.44.41dbcda.root");
     run -> SetTag("read");
     run -> Init();
-    run -> Print();
 
     auto headerArray = run -> GetBranchA("EventHeader");
     auto channelArray = run -> GetBranchA("RawData");
