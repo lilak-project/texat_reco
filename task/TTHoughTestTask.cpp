@@ -1,5 +1,4 @@
 #include "TTHoughTestTask.h"
-#include "TTEventHeader.h"
 #include "MMChannel.h"
 #include "LKHit.h"
 
@@ -17,7 +16,7 @@ bool TTHoughTestTask::Init()
 
     fDetector = (TexAT2 *) fRun -> GetDetector();
 
-    fEventHeader = fRun -> GetBranchA("EventHeader");
+    fEventHeader = (TTEventHeader *) fRun -> GetBranch("EventHeader");
     fChannelArray = fRun -> GetBranchA("RawData");
 
     fHistDataPath = fPar -> GetParString("TTHoughTestTask/HistDataPath");
@@ -49,8 +48,7 @@ bool TTHoughTestTask::Init()
 
 void TTHoughTestTask::Exec(Option_t *option)
 {
-    auto header = (TTEventHeader *) fEventHeader -> At(0);
-    if (header->GetIsGoodEvent()==false)
+    if (fEventHeader->GetIsGoodEvent()==false)
         return;
 
     Int_t evt = fRun -> GetCurrentEventID();
@@ -69,7 +67,7 @@ void TTHoughTestTask::Exec(Option_t *option)
         HWaveFormbyPixel[i] -> SetNameTitle(Form("H_%d_%d",i,evt),Form("H_%d",evt));
     }
 
-    auto SiBLR = header -> GetSiBLR();
+    auto SiBLR = fEventHeader -> GetSiBLR();
 
     //char side[16];
     Int_t whichtype[2];
@@ -298,16 +296,16 @@ void TTHoughTestTask::Exec(Option_t *option)
 
     for(Int_t j=0; j<num_chain; j++) //chain
     {
-        HWaveFormbyPixel_temp = (TH1D*) HWaveFormbyPixel[j] -> Clone(Form("H_temp_%d_%d",j,evt));
-        if(strcmp(updown,"Up")==0) HWaveFormbyPixel_temp -> GetXaxis() -> SetRange(BeamT-Bw,BeamT);
-        else if(strcmp(updown,"Down")==0) HWaveFormbyPixel_temp -> GetXaxis() -> SetRange(BeamT,BeamT+Bw);
+        //HWaveFormbyPixel_temp = (TH1D*) HWaveFormbyPixel[j] -> Clone(Form("H_temp_%d_%d",j,evt));
+             if(strcmp(updown,"Up"  )==0) HWaveFormbyPixel[j] -> GetXaxis() -> SetRange(BeamT-Bw,BeamT);
+        else if(strcmp(updown,"Down")==0) HWaveFormbyPixel[j] -> GetXaxis() -> SetRange(BeamT,BeamT+Bw);
 
-        ChainT_all[j] = HWaveFormbyPixel_temp -> GetMaximumBin();
+        ChainT_all[j] = HWaveFormbyPixel[j] -> GetMaximumBin();
         if(BeamT==0)
         {
             ChainT_all[j] = 0;
         }
-        HWaveFormbyPixel_temp->Reset();
+        //HWaveFormbyPixel_temp->Reset();
     }
     for(Int_t i=0; i<num_chain; i++)
     {
@@ -434,13 +432,13 @@ void TTHoughTestTask::Exec(Option_t *option)
 
     for(Int_t j=0; j<num_strip; j++) //strip
     {
-        HWaveFormbyPixel_temp = (TH1D*) HWaveFormbyPixel[j] -> Clone();
-        if(strcmp(updown,"Up")==0) HWaveFormbyPixel_temp -> GetXaxis() -> SetRange(BeamT-Bw,BeamT);
-        else if(strcmp(updown,"Down")==0) HWaveFormbyPixel_temp -> GetXaxis() -> SetRange(BeamT,BeamT+Bw);
+        //HWaveFormbyPixel_temp = (TH1D*) HWaveFormbyPixel[j] -> Clone();
+             if(strcmp(updown,"Up"  )==0) HWaveFormbyPixel[j] -> GetXaxis() -> SetRange(BeamT-Bw,BeamT);
+        else if(strcmp(updown,"Down")==0) HWaveFormbyPixel[j] -> GetXaxis() -> SetRange(BeamT,BeamT+Bw);
 
-        StripT_all[j] = HWaveFormbyPixel_temp -> GetMaximumBin();
+        StripT_all[j] = HWaveFormbyPixel[j] -> GetMaximumBin();
         if(BeamT==0) StripT_all[j] = 0;
-        HWaveFormbyPixel_temp->Reset();
+        //HWaveFormbyPixel_temp->Reset();
     }
     for(Int_t i=0; i<num_strip; i++)
     {

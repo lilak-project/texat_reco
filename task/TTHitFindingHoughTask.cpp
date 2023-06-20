@@ -1,5 +1,4 @@
 #include "TTHitFindingHoughTask.h"
-#include "TTEventHeader.h"
 #include "MMChannel.h"
 #include "LKHit.h"
 
@@ -16,19 +15,20 @@ bool TTHitFindingHoughTask::Init()
 
     fDetector = (TexAT2 *) fRun -> GetDetector();
 
-    fEventHeader = fRun -> GetBranchA("EventHeader");
+    fEventHeader = (TTEventHeader *) fRun -> GetBranch("EventHeader");
     fChannelArray = fRun -> GetBranchA("RawData");
     fHitArray = new TClonesArray("LKHit",200);
+    fRun -> RegisterBranch("HoughHit",fHitArray);
 
     timing_dt_xy = new TH2D("timing_dt_xy","Y(vertical) vs Chain location;mmpx;dT(Beam-Chain)",134,0,134,300,-150,150);
     timing_dt_zy = new TH2D("timing_dt_zy","Y(vertical) vs Strip location;mmpy;dT(Beam-Strip)",128,0,128,300,-150,150);
     timing_dt_xz = new TH2D("timing_dt_xz","Chain location vs Strip location;mmpx;mmpy",134,0,134,64,0,128);
 
     for(Int_t i=0; i<6; i++)
-        LCWaveFormbyPixel[i] = new TH1D("LCenter","",2*Beam_er,Bi,Bf);
+        LCWaveFormbyPixel[i] = new TH1D(Form("LCenter%d",i),"",2*Beam_er,Bi,Bf);
 
     for(Int_t i=0; i<64; i++)
-        HWaveFormbyPixel[i] = new TH1D("HWaveFormbyPixel","",512,0,512);
+        HWaveFormbyPixel[i] = new TH1D(Form("HWaveFormbyPixel%d",i),"",512,0,512);
 
     HWaveFormbyPixel_temp = new TH1D("HWaveFormbyPixel_temp","",512,0,512);
     Hough_xt = new TH2D("Hough_xt","Hough_xt;theta;radius",1800,0,180,268,-134,134);
@@ -39,11 +39,8 @@ bool TTHitFindingHoughTask::Init()
 
 void TTHitFindingHoughTask::Exec(Option_t *option)
 {
-    auto header = (TTEventHeader *) fEventHeader -> At(0);
-    if (header->GetIsGoodEvent()==false)
+    if (fEventHeader->GetIsGoodEvent()==false)
         return;
-
-    Int_t evt = fRun -> GetCurrentEventID();
 
     timing_dt_xy -> Reset("ICES");
     timing_dt_zy -> Reset("ICES");
@@ -52,26 +49,22 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
     for(Int_t i=0; i<512; i++) track_py[i] = 9999;
     for(Int_t i=0; i<6; i++) {
         LCWaveFormbyPixel[i] -> Reset("ICES");
-        LCWaveFormbyPixel[i] -> SetNameTitle(Form("LCenter%d_%d",i+64,evt),Form("LC%dWaveForm_%d",i+64,evt));
     }
     for(Int_t i=0; i<64; i++) {
         HWaveFormbyPixel[i] -> Reset("ICES");
-        HWaveFormbyPixel[i] -> SetNameTitle(Form("H_%d_%d",i,evt),Form("H_%d",evt));
     }
 
-    auto SiBLR = header -> GetSiBLR();
+    auto SiBLR = fEventHeader -> GetSiBLR();
 
     //char side[16];
     Int_t whichtype[2];
     if(SiBLR==0)
     {
-        //strcpy(side, "Left");
         whichtype[0] = 0;
         whichtype[1] = 2;
     }
     else if(SiBLR==1)
     {
-        //strcpy(side, "Right");
         whichtype[0] = 1;
         whichtype[1] = 3;
     }
@@ -84,11 +77,6 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
     for(Int_t iChannel=0; iChannel<mmMult; iChannel++)
     {
         auto channel = (MMChannel *) fChannelArray -> At(iChannel);
-        //auto fameNo = channel -> GetFrameNo();
-        //auto decayNo = channel -> GetDecayNo();
-        //auto mmTime = channel -> GetTime();
-        //auto energy = channel -> GetEnergy();
-        //Int_t *waveformX = channel -> GetWaveformX();
         Int_t chan = channel -> GetChan();
         Int_t dchan = channel -> GetDChan();
         Int_t mmCobo = channel -> GetCobo();
@@ -132,20 +120,7 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
                 }
             }
         }
-        strcpy(updown, "Down"); //just for temp.
-                                //if(mmCobo==1 && !(chan==11 || chan==22 || chan==45 || chan==56))
-                                //{
-                                //    if(fType[1][mmAsad][mmAget][chan]==6)
-                                //    {
-                                //	if(mmAsad==0 && mmAget==0) fchan =
-                                //	chan;
-                                //	if(mmAsad==0 && mmAget==1)
-                                //	{
-                                //	    if((chan%2)==0) strcpy(updown, "Up");
-                                //	    else if((chan%2)==1) strcpy(updown, "Down");
-                                //	}
-                                //    }
-                                //}
+        strcpy(updown, "Down");
     }
 
     // ================================================== Beam candidates timing
@@ -195,7 +170,6 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
                 if(mmpx==whereisx && !(chan==11 || chan==22 || chan==45 || chan==56))
                 {
                     for(Int_t buck=0; buck<MaxBuck; buck++) HWaveFormbyPixel[num_chain] -> Fill(buck,mmWaveformY[buck]);
-                    HWaveFormbyPixel[num_chain] -> SetTitle(Form("H%d_%d_%d_%d/%d/%d",mmCobo,mmAsad,mmAget,dchan,mmpx,evt));
                     if(num_chain==0) loc_chain = mmpx;
                     num_chain++;
                     continue;
@@ -208,7 +182,6 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
     if(num_chain==0) return;
 
     HWaveFormbyPixel_temp -> Reset("ICES");
-    HWaveFormbyPixel_temp -> SetNameTitle(Form("H_%dt",evt),Form("H_%dt",evt));
     for(Int_t j=0; j<num_chain; j++) //chain
     {
         HWaveFormbyPixel_temp = (TH1D*) HWaveFormbyPixel[j] -> Clone();
@@ -279,18 +252,19 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
     }
     if(num_chain==0) return;
 
+    Int_t evt = fRun -> GetCurrentEventID();
     for(Int_t j=0; j<num_chain; j++) //chain
     {
-        HWaveFormbyPixel_temp = (TH1D*) HWaveFormbyPixel[j] -> Clone(Form("H_temp_%d_%d",j,evt));
-        if(strcmp(updown,"Up")==0) HWaveFormbyPixel_temp -> GetXaxis() -> SetRange(BeamT-Bw,BeamT);
-        else if(strcmp(updown,"Down")==0) HWaveFormbyPixel_temp -> GetXaxis() -> SetRange(BeamT,BeamT+Bw);
+        //HWaveFormbyPixel_temp = (TH1D*) HWaveFormbyPixel[j] -> Clone(Form("H_temp_%d_%d",j,evt));
+             if(strcmp(updown,"Up"  )==0) HWaveFormbyPixel[j] -> GetXaxis() -> SetRange(BeamT-Bw,BeamT);
+        else if(strcmp(updown,"Down")==0) HWaveFormbyPixel[j] -> GetXaxis() -> SetRange(BeamT,BeamT+Bw);
 
-        ChainT_all[j] = HWaveFormbyPixel_temp -> GetMaximumBin();
+        ChainT_all[j] = HWaveFormbyPixel[j] -> GetMaximumBin();
         if(BeamT==0)
         {
             ChainT_all[j] = 0;
         }
-        HWaveFormbyPixel_temp->Reset();
+        //HWaveFormbyPixel_temp->Reset();
     }
     for(Int_t i=0; i<num_chain; i++)
     {
@@ -388,13 +362,13 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
 
     for(Int_t j=0; j<num_strip; j++) //strip
     {
-        HWaveFormbyPixel_temp = (TH1D*) HWaveFormbyPixel[j] -> Clone();
-        if(strcmp(updown,"Up")==0) HWaveFormbyPixel_temp -> GetXaxis() -> SetRange(BeamT-Bw,BeamT);
-        else if(strcmp(updown,"Down")==0) HWaveFormbyPixel_temp -> GetXaxis() -> SetRange(BeamT,BeamT+Bw);
+        //HWaveFormbyPixel_temp = (TH1D*) HWaveFormbyPixel[j] -> Clone();
+             if(strcmp(updown,"Up"  )==0) HWaveFormbyPixel[j] -> GetXaxis() -> SetRange(BeamT-Bw,BeamT);
+        else if(strcmp(updown,"Down")==0) HWaveFormbyPixel[j] -> GetXaxis() -> SetRange(BeamT,BeamT+Bw);
 
-        StripT_all[j] = HWaveFormbyPixel_temp -> GetMaximumBin();
+        StripT_all[j] = HWaveFormbyPixel[j] -> GetMaximumBin();
         if(BeamT==0) StripT_all[j] = 0;
-        HWaveFormbyPixel_temp->Reset();
+        //HWaveFormbyPixel_temp->Reset();
     }
     for(Int_t i=0; i<num_strip; i++)
     {
@@ -460,13 +434,16 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
         }
     }
 
-    for(Double_t i=-150; i<150; i+=0.1)
+    int countHits = 0;
+    for(Double_t i=-150; i<150; i+=0.1) {
         if(  (-i*tanxt+radxt*(cosxt+sinxt*tanxt)>0 && -i*tanxt+radxt*(cosxt+sinxt*tanxt)<134)
            &&(-i*tanzt+radzt*(coszt+sinzt*tanzt)>0 && -i*tanzt+radzt*(coszt+sinzt*tanzt)<128))
         {
-            fHitArray -> Get
-            TVector3(-i*tanxt+radxt*(cosxt+sinxt*tanxt),i,-i*tanzt+radzt*(coszt+sinzt*tanzt));
+            auto hit = (LKHit *) fHitArray -> ConstructedAt(countHits++);
+            //lk_debug << -i*tanxt+radxt*(cosxt+sinxt*tanxt) << " " << i << " " << -i*tanzt+radzt*(coszt+sinzt*tanzt) << endl;
+            hit -> SetPosition(-i*tanxt+radxt*(cosxt+sinxt*tanxt),i,-i*tanzt+radzt*(coszt+sinzt*tanzt));
         }
+    }
 
     lx_info << "TTHitFindingHoughTask" << std::endl;
 }

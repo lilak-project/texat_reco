@@ -1,6 +1,5 @@
 #include "TTRootConversionTask.h"
 #include "MMChannel.h"
-#include "TTEventHeader.h"
 
 ClassImp(TTRootConversionTask);
 
@@ -18,7 +17,7 @@ bool TTRootConversionTask::Init()
 
     fInputFileName = fPar -> GetParString("TTRootConversionTask/inputFileName");
 
-    fEventHeader = new TClonesArray("TTEventHeader",1);
+    fEventHeader = new TTEventHeader();
     fRun -> RegisterBranch("EventHeader", fEventHeader);
 
     fChannelArray = new TClonesArray("MMChannel",200);
@@ -90,23 +89,22 @@ void TTRootConversionTask::Exec(Option_t *option)
     else if(siChit==2) SiBLR=2;
     else SiBLR = 9;
 
-    auto header = (TTEventHeader*) fEventHeader -> ConstructedAt(0);
-    header -> SetSiLhit(siLhit);
-    header -> SetSiRhit(siRhit);
-    header -> SetSiChit(siChit);
-    header -> SetX6Lhit(X6Lhit);
-    header -> SetX6Rhit(X6Rhit);
-    header -> SetSiBLR(SiBLR);
+    fEventHeader -> SetSiLhit(siLhit);
+    fEventHeader -> SetSiRhit(siRhit);
+    fEventHeader -> SetSiChit(siChit);
+    fEventHeader -> SetX6Lhit(X6Lhit);
+    fEventHeader -> SetX6Rhit(X6Rhit);
+    fEventHeader -> SetSiBLR(SiBLR);
 
     if (SiBLR==9)  {
         lk_info << "TTRootConversionTask: Bad Event! "
             << Form("siL: %d | siR: %d | siC: %d | X6L: %d | X6R: %d  ->  %d", siLhit, siRhit, siChit, X6Lhit, X6Rhit, SiBLR)
             << std::endl;
-        header -> SetIsGoodEvent(false);
+        fEventHeader -> SetIsGoodEvent(false);
         return;
     }
 
-    header -> SetIsGoodEvent(true);
+    fEventHeader -> SetIsGoodEvent(true);
 
     for (int iChannel = 0; iChannel < fmmMult; ++iChannel)
     {

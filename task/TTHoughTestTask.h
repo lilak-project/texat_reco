@@ -7,6 +7,7 @@
 #include "LKRun.h"
 #include "LKTask.h"
 #include "TexAT2.h"
+#include "TTEventHeader.h"
 
 /*
  * Remove this comment block after reading it through
@@ -35,7 +36,7 @@ class TTHoughTestTask : public LKTask
     private:
         TexAT2 *fDetector = nullptr;
 
-        TClonesArray *fEventHeader = nullptr;
+        TTEventHeader *fEventHeader = nullptr;
         TClonesArray *fChannelArray = nullptr;
 
         TString fHistDataPath;
