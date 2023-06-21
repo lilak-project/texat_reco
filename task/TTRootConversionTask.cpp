@@ -17,11 +17,8 @@ bool TTRootConversionTask::Init()
 
     fInputFileName = fPar -> GetParString("TTRootConversionTask/inputFileName");
 
-    fEventHeader = new TTEventHeader();
-    fRun -> RegisterBranch("EventHeader", fEventHeader);
-
-    fChannelArray = new TClonesArray("MMChannel",200);
-    fRun -> RegisterBranch("RawData", fChannelArray);
+    fEventHeaderArray = fRun -> RegisterBranchA("EventHeader", "TTEventHeader", 1);
+    fChannelArray = fRun -> RegisterBranchA("RawData", "MMChannel", 200);
 
     lk_info << "Input file is " << fInputFileName << endl;
     fInputFile = new TFile(fInputFileName, "read");
@@ -89,22 +86,23 @@ void TTRootConversionTask::Exec(Option_t *option)
     else if(siChit==2) SiBLR=2;
     else SiBLR = 9;
 
-    fEventHeader -> SetSiLhit(siLhit);
-    fEventHeader -> SetSiRhit(siRhit);
-    fEventHeader -> SetSiChit(siChit);
-    fEventHeader -> SetX6Lhit(X6Lhit);
-    fEventHeader -> SetX6Rhit(X6Rhit);
-    fEventHeader -> SetSiBLR(SiBLR);
+    auto eventHeader = (TTEventHeader *) fEventHeaderArray -> ConstructedAt(0);
+    eventHeader -> SetSiLhit(siLhit);
+    eventHeader -> SetSiRhit(siRhit);
+    eventHeader -> SetSiChit(siChit);
+    eventHeader -> SetX6Lhit(X6Lhit);
+    eventHeader -> SetX6Rhit(X6Rhit);
+    eventHeader -> SetSiBLR(SiBLR);
 
     if (SiBLR==9)  {
         lk_info << "TTRootConversionTask: Bad Event! "
             << Form("siL: %d | siR: %d | siC: %d | X6L: %d | X6R: %d  ->  %d", siLhit, siRhit, siChit, X6Lhit, X6Rhit, SiBLR)
             << std::endl;
-        fEventHeader -> SetIsGoodEvent(false);
+        eventHeader -> SetIsGoodEvent(false);
         return;
     }
 
-    fEventHeader -> SetIsGoodEvent(true);
+    eventHeader -> SetIsGoodEvent(true);
 
     for (int iChannel = 0; iChannel < fmmMult; ++iChannel)
     {

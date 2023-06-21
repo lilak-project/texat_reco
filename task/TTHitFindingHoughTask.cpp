@@ -16,7 +16,7 @@ bool TTHitFindingHoughTask::Init()
 
     fDetector = (TexAT2 *) fRun -> GetDetector();
 
-    fEventHeader  = (TTEventHeader *) fRun -> KeepBranch("EventHeader");
+    fEventHeaderArray = fRun -> KeepBranchA("EventHeader");
     fChannelArray = fRun -> GetBranchA("RawData");
     fHitArray     = fRun -> RegisterBranchA("HoughHit","LKHit",200);
     fTrackArray   = fRun -> RegisterBranchA("HoughTrack","LKLinearTrack",10);
@@ -42,9 +42,10 @@ bool TTHitFindingHoughTask::Init()
 
 void TTHitFindingHoughTask::Exec(Option_t *option)
 {
-    fEventHeader -> SetIsMMEvent(false);
+    auto eventHeader = (TTEventHeader *) fEventHeaderArray -> At(0);
+    eventHeader -> SetIsMMEvent(false);
 
-    if (fEventHeader->GetIsGoodEvent()==false)
+    if (eventHeader->GetIsGoodEvent()==false)
         return;
 
     timing_dt_xy -> Reset("ICES");
@@ -59,7 +60,7 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
         HWaveFormbyPixel[i] -> Reset("ICES");
     }
 
-    auto SiBLR = fEventHeader -> GetSiBLR();
+    auto SiBLR = eventHeader -> GetSiBLR();
 
     //char side[16];
     Int_t whichtype[2];
@@ -98,30 +99,12 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
             {
                 if(mmpy<64)
                 {
-                    if(mmpx==64)
-                    {
-                        for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[0] -> Fill(buck,mmWaveformY[buck]);
-                    }
-                    else if(mmpx==65)
-                    {
-                        for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[1] -> Fill(buck,mmWaveformY[buck]);
-                    }
-                    else if(mmpx==66)
-                    {
-                        for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[2] -> Fill(buck,mmWaveformY[buck]);
-                    }
-                    else if(mmpx==67)
-                    {
-                        for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[3] -> Fill(buck,mmWaveformY[buck]);
-                    }
-                    else if(mmpx==68)
-                    {
-                        for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[4] -> Fill(buck,mmWaveformY[buck]);
-                    }
-                    else if(mmpx==69)
-                    {
-                        for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[5] -> Fill(buck,mmWaveformY[buck]);
-                    }
+                         if(mmpx==64) { for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[0] -> Fill(buck,mmWaveformY[buck]); }
+                    else if(mmpx==65) { for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[1] -> Fill(buck,mmWaveformY[buck]); }
+                    else if(mmpx==66) { for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[2] -> Fill(buck,mmWaveformY[buck]); }
+                    else if(mmpx==67) { for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[3] -> Fill(buck,mmWaveformY[buck]); }
+                    else if(mmpx==68) { for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[4] -> Fill(buck,mmWaveformY[buck]); }
+                    else if(mmpx==69) { for(Int_t buck=Bi; buck<Bf; buck++) LCWaveFormbyPixel[5] -> Fill(buck,mmWaveformY[buck]); }
                 }
             }
         }
@@ -445,7 +428,8 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
         }
     }
 
-    fHitFitter -> Clear();
+
+    //auto track = (LKLinearTrack *) fTrackArray -> ConstructedAt(0);
 
     int countHits = 0;
     for(Double_t i=-150; i<150; i+=0.1) {
@@ -453,17 +437,20 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
            &&(-i*tanzt+radzt*(coszt+sinzt*tanzt)>0 && -i*tanzt+radzt*(coszt+sinzt*tanzt)<128))
         {
             auto hit = (LKHit *) fHitArray -> ConstructedAt(countHits++);
-            hit -> SetPosition(-i*tanxt+radxt*(cosxt+sinxt*tanxt),i,-i*tanzt+radzt*(coszt+sinzt*tanzt));
-            fHitFitter -> AddHit(hit);
+            hit -> SetPosition(
+            -i*tanxt+radxt*(cosxt+sinxt*tanxt),
+            i,
+            -i*tanzt+radzt*(coszt+sinzt*tanzt));
+            //track -> AddHit(hit);
         }
     }
 
-    auto track = (LKLinearTrack *) fTrackArray -> ConstructedAt(0);
-    auto line = fHitFitter -> FitLine();
-    track -> SetLine(&line);
+    //track -> Print();
+    //track -> Fit();
+    //track -> Print();
 
-    fEventHeader -> SetIsMMEvent(true);
-    fEventHeader -> Print();
+    eventHeader -> SetIsMMEvent(true);
+    eventHeader -> Print();
 
     lk_info << "TTHitFindingHoughTask" << std::endl;
 }

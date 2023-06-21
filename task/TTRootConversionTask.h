@@ -37,8 +37,8 @@ class TTRootConversionTask : public LKTask
     private:
         TexAT2 *fDetector = nullptr;
 
-        TTEventHeader *fEventHeader = nullptr;
-        TClonesArray *fChannelArray = nullptr;
+        TClonesArray* fEventHeaderArray = nullptr;
+        TClonesArray* fChannelArray = nullptr;
 
         TString      fInputFileName;
         TFile*       fInputFile;

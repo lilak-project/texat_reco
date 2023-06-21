@@ -37,7 +37,7 @@ class TTHitFindingHoughTask : public LKTask
     private:
         TexAT2 *fDetector = nullptr;
 
-        TTEventHeader* fEventHeader = nullptr;
+        TClonesArray* fEventHeaderArray = nullptr;
         TClonesArray* fChannelArray = nullptr;
         TClonesArray* fHitArray = nullptr;
         TClonesArray* fTrackArray = nullptr;
