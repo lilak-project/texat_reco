@@ -23,7 +23,7 @@ void TTEventHeader::Clear(Option_t *option)
 void TTEventHeader::Print(Option_t *option) const
 {
     // You will probability need to modify here
-    lx_info << "good mm B / L R C / XL XR :"
+    e_info << "good mm B / L R C / XL XR :"
         << " " << fIsGoodEvent
         << " " << fIsMMEvent
         << " " << fSiBLR

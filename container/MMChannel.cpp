@@ -26,18 +26,18 @@ void MMChannel::Clear(Option_t *option)
 void MMChannel::Print(Option_t *option) const
 {
     // You will probability need to modify here
-    lx_info << "MMChannel container" << std::endl;
-    lx_info << "fFrameNo : " << fFrameNo << std::endl;
-    lx_info << "fDecayNo : " << fDecayNo << std::endl;
-    lx_info << "fCobo : " << fCobo << std::endl;
-    lx_info << "fAsad : " << fAsad << std::endl;
-    lx_info << "fAget : " << fAget << std::endl;
-    lx_info << "fChan : " << fChan << std::endl;
-    lx_info << "fDChan : " << fDChan << std::endl;
-    lx_info << "fTime : " << fTime << std::endl;
-    lx_info << "fEnergy : " << fEnergy << std::endl;
-    for (auto i=0; i<512; ++i) lx_cout << fWaveformX[i] << " "; lx_cout << std::endl;
-    for (auto i=0; i<512; ++i) lx_cout << fWaveformY[i] << " "; lx_cout << std::endl;
+    e_info << "MMChannel container" << std::endl;
+    e_info << "fFrameNo : " << fFrameNo << std::endl;
+    e_info << "fDecayNo : " << fDecayNo << std::endl;
+    e_info << "fCobo : " << fCobo << std::endl;
+    e_info << "fAsad : " << fAsad << std::endl;
+    e_info << "fAget : " << fAget << std::endl;
+    e_info << "fChan : " << fChan << std::endl;
+    e_info << "fDChan : " << fDChan << std::endl;
+    e_info << "fTime : " << fTime << std::endl;
+    e_info << "fEnergy : " << fEnergy << std::endl;
+    for (auto i=0; i<512; ++i) e_cout << fWaveformX[i] << " "; e_cout << std::endl;
+    for (auto i=0; i<512; ++i) e_cout << fWaveformY[i] << " "; e_cout << std::endl;
 }
 
 void MMChannel::Copy(TObject &object) const
