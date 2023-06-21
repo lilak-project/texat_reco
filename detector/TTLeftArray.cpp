@@ -12,7 +12,7 @@ TTLeftArray::TTLeftArray()
 bool TTLeftArray::Init()
 {
     // Put intialization todos here which are not iterative job though event
-    lx_info << "Initializing TTLeftArray" << std::endl;
+    e_info << "Initializing TTLeftArray" << std::endl;
 
     return true;
 }
@@ -25,7 +25,7 @@ void TTLeftArray::Clear(Option_t *option)
 void TTLeftArray::Print(Option_t *option) const
 {
     // You will probability need to modify here
-    lx_info << "TTLeftArray" << std::endl;
+    e_info << "TTLeftArray" << std::endl;
 }
 
 bool TTLeftArray::IsInBoundary(Double_t x, Double_t y)

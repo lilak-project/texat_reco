@@ -11,7 +11,7 @@ TTRootConversionTask::TTRootConversionTask()
 bool TTRootConversionTask::Init()
 {
     // Put intialization todos here which are not iterative job though event
-    lx_info << "Initializing TTRootConversionTask" << std::endl;
+    lk_info << "Initializing TTRootConversionTask" << std::endl;
 
     fDetector = (TexAT2 *) fRun -> GetDetector();
 
@@ -23,7 +23,7 @@ bool TTRootConversionTask::Init()
     fChannelArray = new TClonesArray("MMChannel",200);
     fRun -> RegisterBranch("RawData", fChannelArray);
 
-    lx_info << "Input file is " << fInputFileName << endl;
+    lk_info << "Input file is " << fInputFileName << endl;
     fInputFile = new TFile(fInputFileName, "read");
     fInputTree = (TTree*) fInputFile -> Get("TEvent");
 

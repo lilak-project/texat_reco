@@ -12,7 +12,7 @@ TTForwardArray::TTForwardArray()
 bool TTForwardArray::Init()
 {
     // Put intialization todos here which are not iterative job though event
-    lx_info << "Initializing TTForwardArray" << std::endl;
+    e_info << "Initializing TTForwardArray" << std::endl;
 
     return true;
 }
@@ -25,7 +25,7 @@ void TTForwardArray::Clear(Option_t *option)
 void TTForwardArray::Print(Option_t *option) const
 {
     // You will probability need to modify here
-    lx_info << "TTForwardArray" << std::endl;
+    e_info << "TTForwardArray" << std::endl;
 }
 
 bool TTForwardArray::IsInBoundary(Double_t x, Double_t y)

@@ -12,7 +12,7 @@ TTMicromegas::TTMicromegas()
 bool TTMicromegas::Init()
 {
     // Put intialization todos here which are not iterative job though event
-    lx_info << "Initializing TTMicromegas" << std::endl;
+    e_info << "Initializing TTMicromegas" << std::endl;
 
     return true;
 }
@@ -25,7 +25,7 @@ void TTMicromegas::Clear(Option_t *option)
 void TTMicromegas::Print(Option_t *option) const
 {
     // You will probability need to modify here
-    lx_info << "TTMicromegas" << std::endl;
+    e_info << "TTMicromegas" << std::endl;
 }
 
 bool TTMicromegas::IsInBoundary(Double_t x, Double_t y)

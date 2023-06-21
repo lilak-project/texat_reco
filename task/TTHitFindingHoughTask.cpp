@@ -12,7 +12,7 @@ TTHitFindingHoughTask::TTHitFindingHoughTask()
 
 bool TTHitFindingHoughTask::Init()
 {
-    lx_info << "Initializing TTHitFindingHoughTask" << std::endl;
+    lk_info << "Initializing TTHitFindingHoughTask" << std::endl;
 
     fDetector = (TexAT2 *) fRun -> GetDetector();
 
@@ -463,19 +463,17 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
     track -> SetLine(&line);
 
     fEventHeader -> SetIsMMEvent(true);
+    fEventHeader -> Print();
 
-    lx_info << "TTHitFindingHoughTask" << std::endl;
+    lk_info << "TTHitFindingHoughTask" << std::endl;
 }
 
 bool TTHitFindingHoughTask::EndOfRun()
 {
-    for (auto iEvent=0; iEvent<100; ++iEvent) {
-        lk_debug << iEvent << endl;
-        fRun -> GetEvent(iEvent);
-        if (fEventHeader->GetIsMMEvent()==false)
-            continue;
-        auto track = (LKLinearTrack *) fTrackArray -> At(0);
-        track -> Print();
+    auto numEvents = fRun -> GetEventCount();
+    if (numEvents>10) numEvents = 20;
+    for (auto iEvent=0; iEvent<numEvents; ++iEvent) {
+        fRun -> PrintEvent(iEvent);
     }
 
     return true;

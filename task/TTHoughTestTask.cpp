@@ -12,7 +12,7 @@ TTHoughTestTask::TTHoughTestTask()
 bool TTHoughTestTask::Init()
 {
     // Put intialization todos here which are not iterative job though event
-    lx_info << "Initializing TTHoughTestTask" << std::endl;
+    lk_info << "Initializing TTHoughTestTask" << std::endl;
 
     fDetector = (TexAT2 *) fRun -> GetDetector();
 
@@ -231,7 +231,7 @@ void TTHoughTestTask::Exec(Option_t *option)
         }
         HWaveFormbyPixel_temp->Reset();
     }
-    //lx_info << "where?" << endl;
+    //lk_info << "where?" << endl;
     for(Int_t i=0; i<6; i++)
     {
         ChainT[i] = ChainT[i]/num_chain;
@@ -242,9 +242,9 @@ void TTHoughTestTask::Exec(Option_t *option)
             whereisbeam = i;
         }
     }
-    //lx_info << "where?" << endl;
-    //lx_info << evt << ": " << Timing[whereisbeam]-ChainT[whereisbeam] << " at " << loc_chain << " BT" << endl;
-    //lx_info << "where?" << endl;
+    //lk_info << "where?" << endl;
+    //lk_info << evt << ": " << Timing[whereisbeam]-ChainT[whereisbeam] << " at " << loc_chain << " BT" << endl;
+    //lk_info << "where?" << endl;
 
 
     // ================================================== Draw Y vs Chain
@@ -312,7 +312,7 @@ void TTHoughTestTask::Exec(Option_t *option)
         timing_dt_xy -> Fill(loc_chain_all[i],(BeamT-ChainT_all[i]));
         //BeamT-ChainT_all[i]+256
         track_px[BeamT-ChainT_all[i]+256] = loc_chain_all[i];
-        //lx_info << evt << ": " << BeamT-ChainT_all[i] << " at " << loc_chain_all[i] << endl;
+        //lk_info << evt << ": " << BeamT-ChainT_all[i] << " at " << loc_chain_all[i] << endl;
     }
     for(Int_t i=0; i<64; i++) HWaveFormbyPixel[i] -> Reset();
 
@@ -373,7 +373,7 @@ void TTHoughTestTask::Exec(Option_t *option)
         }
     }
 
-    //lx_info << thetaxt << " " << radxt << endl;
+    //lk_info << thetaxt << " " << radxt << endl;
     Double_t tanxt = TMath::Tan(thetaxt*TMath::DegToRad());
     Double_t sinxt = TMath::Sin(thetaxt*TMath::DegToRad());
     Double_t cosxt = TMath::Cos(thetaxt*TMath::DegToRad());
@@ -444,7 +444,7 @@ void TTHoughTestTask::Exec(Option_t *option)
     {
         timing_dt_zy -> Fill(loc_strip_all[i],(BeamT-StripT_all[i]));
         track_py[BeamT-StripT_all[i]+256] = loc_strip_all[i];
-        //lx_info << evt << ": " << BeamT-StripT_all[i] << " at " << loc_strip_all[i] << endl;
+        //lk_info << evt << ": " << BeamT-StripT_all[i] << " at " << loc_strip_all[i] << endl;
     }
 
     //modify timing_dt_zy
@@ -502,7 +502,7 @@ void TTHoughTestTask::Exec(Option_t *option)
         }
     }
 
-    //lx_info << thetazt << " " << radzt << endl;
+    //lk_info << thetazt << " " << radzt << endl;
     Double_t tanzt = TMath::Tan(thetazt*TMath::DegToRad());
     Double_t sinzt = TMath::Sin(thetazt*TMath::DegToRad());
     Double_t coszt = TMath::Cos(thetazt*TMath::DegToRad());
@@ -576,7 +576,7 @@ void TTHoughTestTask::Exec(Option_t *option)
     */
 
     TString fileName = Form("%s/%s_%04d_%d.root", fHistDataPath.Data(), fRun->GetRunName().Data(), fRun->GetRunID(), evt);
-    lx_info << "Creating " << fileName << endl;
+    lk_info << "Creating " << fileName << endl;
     auto file = new TFile(fileName.Data(),"recreate");
     timing_dt_xy -> Write();
     timing_dt_zy -> Write();
@@ -591,7 +591,7 @@ void TTHoughTestTask::Exec(Option_t *option)
     fhough_xz -> Write();
     fhough_xz_check -> Write();
 
-    lx_info << "TTHoughTestTask" << std::endl;
+    lk_info << "TTHoughTestTask" << std::endl;
 }
 
 bool TTHoughTestTask::EndOfRun()

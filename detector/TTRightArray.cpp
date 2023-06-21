@@ -12,7 +12,7 @@ TTRightArray::TTRightArray()
 bool TTRightArray::Init()
 {
     // Put intialization todos here which are not iterative job though event
-    lx_info << "Initializing TTRightArray" << std::endl;
+    e_info << "Initializing TTRightArray" << std::endl;
 
     return true;
 }
@@ -25,7 +25,7 @@ void TTRightArray::Clear(Option_t *option)
 void TTRightArray::Print(Option_t *option) const
 {
     // You will probability need to modify here
-    lx_info << "TTRightArray" << std::endl;
+    e_info << "TTRightArray" << std::endl;
 }
 
 bool TTRightArray::IsInBoundary(Double_t x, Double_t y)

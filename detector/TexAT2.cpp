@@ -12,7 +12,7 @@ TexAT2::TexAT2()
 bool TexAT2::Init()
 {
     // Put intialization todos here which are not iterative job though event
-    lx_info << "Initializing TexAT2" << std::endl;
+    e_info << "Initializing TexAT2" << std::endl;
 
     // SetDetType()
     {
@@ -129,7 +129,7 @@ bool TexAT2::Init()
         while(mapsi.good())
         {
             mapsi >> siasad[line] >> siaget[line] >> sichan[line] >> six[line] >> siy[line] >> sipos[line];
-            //lx_info << Form("%d: %d_%d_%d_%d_%d_%d",line,siasad[line],siaget[line],sichan[line],six[line],siy[line],sipos[line]) << endl;
+            //e_info << Form("%d: %d_%d_%d_%d_%d_%d",line,siasad[line],siaget[line],sichan[line],six[line],siy[line],sipos[line]) << endl;
             sipx[siasad[line]][siaget[line]][sichan[line]] = six[line];
             sipy[siasad[line]][siaget[line]][sichan[line]] = siy[line];
             sistrip[siasad[line]][siaget[line]][sichan[line]] = sipos[line];
@@ -204,7 +204,7 @@ bool TexAT2::Init()
             if(X6flag[line]==0) X6strip[X6asad[line]][X6aget[line]][X6chan[line]] = (Int_t) (X6pos[line]+1)/2;
             else if(X6flag[line]==1) X6strip[X6asad[line]][X6aget[line]][X6chan[line]] = X6pos[line];
             X6ud[X6asad[line]][X6aget[line]][X6chan[line]] = (X6pos[line]+1)%2;
-            //lx_info << X6asad[line] << " " <<  X6aget[line] << " " <<  X6chan[line] << " " << X6det[X6asad[line]][X6aget[line]][X6chan[line]] << " " << X6strip[X6asad[line]][X6aget[line]][X6chan[line]] << " " << X6ud[X6asad[line]][X6aget[line]][X6chan[line]] << " " << endl;
+            //e_info << X6asad[line] << " " <<  X6aget[line] << " " <<  X6chan[line] << " " << X6det[X6asad[line]][X6aget[line]][X6chan[line]] << " " << X6strip[X6asad[line]][X6aget[line]][X6chan[line]] << " " << X6ud[X6asad[line]][X6aget[line]][X6chan[line]] << " " << endl;
             fType[2][X6asad[line]][X6aget[line]][X6chan[line]] = eType::kCENSX6;
 
                  if(X6asad[line]==0 && X6aget[line]!=3) fDetLoc[2][X6asad[line]][X6aget[line]][X6chan[line]] = eDetLoc::kBottomRightX6;
@@ -246,7 +246,7 @@ bool TexAT2::Init()
 void TexAT2::Print(Option_t *option) const
 {
     // You will probability need to modify here
-    lx_info << "TexAT2" << std::endl;
+    e_info << "TexAT2" << std::endl;
 }
 
 bool TexAT2::BuildGeometry()

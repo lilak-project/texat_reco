@@ -12,7 +12,7 @@ TTBackwardArray::TTBackwardArray()
 bool TTBackwardArray::Init()
 {
     // Put intialization todos here which are not iterative job though event
-    lx_info << "Initializing TTBackwardArray" << std::endl;
+    e_info << "Initializing TTBackwardArray" << std::endl;
 
     return true;
 }
@@ -25,7 +25,7 @@ void TTBackwardArray::Clear(Option_t *option)
 void TTBackwardArray::Print(Option_t *option) const
 {
     // You will probability need to modify here
-    lx_info << "TTBackwardArray" << std::endl;
+    e_info << "TTBackwardArray" << std::endl;
 }
 
 bool TTBackwardArray::IsInBoundary(Double_t x, Double_t y)
