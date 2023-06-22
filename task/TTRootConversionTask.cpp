@@ -52,6 +52,9 @@ void TTRootConversionTask::Exec(Option_t *option)
 {
     fInputTree -> GetEntry(fRun->GetCurrentEventID());
 
+    fEventHeaderArray -> Clear("C");
+    fChannelArray -> Clear("C");
+
     Int_t SiBLR = 0;
     Int_t siLhit = 0;
     Int_t siRhit = 0;
@@ -114,6 +117,20 @@ void TTRootConversionTask::Exec(Option_t *option)
         else if(chan>22 && chan<45) dchan = chan - 2;
         else if(chan>45 && chan<56) dchan = chan - 3;
         else if(chan>56           ) dchan = chan - 4;
+
+        //auto type = fDetector -> GetType(fmmCobo[iChannel],fmmAsad[iChannel],fmmAget[iChannel],fmmChan[iChannel]); // XXX
+        //if (type==TexAT2::eType::kLeftStrip) ;
+        //if (type==TexAT2::eType::kRightStrip) ;
+        //if (type==TexAT2::eType::kLeftChain) ;
+        //if (type==TexAT2::eType::kRightChain) ;
+        //if (type==TexAT2::eType::kLowCenter) ;
+        //if (type==TexAT2::eType::kHighCenter) ;
+        //if (type==TexAT2::eType::kForwardSi) ;
+        //if (type==TexAT2::eType::kForwardCsI) ;
+        //if (type==TexAT2::eType::kMMJr) ;
+        //if (type==TexAT2::eType::kCENSX6) ;
+        //if (type==TexAT2::eType::kCENSCsI) ;
+        //if (type==TexAT2::eType::kExternal) ;
 
         auto channel = (MMChannel *) fChannelArray -> ConstructedAt(iChannel);
         channel -> SetFrameNo(fmmFrameNo[iChannel]);

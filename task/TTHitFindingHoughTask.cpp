@@ -42,6 +42,9 @@ bool TTHitFindingHoughTask::Init()
 
 void TTHitFindingHoughTask::Exec(Option_t *option)
 {
+    fHitArray -> Clear("C");
+    fTrackArray -> Clear("C");
+
     auto eventHeader = (TTEventHeader *) fEventHeaderArray -> At(0);
     eventHeader -> SetIsMMEvent(false);
 
