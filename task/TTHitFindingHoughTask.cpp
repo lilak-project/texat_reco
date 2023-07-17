@@ -460,11 +460,11 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
 
 bool TTHitFindingHoughTask::EndOfRun()
 {
-    auto numEvents = fRun -> GetEventCount();
-    if (numEvents>10) numEvents = 20;
-    for (auto iEvent=0; iEvent<numEvents; ++iEvent) {
-        fRun -> PrintEvent(iEvent);
-    }
+    //auto numEvents = fRun -> GetEventCount();
+    //if (numEvents>10) numEvents = 20;
+    //for (auto iEvent=0; iEvent<numEvents; ++iEvent) {
+    //    fRun -> PrintEvent(iEvent);
+    //}
 
     return true;
 }

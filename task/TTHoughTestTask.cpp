@@ -16,7 +16,7 @@ bool TTHoughTestTask::Init()
 
     fDetector = (TexAT2 *) fRun -> GetDetector();
 
-    fEventHeader = (TTEventHeader *) fRun -> GetBranch("EventHeader");
+    fEventHeaderArray = fRun -> GetBranchA("EventHeader");
     fChannelArray = fRun -> GetBranchA("RawData");
 
     fHistDataPath = fPar -> GetParString("TTHoughTestTask/HistDataPath");
@@ -46,12 +46,15 @@ bool TTHoughTestTask::Init()
     return true;
 }
 
-void TTHoughTestTask::Exec(Option_t *option)
+void TTHoughTestTask::Exec(Option_t *)
 {
-    if (fEventHeader->GetIsGoodEvent()==false)
+    auto eventHeader = (TTEventHeader *) fEventHeaderArray -> At(0);
+    if (eventHeader->GetIsGoodEvent()==false)
         return;
 
-    Int_t evt = fRun -> GetCurrentEventID();
+    Long64_t evt = fRun -> GetCurrentEventID();
+    //int evt = fRun -> GetCurrentEventID();
+    //int evt = int(fRun -> GetCurrentEventID());
 
     timing_dt_xy -> Reset("ICES");
     timing_dt_zy -> Reset("ICES");
@@ -60,14 +63,14 @@ void TTHoughTestTask::Exec(Option_t *option)
     for(Int_t i=0; i<512; i++) track_py[i] = 9999;
     for(Int_t i=0; i<6; i++) {
         LCWaveFormbyPixel[i] -> Reset("ICES");
-        LCWaveFormbyPixel[i] -> SetNameTitle(Form("LCenter%d_%d",i+64,evt),Form("LC%dWaveForm_%d",i+64,evt));
+        LCWaveFormbyPixel[i] -> SetNameTitle(Form("LCenter%d_%lld",i+64,evt),Form("LC%dWaveForm_%lld",i+64,evt));
     }
     for(Int_t i=0; i<64; i++) {
         HWaveFormbyPixel[i] -> Reset("ICES");
-        HWaveFormbyPixel[i] -> SetNameTitle(Form("H_%d_%d",i,evt),Form("H_%d",evt));
+        HWaveFormbyPixel[i] -> SetNameTitle(Form("H_%d_%lld",i,evt),Form("H_%lld",evt));
     }
 
-    auto SiBLR = fEventHeader -> GetSiBLR();
+    auto SiBLR = eventHeader -> GetSiBLR();
 
     //char side[16];
     Int_t whichtype[2];
@@ -203,7 +206,7 @@ void TTHoughTestTask::Exec(Option_t *option)
                 if(mmpx==whereisx && !(chan==11 || chan==22 || chan==45 || chan==56))
                 {
                     for(Int_t buck=0; buck<MaxBuck; buck++) HWaveFormbyPixel[num_chain] -> Fill(buck,mmWaveformY[buck]);
-                    HWaveFormbyPixel[num_chain] -> SetTitle(Form("H%d_%d_%d_%d/%d/%d",mmCobo,mmAsad,mmAget,dchan,mmpx,evt));
+                    HWaveFormbyPixel[num_chain] -> SetTitle(Form("H%d_%d_%d_%d/%d/%lld",mmCobo,mmAsad,mmAget,dchan,mmpx,evt));
                     if(num_chain==0) loc_chain = mmpx;
                     num_chain++;
                     continue;
@@ -217,7 +220,7 @@ void TTHoughTestTask::Exec(Option_t *option)
 
     //TH1D *HWaveFormbyPixel_temp = new TH1D(Form("H_%dt",evt),Form("H_%dt",evt),512,0,512);
     HWaveFormbyPixel_temp -> Reset("ICES");
-    HWaveFormbyPixel_temp -> SetNameTitle(Form("H_%dt",evt),Form("H_%dt",evt));
+    HWaveFormbyPixel_temp -> SetNameTitle(Form("H_%lldt",evt),Form("H_%lldt",evt));
     for(Int_t j=0; j<num_chain; j++) //chain
     {
         HWaveFormbyPixel_temp = (TH1D*) HWaveFormbyPixel[j] -> Clone();
@@ -274,7 +277,7 @@ void TTHoughTestTask::Exec(Option_t *option)
                 auto channel = (MMChannel *) fChannelArray -> At(iChannel);
                 Int_t chan = channel -> GetChan();
                 Int_t dchan = channel -> GetDChan();
-                Int_t mmCobo = channel -> GetCobo();
+                //Int_t mmCobo = channel -> GetCobo();
                 Int_t mmAsad = channel -> GetAsad();
                 Int_t mmAget = channel -> GetAget();
                 Int_t *mmWaveformY = channel -> GetWaveformY();
@@ -359,7 +362,7 @@ void TTHoughTestTask::Exec(Option_t *option)
     Double_t maxbinxt =-9999;
     Double_t thetaxt = 0;
     Double_t radxt = 0;
-    Int_t numxt = 0;
+    //Int_t numxt = 0;
     for(Int_t i=0; i<1800; i++)
     {
         if((Hough_xt -> ProjectionY("pjy",i,i+1) -> GetMaximum())>=maxbinxt)
@@ -407,7 +410,7 @@ void TTHoughTestTask::Exec(Option_t *option)
                 auto channel = (MMChannel *) fChannelArray -> At(iChannel);
                 Int_t chan = channel -> GetChan();
                 Int_t dchan = channel -> GetDChan();
-                Int_t mmCobo = channel -> GetCobo();
+                //Int_t mmCobo = channel -> GetCobo();
                 Int_t mmAsad = channel -> GetAsad();
                 Int_t mmAget = channel -> GetAget();
                 Int_t *mmWaveformY = channel -> GetWaveformY();
@@ -488,7 +491,7 @@ void TTHoughTestTask::Exec(Option_t *option)
     Double_t maxbinzt =-9999;
     Double_t thetazt = 0;
     Double_t radzt = 0;
-    Int_t numzt = 0;
+    //Int_t numzt = 0;
     for(Int_t i=0; i<1800; i++)
     {
         if((Hough_zt -> ProjectionY("pjy",i,i+1) -> GetMaximum())>=maxbinzt)
@@ -546,43 +549,47 @@ void TTHoughTestTask::Exec(Option_t *option)
             fhough_xz -> Fill(-i*tanxt+radxt*(cosxt+sinxt*tanxt),-i*tanzt+radzt*(coszt+sinzt*tanzt));
 
     //TH2D* fhough_xz_check = new TH2D("fhough_xz_check","fhough_xz_check;mmpx;mmpy",134,0,134,128,0,128);
-    fhough_xz_check -> Reset();
-    for(Double_t i=0; i<134; i+=0.1) fhough_xz_check -> Fill(i,i*(tanzt/tanxt)-radxt*(tanzt*cosxt/tanxt+tanzt*sinxt)+radzt*(coszt+sinzt*tanzt));
+    fhough_xz_check -> Reset("ICES");
+    for(Double_t i=0; i<134; i+=0.1)
+        fhough_xz_check -> Fill(i,i*(tanzt/tanxt)-radxt*(tanzt*cosxt/tanxt+tanzt*sinxt)+radzt*(coszt+sinzt*tanzt));
 
-    /*
-    TCanvas* cvs_dt = new TCanvas("cvs_dt","cvs_dt",1800,1500);
-    cvs_dt -> Divide(3,3);
-    cvs_dt -> cd(1);
-    timing_dt_xy -> Draw("colz");
-    cvs_dt -> cd(2);
-    timing_dt_zy -> Draw("colz");
-    cvs_dt -> cd(3);
-    timing_dt_xz -> Draw("colz");
-    cvs_dt -> cd(4);
+    //TCanvas* cvs_dt = new TCanvas("cvs_dt","cvs_dt",1800,1500);
+    //cvs_dt -> Divide(3,3);
+    //cvs_dt -> cd(1);
+    //timing_dt_xy -> Draw("colz");
+    //cvs_dt -> cd(2);
+    //timing_dt_zy -> Draw("colz");
+    //cvs_dt -> cd(3);
+    //timing_dt_xz -> Draw("colz");
+    //cvs_dt -> cd(4);
+    ////Hough_xt -> Draw("colz");
+    //fhough_xt -> Draw("colz");
+    //cvs_dt -> cd(5);
+    ////Hough_zt -> Draw("colz");
+    //fhough_zt -> Draw("colz");
+    //cvs_dt -> cd(6);
+    //fhough_xz -> Draw("colz");
+    //cvs_dt -> cd(7);
     //Hough_xt -> Draw("colz");
-    fhough_xt -> Draw("colz");
-    cvs_dt -> cd(5);
+    //cvs_dt -> cd(8);
     //Hough_zt -> Draw("colz");
-    fhough_zt -> Draw("colz");
-    cvs_dt -> cd(6);
-    fhough_xz -> Draw("colz");
-    cvs_dt -> cd(7);
-    Hough_xt -> Draw("colz");
-    cvs_dt -> cd(8);
-    Hough_zt -> Draw("colz");
-    cvs_dt -> cd(9);
-    fhough_xz_check -> Draw("colz");
-    cvs_dt -> SaveAs(Form("./drawing/evt%d_track.jpg",evt));
-    */
+    //cvs_dt -> cd(9);
+    //fhough_xz_check -> Draw("colz");
+    //cvs_dt -> SaveAs(Form("./drawing/evt%d_track.jpg",evt));
 
-    TString fileName = Form("%s/%s_%04d_%d.root", fHistDataPath.Data(), fRun->GetRunName().Data(), fRun->GetRunID(), evt);
-    lk_info << "Creating " << fileName << endl;
-    auto file = new TFile(fileName.Data(),"recreate");
+    //const char* fileName = Form("%s/%s_%04d_%d.root", "data", "historgram", 1, 1);
+    //const char* fileName = Form("%s/%s_%04d_%d.root", "data", "histogram", 1, 1);
+    //const char* fileName = Form("%s/%s_%04d_%lld.root", fHistDataPath.Data(), fRun->GetRunName(), fRun->GetRunID(), evt);
+    auto file = fRun -> GetOutputFile();
+    auto dir = file -> mkdir(Form("event_%lld",evt));
+    dir -> cd();
+
+    //const char* fileName = "data/histogram.root";
+    //lk_info << "Creating " << fileName << endl;
+    //auto file = new TFile(fileName.Data(),"recreate");
     timing_dt_xy -> Write();
     timing_dt_zy -> Write();
     timing_dt_xz -> Write();
-    //for(Int_t i=0; i<6; i++) LCWaveFormbyPixel[i] -> Write();
-    //for(Int_t i=0; i<64; i++) HWaveFormbyPixel[i] -> Write();
     HWaveFormbyPixel_temp -> Write();
     Hough_xt  -> Write();
     fhough_xt -> Write();
@@ -590,6 +597,9 @@ void TTHoughTestTask::Exec(Option_t *option)
     fhough_zt -> Write();
     fhough_xz -> Write();
     fhough_xz_check -> Write();
+    /*
+    file -> Close();
+    */
 
     lk_info << "TTHoughTestTask" << std::endl;
 }

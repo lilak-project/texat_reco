@@ -36,7 +36,7 @@ class TTHoughTestTask : public LKTask
     private:
         TexAT2 *fDetector = nullptr;
 
-        TTEventHeader *fEventHeader = nullptr;
+        TClonesArray *fEventHeaderArray = nullptr;
         TClonesArray *fChannelArray = nullptr;
 
         TString fHistDataPath;

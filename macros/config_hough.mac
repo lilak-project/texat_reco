@@ -1,0 +1,7 @@
+HoughHit/persistency true
+HoughTrack/persistency true
+Hit/persistency true
+
+LKRun/DataPath e{LILAK_PATH}/texat_ana/macros/data
+
+TTHoughTestTask/HistDataPath e{PWD}/data

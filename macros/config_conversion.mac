@@ -1,9 +1,7 @@
 *LKRun/RunName texat 824 raw
+*LKRun/DataPath e{LILAK_PATH}/texat_ana/macros/data
 
-HoughHit/persistency true
-HoughTrack/persistency true
 RawData/persistency true
-Hit/persistency true
 
 hostname e{lilak_hostuser}
 
@@ -30,7 +28,3 @@ hostname e{lilak_hostuser}
 @kunpl.ejungwoo/TexAT2/mapsiFileName  /home/ejungwoo/data/texat/txtfiles/mapchantosi_CRIB.txt
 @kunpl.ejungwoo/TexAT2/mapX6FileName  /home/ejungwoo/data/texat/txtfiles/mapchantoX6_CRIB.txt
 @kunpl.ejungwoo/TexAT2/mapCsIFileName /home/ejungwoo/data/texat/txtfiles/mapchantoCsI_CRIB.txt
-
-LKRun/DataPath e{LILAK_PATH}/texat_ana/macros/data
-
-TTHoughTestTask/HistDataPath e{PWD}/data
