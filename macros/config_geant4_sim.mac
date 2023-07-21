@@ -1,8 +1,8 @@
 LKG4Manager/VisMode false
-LKG4Manager/G4OutputFile
-LKG4Manager/G4InputFile
-LKG4Manager/G4VisFile
-LKG4Manager/G4MacroFile
+LKG4Manager/G4OutputFile data/texat_sim.root
+LKG4Manager/G4InputFile single_proton.gen
+#LKG4Manager/G4VisFile
+#LKG4Manager/G4MacroFile
 
 MCSetEdepSum/persistency true
 MCStep/persistency true

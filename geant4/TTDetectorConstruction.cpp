@@ -5,7 +5,7 @@ TTDetectorConstruction::TTDetectorConstruction()
     ;
 }
 
-virtual G4VPhysicalVolume* TTDetectorConstruction::Construct()
+G4VPhysicalVolume* TTDetectorConstruction::Construct()
 {
     auto runManager = (LKG4RunManager *) G4RunManager::GetRunManager();
     auto par = runManager -> GetParameterContainer();
@@ -25,7 +25,7 @@ virtual G4VPhysicalVolume* TTDetectorConstruction::Construct()
     matMethaneGas -> AddElement(elementC, 1);
 
     G4double densityGas = .9*densityArGas + .1*densityMethane;
-    matGas = new G4Material("matP10", densityGas, 2, kStateGas, labTemperature);
+    auto matGas = new G4Material("matP10", densityGas, 2, kStateGas, labTemperature);
     matGas -> AddMaterial(matArGas, 0.9*densityArGas/densityGas);
     matGas -> AddMaterial(matMethaneGas, 0.1*densityMethane/densityGas);
 
@@ -38,9 +38,9 @@ virtual G4VPhysicalVolume* TTDetectorConstruction::Construct()
     G4LogicalVolume *logicWorld = new G4LogicalVolume(solidWorld, matAir, "World");
     G4PVPlacement *physWorld = new G4PVPlacement(0, G4ThreeVector(), logicWorld, "World", 0, false, -1, true);
 
-    double dxTPCGas = 1000*CLHEP::mm
-    double dyTPCGas = 500*CLHEP::mm
-    double dzTPCGas = 1000*CLHEP::mm
+    double dxTPCGas = 1000*CLHEP::mm;
+    double dyTPCGas = 500*CLHEP::mm;
+    double dzTPCGas = 1000*CLHEP::mm;
     double offTPCGas = dzTPCGas;
 
     G4Box *solidTPCGas = new G4Box("TPCGas", dxTPCGas, dyTPCGas, dzTPCGas);

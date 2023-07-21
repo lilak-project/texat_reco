@@ -1,14 +1,14 @@
-#include "LKLogger.hpp"
-#include "LKG4RunManager.hpp"
-#include "LKParameterContainer.hpp"
-#include "LKPrimaryGeneratorAction.hpp"
-#include "LKEventAction.hpp"
-#include "LKTrackingAction.hpp"
-#include "LKSteppingAction.hpp"
+#include "LKLogger.h"
+#include "LKG4RunManager.h"
+#include "LKParameterContainer.h"
+#include "LKPrimaryGeneratorAction.h"
+#include "LKEventAction.h"
+#include "LKTrackingAction.h"
+#include "LKSteppingAction.h"
 
 #include "QGSP_BERT.hh"
 #include "G4StepLimiterPhysics.hh"
-#include "TTDetectorConstruction.hh"
+#include "TTDetectorConstruction.h"
 
 int main(int argc, char** argv)
 {
@@ -19,7 +19,7 @@ int main(int argc, char** argv)
     G4VModularPhysicsList* physicsList = new QGSP_BERT;
     physicsList -> RegisterPhysics(new G4StepLimiterPhysics());
     runManager -> SetUserInitialization(physicsList);
-    runManager -> AddParameterContainer("config_geant4_sim.mac");
+    runManager -> AddParameterContainer(argv[1]);
     runManager -> GetPar() -> Print();
     runManager -> SetUserInitialization(new TTDetectorConstruction());
     runManager -> Initialize();
