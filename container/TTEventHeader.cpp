@@ -18,6 +18,8 @@ void TTEventHeader::Clear(Option_t *option)
     fsiChit = -1;
     fX6Lhit = -1;
     fX6Rhit = -1;
+    fGoodSiEvt = eGoodSiEvt::kNon;
+    fGoodMMEvt = false;
 }
 
 void TTEventHeader::Print(Option_t *option) const
@@ -31,7 +33,10 @@ void TTEventHeader::Print(Option_t *option) const
         << " " << fsiRhit
         << " " << fsiChit
         << " / " << fX6Lhit
-        << " " << fX6Rhit << std::endl;
+        //<< " " << fX6Rhit << std::endl;
+        << " " << fX6Rhit
+        << " | " << (int)fGoodSiEvt
+        << " " << fGoodMMEvt << std::endl;
 }
 
 void TTEventHeader::Copy(TObject &object) const
@@ -47,4 +52,6 @@ void TTEventHeader::Copy(TObject &object) const
     objCopy.SetSiChit(fsiChit);
     objCopy.SetX6Lhit(fX6Lhit);
     objCopy.SetX6Rhit(fX6Rhit);
+    objCopy.SetGoodSiEvt(fGoodSiEvt);
+    objCopy.SetGoodMMEvt(fGoodMMEvt);
 }

@@ -13,16 +13,21 @@ bool TTRootConversionTask::Init()
     // Put intialization todos here which are not iterative job though event
     lk_info << "Initializing TTRootConversionTask" << std::endl;
 
+    lk_debug << endl;
     fDetector = (TexAT2 *) fRun -> GetDetector();
+    lk_debug << endl;
 
     fInputFileName = fPar -> GetParString("TTRootConversionTask/inputFileName");
+    lk_debug << endl;
 
     fEventHeaderArray = fRun -> RegisterBranchA("EventHeader", "TTEventHeader", 1);
     fChannelArray = fRun -> RegisterBranchA("RawData", "MMChannel", 200);
+    lk_debug << endl;
 
     lk_info << "Input file is " << fInputFileName << endl;
     fInputFile = new TFile(fInputFileName, "read");
     fInputTree = (TTree*) fInputFile -> Get("TEvent");
+    lk_debug << endl;
 
     //SetBranch()
     {
@@ -43,6 +48,7 @@ bool TTRootConversionTask::Init()
         //Int_t fNumEvents = 2;
         fRun -> SetNumEvents(fNumEvents);
     }
+    lk_debug << endl;
 
     return true;
 }
@@ -102,7 +108,7 @@ void TTRootConversionTask::Exec(Option_t *option)
             << Form("siL: %d | siR: %d | siC: %d | X6L: %d | X6R: %d  ->  %d", siLhit, siRhit, siChit, X6Lhit, X6Rhit, SiBLR)
             << std::endl;
         eventHeader -> SetIsGoodEvent(false);
-        return;
+        //return;
     }
 
     eventHeader -> SetIsGoodEvent(true);
@@ -133,6 +139,7 @@ void TTRootConversionTask::Exec(Option_t *option)
         //if (type==TexAT2::eType::kExternal) ;
 
         auto channel = (MMChannel *) fChannelArray -> ConstructedAt(iChannel);
+        channel -> SetEventIdx(fmmEventIdx);
         channel -> SetFrameNo(fmmFrameNo[iChannel]);
         channel -> SetDecayNo(fmmDecayNo[iChannel]);
         channel -> SetCobo(fmmCobo[iChannel]);

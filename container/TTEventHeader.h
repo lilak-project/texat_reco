@@ -70,6 +70,25 @@ class TTEventHeader : public LKContainer
         Int_t        fX6Lhit = -1;
         Int_t        fX6Rhit = -1;
 
+        enum class eGoodSiEvt
+        {
+            kNon,       //0          
+            kFSiL,      //1
+            kFSiC,      //2
+            kFSiR,      //3
+            kX6LS,      //4
+            kX6RS,      //5
+            kX6LB,      //6
+            kX6RB,      //6
+            kFSiX6,     //7
+        };
+        eGoodSiEvt  GetGoodSiEvt() const { return fGoodSiEvt; }
+        Bool_t      GetGoodMMEvt() const { return fGoodMMEvt; }
+        void        SetGoodSiEvt(eGoodSiEvt GoodSiEvt) { fGoodSiEvt = GoodSiEvt; }
+        void        SetGoodMMEvt(Bool_t     GoodMMEvt) { fGoodMMEvt = GoodMMEvt; }
+        eGoodSiEvt  fGoodSiEvt;
+        Bool_t      fGoodMMEvt = false;
+
     ClassDef(TTEventHeader,1);
 };
 
