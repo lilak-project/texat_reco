@@ -19,24 +19,31 @@ void TTEventHeader::Clear(Option_t *option)
     fX6Lhit = -1;
     fX6Rhit = -1;
     fGoodSiEvt = eGoodSiEvt::kNon;
+    fFiredDet = -1;
+    fFiredStrip = -1;
     fGoodMMEvt = false;
 }
 
 void TTEventHeader::Print(Option_t *option) const
 {
     // You will probability need to modify here
-    e_info << "good mm B / L R C / XL XR :"
-        << " " << fIsGoodEvent
-        << " " << fIsMMEvent
-        << " " << fSiBLR
-        << " / " << fsiLhit
-        << " " << fsiRhit
-        << " " << fsiChit
-        << " / " << fX6Lhit
-        //<< " " << fX6Rhit << std::endl;
-        << " " << fX6Rhit
-        << " | " << (int)fGoodSiEvt
-        << " " << fGoodMMEvt << std::endl;
+    e_info << "GoodSiEvt " << (int)fGoodSiEvt
+        << " at Det " << fFiredDet
+        << ", " << fFiredStrip
+        << " GoodMMEvt " << fGoodMMEvt
+        << std::endl;
+    //e_info << "good mm B / L R C / XL XR :"
+    //    << " " << fIsGoodEvent
+    //    << " " << fIsMMEvent
+    //    << " " << fSiBLR
+    //    << " / " << fsiLhit
+    //    << " " << fsiRhit
+    //    << " " << fsiChit
+    //    << " / " << fX6Lhit
+    //    << " " << fX6Rhit
+    //    << " | " << (int)fGoodSiEvt
+    //    << " " << fGoodMMEvt
+    //    << std::endl;
 }
 
 void TTEventHeader::Copy(TObject &object) const
@@ -53,5 +60,7 @@ void TTEventHeader::Copy(TObject &object) const
     objCopy.SetX6Lhit(fX6Lhit);
     objCopy.SetX6Rhit(fX6Rhit);
     objCopy.SetGoodSiEvt(fGoodSiEvt);
+    objCopy.SetFiredDet(fFiredDet);
+    objCopy.SetFiredStrip(fFiredStrip);
     objCopy.SetGoodMMEvt(fGoodMMEvt);
 }

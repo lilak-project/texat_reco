@@ -39,10 +39,7 @@ class TexAT2 : public LKDetector
             kNon,
             kLeft,          // 0
             kRight,         // 1
-            kCenterFront,   // 2
-            kBottomLeftX6,  // 10
-            kBottomRightX6, // 11
-            kCsI,           // -1
+            kCenter,   // 2
         };
 
         void Print(Option_t *option="") const;
@@ -70,6 +67,18 @@ class TexAT2 : public LKDetector
         Double_t GetX6posx               (int x6det, int x6strip) { return fX6posx        [x6det][x6strip]; }
         Double_t GetX6posy               (int x6det, int x6strip) { return fX6posy        [x6det][x6strip]; } 
         Double_t GetX6posz               (int x6det, int x6strip) { return fX6posz        [x6det][x6strip]; }
+
+        Double_t GetSiJpar0(int chan)            { return fSiJpar0[chan]; }
+        Double_t GetSiJpar1(int chan)            { return fSiJpar1[chan]; }
+        Double_t GetCsIpar0(int chan)            { return fCsIpar0[chan]; }
+        Double_t GetCsIpar1(int chan)            { return fCsIpar1[chan]; }
+
+        Double_t GetX6JEpar0(int det, int strip) { return fX6JEpar0[det][strip]; }
+        Double_t GetX6JEpar1(int det, int strip) { return fX6JEpar1[det][strip]; }
+        Double_t GetX6JPpar0(int det, int strip) { return fX6JPpar0[det][strip]; }
+        Double_t GetX6JPpar1(int det, int strip) { return fX6JPpar1[det][strip]; }
+        Double_t GetX6OEpar0(int det, int strip) { return fX6OEpar0[det][strip]; }
+        Double_t GetX6OEpar1(int det, int strip) { return fX6OEpar1[det][strip]; }
 
     private:
         const Int_t  fmmnum = 1024;       ///<  # of all channels
@@ -105,6 +114,23 @@ class TexAT2 : public LKDetector
         Int_t        fCsICT[4][4][68];          ///<  Charge Terminator numbering: 1-64
         Int_t        fCsIpin[4][4][68];         ///<  1 for X6 pin side
         Int_t        fCsIX6det[4][4][68];       ///<  matched X6 num
+
+        TString fFSiJFileName;
+        TString fFCsIFileName;
+        TString fX6JFileName; 
+        TString fX6OFileName; 
+
+        Double_t fSiJpar0[68];
+        Double_t fSiJpar1[68];
+        Double_t fCsIpar0[10];
+        Double_t fCsIpar1[10];
+
+        Double_t fX6JEpar0[30][8];
+        Double_t fX6JEpar1[30][8];
+        Double_t fX6JPpar0[30][8];
+        Double_t fX6JPpar1[30][8];
+        Double_t fX6OEpar0[30][4];
+        Double_t fX6OEpar1[30][4];
 
     ClassDef(TexAT2,1);
 };

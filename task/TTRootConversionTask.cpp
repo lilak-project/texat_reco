@@ -75,14 +75,14 @@ void TTRootConversionTask::Exec(Option_t *option)
             auto detloc = fDetector -> GetDetLoc(fmmCobo[iChannel],fmmAsad[iChannel],fmmAget[iChannel],fmmChan[iChannel]);
             if(type==TexAT2::eType::kForwardSi)
             {
-                     if(detloc==TexAT2::eDetLoc::kLeft)        siLhit++;
-                else if(detloc==TexAT2::eDetLoc::kRight)       siRhit++;
-                else if(detloc==TexAT2::eDetLoc::kCenterFront) siChit++;
+                     if(detloc==TexAT2::eDetLoc::kLeft)   siLhit++;
+                else if(detloc==TexAT2::eDetLoc::kRight)  siRhit++;
+                else if(detloc==TexAT2::eDetLoc::kCenter) siChit++;
             }
             else if(type==TexAT2::eType::kCENSX6)
             {
-                     if(detloc==TexAT2::eDetLoc::kBottomLeftX6)  X6Lhit++;
-                else if(detloc==TexAT2::eDetLoc::kBottomRightX6) X6Rhit++;
+                     if(detloc==TexAT2::eDetLoc::kLeft)  X6Lhit++;
+                else if(detloc==TexAT2::eDetLoc::kRight) X6Rhit++;
             }
         }
     }

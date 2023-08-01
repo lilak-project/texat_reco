@@ -81,23 +81,34 @@ bool TexAT2::Init()
         fmmpy[mmasad[i]][mmaget[i]][mmdchan[i]]=mmy[i];
         if(mmx[i]==-1)
         {
-            if(mmasad[i]==2) fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kLeftStrip;
-            else fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kRightStrip;
+            if(mmasad[i]==2)
+            {
+                fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kLeftStrip;
+                fDetLoc[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eDetLoc::kLeft;
+            }
+            else 
+            {
+                fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kRightStrip;
+                fDetLoc[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eDetLoc::kRight;
+            }
         }
         else
         {
             if(mmx[i]>=0 && mmx[i]<64)
             {
                 fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kLeftChain;
+                fDetLoc[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eDetLoc::kLeft;
             }
             else if(mmx[i]>69)
             {
                 fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kRightChain;
+                fDetLoc[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eDetLoc::kRight;
             }
             else if(mmx[i]>=65 && mmx[i]<69)
             {
                 if(mmasad[i]==0 && mmaget[i]==3) fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kHighCenter;
                 else fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kLowCenter;
+                fDetLoc[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eDetLoc::kCenter;
             }
             else if(mmx[i]==64 || mmx[i]==69)
             {
@@ -110,6 +121,7 @@ bool TexAT2::Init()
                 {
                     fType[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eType::kLowCenter;
                 }
+                fDetLoc[0][mmasad[i]][mmaget[i]][mmdchan[i]] = eDetLoc::kCenter;
             }
         }
     }
@@ -130,7 +142,7 @@ bool TexAT2::Init()
         fSidet[siasad][siaget][sichan] = 2*(4-six)+(1-siy);
         fType[1][siasad][siaget][sichan] = eType::kForwardSi;
 
-        if(six==2)                 fDetLoc[1][siasad][siaget][sichan] = eDetLoc::kCenterFront;
+        if(six==2)                fDetLoc[1][siasad][siaget][sichan] = eDetLoc::kCenter;
         else if(six==0 || six==1) fDetLoc[1][siasad][siaget][sichan] = eDetLoc::kLeft;
         else if(six==3 || six==4) fDetLoc[1][siasad][siaget][sichan] = eDetLoc::kRight;
 
@@ -166,8 +178,8 @@ bool TexAT2::Init()
     fDetLoc[1][1][0][7]  = eDetLoc::kRight; //1
     fDetLoc[1][1][0][10] = eDetLoc::kRight; //3
     fDetLoc[1][1][0][16] = eDetLoc::kRight; //2
-    fDetLoc[1][1][0][19] = eDetLoc::kCenterFront; //4
-    fDetLoc[1][1][0][25] = eDetLoc::kCenterFront; //5
+    fDetLoc[1][1][0][19] = eDetLoc::kCenter; //4
+    fDetLoc[1][1][0][25] = eDetLoc::kCenter; //5
     fDetLoc[1][1][0][28] = eDetLoc::kLeft; //7
     fDetLoc[1][1][0][33] = eDetLoc::kLeft; //6
     fDetLoc[1][1][0][36] = eDetLoc::kLeft; //8
@@ -202,8 +214,8 @@ bool TexAT2::Init()
         //e_info << X6asad << " " <<  X6aget << " " <<  X6chan << " " << X6det[X6asad][X6aget][X6chan] << " " << X6strip[X6asad][X6aget][X6chan] << " " << X6pin[X6asad][X6aget][X6chan] << " " << endl;
         fType[2][X6asad][X6aget][X6chan] = eType::kCENSX6;
 
-        if(X6asad==0 && X6aget!=3) fDetLoc[2][X6asad][X6aget][X6chan] = eDetLoc::kBottomRightX6;
-        else if(X6asad==1 && X6aget!=3) fDetLoc[2][X6asad][X6aget][X6chan] = eDetLoc::kBottomLeftX6;
+        if(X6asad==0 && X6aget!=3) fDetLoc[2][X6asad][X6aget][X6chan] = eDetLoc::kRight;
+        else if(X6asad==1 && X6aget!=3) fDetLoc[2][X6asad][X6aget][X6chan] = eDetLoc::kLeft;
         else if(X6asad==2 && X6aget!=3) fDetLoc[2][X6asad][X6aget][X6chan] = eDetLoc::kLeft;
         else if(X6asad==3 && X6aget!=3) fDetLoc[2][X6asad][X6aget][X6chan] = eDetLoc::kRight;
 
@@ -250,6 +262,79 @@ bool TexAT2::Init()
     if(line<fCsInum) lk_info << Form("CsInum check: %d/%d",line-1,fCsInum) << endl;
     mapCsI.close();
     mapCsI.clear();
+
+    // Calibration Parameters
+    fFSiJFileName  = fPar -> GetParString("CalibrationParameter/fFSiJ_CalPar");
+    fFCsIFileName  = fPar -> GetParString("CalibrationParameter/fFCsI_CalPar");
+    fX6JFileName   = fPar -> GetParString("CalibrationParameter/fX6J_CalPar");
+    fX6OFileName   = fPar -> GetParString("CalibrationParameter/fX6O_CalPar");
+
+    Double_t x6je0;
+    Double_t x6je1;
+    Double_t x6jp0;
+    Double_t x6jp1;
+    Double_t x6oe0;
+    Double_t x6oe1;
+
+    line = 0;
+    ifstream sical;
+    sical.open(fFSiJFileName);
+    if(sical.fail()==true) lk_error << "error: fSiJcalpar " << fFSiJFileName << endl;
+    while(sical.good())
+    {
+        sical >> fSiJpar0[line] >> fSiJpar1[line];
+        line++;
+        if(line==42) break;
+    }
+    sical.close();
+    sical.clear();
+
+    line = 0;
+    ifstream csical;
+    csical.open(fFCsIFileName);
+    if(csical.fail()==true) lk_error << "error: fCsIcalpar " << fFCsIFileName << endl;
+    while(csical.good())
+    {
+        csical >> fCsIpar0[line] >> fCsIpar1[line];
+        line++;
+        if(line==10) break;
+    }
+    csical.close();
+    csical.clear();
+
+    line = 0;
+    ifstream x6jcal;
+    x6jcal.open(fX6JFileName);
+    if(x6jcal.fail()==true) lk_error << "error: fX6Jcalpar " << fX6JFileName << endl;
+    while(x6jcal.good())
+    {
+        x6jcal >> x6je0 >> x6je1 >> x6jp0 >> x6jp1;
+        fX6JEpar0[(int)line/8][line%8] = x6je0;
+        fX6JEpar1[(int)line/8][line%8] = x6je1;
+        fX6JPpar0[(int)line/8][line%8] = x6jp0;
+        fX6JPpar1[(int)line/8][line%8] = x6jp1;
+
+        line++;
+        if(line==240) break;
+    }
+    x6jcal.close();
+    x6jcal.clear();
+
+    line = 0;
+    ifstream x6ocal;
+    x6ocal.open(fX6OFileName);
+    if(x6ocal.fail()==true) lk_error << "error: fX6Ocalpar " << fX6OFileName << endl;
+    while(x6ocal.good())
+    {
+        x6ocal >> x6oe0 >> x6oe1;
+        fX6OEpar0[(int)line/4][line%4] = x6oe0;
+        fX6OEpar1[(int)line/4][line%4] = x6oe1;
+
+        line++;
+        if(line==120) break;
+    }
+    x6ocal.close();
+    x6ocal.clear();
 
     return true;
 }

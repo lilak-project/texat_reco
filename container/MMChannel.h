@@ -83,6 +83,10 @@ class MMChannel : public LKChannel
         Int_t        fWaveformX[512];
         Int_t        fWaveformY[512];
 
+        Int_t GetBase() const  { return fBase; }
+        void  SetBase(Int_t Base) { fBase = Base; }
+        Int_t fBase = -1;
+
     ClassDef(MMChannel,1);
 };
 

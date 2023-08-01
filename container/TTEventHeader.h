@@ -82,11 +82,17 @@ class TTEventHeader : public LKContainer
             kX6RB,      //6
             kFSiX6,     //7
         };
-        eGoodSiEvt  GetGoodSiEvt() const { return fGoodSiEvt; }
-        Bool_t      GetGoodMMEvt() const { return fGoodMMEvt; }
-        void        SetGoodSiEvt(eGoodSiEvt GoodSiEvt) { fGoodSiEvt = GoodSiEvt; }
-        void        SetGoodMMEvt(Bool_t     GoodMMEvt) { fGoodMMEvt = GoodMMEvt; }
+        eGoodSiEvt  GetGoodSiEvt()    const { return fGoodSiEvt; }
+        Int_t       GetFiredDet()   const { return fFiredDet; }
+        Int_t       GetFiredStrip() const { return fFiredStrip; }
+        Bool_t      GetGoodMMEvt()    const { return fGoodMMEvt; }
+        void        SetGoodSiEvt(eGoodSiEvt GoodSiEvt)   { fGoodSiEvt = GoodSiEvt; }
+        void        SetFiredDet(Int_t     FiredDet)    { fFiredDet = FiredDet; }
+        void        SetFiredStrip(Int_t   FiredStrip)  { fFiredStrip = FiredStrip; }
+        void        SetGoodMMEvt(Bool_t     GoodMMEvt)   { fGoodMMEvt = GoodMMEvt; }
         eGoodSiEvt  fGoodSiEvt;
+        Int_t       fFiredDet = -1;
+        Int_t       fFiredStrip = -1;
         Bool_t      fGoodMMEvt = false;
 
     ClassDef(TTEventHeader,1);
