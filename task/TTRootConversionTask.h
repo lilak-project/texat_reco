@@ -34,6 +34,8 @@ class TTRootConversionTask : public LKTask
         void Exec(Option_t *option="");
         bool EndOfRun();
 
+        void SetInputFileName(TString fileName) { fInputFileName = fileName; }
+
     private:
         TexAT2 *fDetector = nullptr;
 

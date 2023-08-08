@@ -13,21 +13,17 @@ bool TTRootConversionTask::Init()
     // Put intialization todos here which are not iterative job though event
     lk_info << "Initializing TTRootConversionTask" << std::endl;
 
-    lk_debug << endl;
     fDetector = (TexAT2 *) fRun -> GetDetector();
-    lk_debug << endl;
 
-    fInputFileName = fPar -> GetParString("TTRootConversionTask/inputFileName");
-    lk_debug << endl;
+    if (fInputFileName.IsNull())
+        fInputFileName = fPar -> GetParString("TTRootConversionTask/inputFileName");
 
     fEventHeaderArray = fRun -> RegisterBranchA("EventHeader", "TTEventHeader", 1);
     fChannelArray = fRun -> RegisterBranchA("RawData", "MMChannel", 200);
-    lk_debug << endl;
 
     lk_info << "Input file is " << fInputFileName << endl;
     fInputFile = new TFile(fInputFileName, "read");
     fInputTree = (TTree*) fInputFile -> Get("TEvent");
-    lk_debug << endl;
 
     //SetBranch()
     {
@@ -48,7 +44,6 @@ bool TTRootConversionTask::Init()
         //Int_t fNumEvents = 2;
         fRun -> SetNumEvents(fNumEvents);
     }
-    lk_debug << endl;
 
     return true;
 }
@@ -154,8 +149,6 @@ void TTRootConversionTask::Exec(Option_t *option)
 
         //if (iChannel==0 || iChannel==1) channel -> Print();
     }
-
-    //lk_debug << fmmMult << " " << fmmChan[10] << " " << fmmWaveformY[10][0] << endl;
 
     lk_info << "TTRootConversionTask found " << fChannelArray -> GetEntriesFast() << " channels" << std::endl;
 }
