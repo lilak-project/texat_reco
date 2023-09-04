@@ -3,6 +3,7 @@
 
 #include "LKDetector.h"
 #include "LKLogger.h"
+#include "LKChannelAnalyzer.h"
 
 /*
  * Remove this comment block after reading it through
@@ -44,6 +45,7 @@ class TexAT2 : public LKDetector
 
         void Print(Option_t *option="") const;
         bool Init();
+        bool InitChannelAnalyzer();
         bool BuildGeometry();
         bool BuildDetectorPlane();
         bool IsInBoundary(Double_t x, Double_t y, Double_t z);
@@ -79,6 +81,9 @@ class TexAT2 : public LKDetector
         Double_t GetX6JPpar1(int det, int strip) { return fX6JPpar1[det][strip]; }
         Double_t GetX6OEpar0(int det, int strip) { return fX6OEpar0[det][strip]; }
         Double_t GetX6OEpar1(int det, int strip) { return fX6OEpar1[det][strip]; }
+
+        int GetElectronicsID(int cobo, int asad, int aget, int chan);
+        LKChannelAnalyzer* GetChannelAnalyzer(int id) { return fChannelAnalyzer[id]; }
 
     private:
         const Int_t  fmmnum = 1024;       ///<  # of all channels
@@ -131,6 +136,49 @@ class TexAT2 : public LKDetector
         Double_t fX6JPpar1[30][8];
         Double_t fX6OEpar0[30][4];
         Double_t fX6OEpar1[30][4];
+
+        const int fNumTypes = 18;
+        const int eMMCenterSideA0   = 0;
+        const int eMMCenterSideA1   = 1;
+        const int eMMCenterSideA2   = 2;
+        const int eMMCenterSideA3   = 3;
+        const int eMMCenterCenterA0 = 4;
+        const int eMMCenterCenterA1 = 5;
+        const int eMMCenterCenterA2 = 6;
+        const int eMMCenterCenterA3 = 7;
+        const int eMMLeftSide       = 8;
+        const int eMMLeftCenter     = 9;
+        const int eMMRightSide      = 10;
+        const int eMMRightCenter    = 11;
+        const int efSiJunction      = 12;
+        const int efSiOhmic         = 13;
+        const int efCsI             = 14;
+        const int eX6Ohmic          = 15;
+        const int eX6Junction       = 16;
+        const int eCsICT            = 17;
+
+        TString fTypeNames[18] = {
+            "MMCenterSideA0",
+            "MMCenterSideA1",
+            "MMCenterSideA2",
+            "MMCenterSideA3",
+            "MMCenterCenterA0",
+            "MMCenterCenterA1",
+            "MMCenterCenterA2",
+            "MMCenterCenterA3",
+            "MMLeftSide",
+            "MMLeftCenter",
+            "MMRightSide",
+            "MMRightCenter",
+            "fSiJunction",
+            "fSiOhmic",
+            "fCsI",
+            "X6Ohmic",
+            "X6Junction",
+            "CsICT"
+        };
+
+        LKChannelAnalyzer* fChannelAnalyzer[18];
 
     ClassDef(TexAT2,1);
 };

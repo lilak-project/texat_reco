@@ -7,6 +7,9 @@ TexAT2::TexAT2()
     fName = "TexAT2";
     if (fDetectorPlaneArray==nullptr)
         fDetectorPlaneArray = new TObjArray();
+
+    for (auto type=0; type<fNumTypes; ++type)
+        fChannelAnalyzer[type] = nullptr;
 }
 
 bool TexAT2::Init()
@@ -336,6 +339,56 @@ bool TexAT2::Init()
     x6ocal.close();
     x6ocal.clear();
 
+    //InitChannelAnalyzer();
+
+    return true;
+}
+
+bool TexAT2::InitChannelAnalyzer()
+{
+    if (fChannelAnalyzer[0]==nullptr)
+        for (auto type=0; type<fNumTypes; ++type)
+        {
+            TString parName1 = Form("TexAT2/pulseFile/%s",fTypeNames[type].Data());
+            TString parName2 = Form("TexAT2/analysis/%s",fTypeNames[type].Data());
+
+            TString pulseFileName = fPar -> GetParString(parName1);
+            int dynamicRange = 4096;
+            int threshold = 50;
+            int tbStart = 1;
+            int tbMax = 350;
+            int iterMax = 15;
+            double tbStepCut = 0.01;
+            int tbStartCut = 330;
+            double scaleTbStep = 0.2;
+            int thresholdOneStep = 2;
+            int numTbAcendingCut = 5;
+            if (fPar -> CheckPar(parName2)) {
+                dynamicRange = fPar -> GetParInt(parName2,0);
+                threshold = fPar -> GetParInt(parName2,1);
+                tbStart = fPar -> GetParInt(parName2,2);
+                tbMax = fPar -> GetParInt(parName2,3);
+                iterMax = fPar -> GetParInt(parName2,4);
+                tbStepCut = fPar -> GetParDouble(parName2,5);
+                tbStartCut = fPar -> GetParInt(parName2,6);
+                scaleTbStep = fPar -> GetParDouble(parName2,7);
+                thresholdOneStep = fPar -> GetParInt(parName2,8);
+                numTbAcendingCut = fPar -> GetParInt(parName2,9);
+            }
+            fChannelAnalyzer[type] = new LKChannelAnalyzer();
+            fChannelAnalyzer[type] -> SetPulse(pulseFileName);
+            fChannelAnalyzer[type] -> SetDynamicRange(dynamicRange);
+            fChannelAnalyzer[type] -> SetThreshold(threshold);
+            fChannelAnalyzer[type] -> SetTbStart(tbStart);
+            fChannelAnalyzer[type] -> SetTbMax(tbMax);
+            fChannelAnalyzer[type] -> SetIterMax(iterMax);
+            fChannelAnalyzer[type] -> SetTbStepCut(tbStepCut);
+            fChannelAnalyzer[type] -> SetTbStartCut(tbStartCut);
+            fChannelAnalyzer[type] -> SetScaleTbStep(scaleTbStep);
+            fChannelAnalyzer[type] -> SetThresholdOneStep(thresholdOneStep);
+            fChannelAnalyzer[type] -> SetNumTbAcendingCut(numTbAcendingCut);
+        }
+
     return true;
 }
 
@@ -364,4 +417,55 @@ bool TexAT2::IsInBoundary(Double_t x, Double_t y, Double_t z)
     //    return true;
     //return false;
     return true;
+}
+
+int TexAT2::GetElectronicsID(int cobo, int asad, int aget, int chan)
+{
+    if (cobo==0 && (asad==0 || asad==1)) {
+        int mchannel = chan;
+             if(chan<11) mchannel = chan;
+        else if(chan<22) mchannel = chan - 1;
+        else if(chan<45) mchannel = chan - 2;
+        else if(chan<56) mchannel = chan - 3;
+        else             mchannel = chan - 4;
+
+        if ((int(mchannel+1)/2)%2==0)
+        {
+                 if (aget==0) return eMMCenterSideA0;
+            else if (aget==1) return eMMCenterSideA1;
+            else if (aget==2) return eMMCenterSideA2;
+            else if (aget==3) return eMMCenterSideA3;
+        }
+        else
+        {
+                 if (aget==0) return eMMCenterCenterA0;
+            else if (aget==1) return eMMCenterCenterA1;
+            else if (aget==2) return eMMCenterCenterA2;
+            else if (aget==3) return eMMCenterCenterA3;
+        }
+    }
+    if (cobo==0 && asad==2 && (aget==0 || aget==1)) return eMMLeftSide;
+    if (cobo==0 && asad==2 && (aget==2 || aget==3)) return eMMLeftCenter;
+    if (cobo==0 && asad==3 && (aget==0 || aget==1)) return eMMRightSide;
+    if (cobo==0 && asad==3 && (aget==2 || aget==3)) return eMMRightCenter;
+    if (cobo==1 && asad==0 && aget==0) return efSiJunction;
+    if (cobo==1 && asad==0 && aget==1) return efSiOhmic;
+    if (cobo==1 && asad==1 && aget==0
+        && (chan==2
+         || chan==7
+         || chan==10
+         || chan==16
+         || chan==19
+         || chan==25
+         || chan==28
+         || chan==33
+         || chan==36
+         || chan==41)
+       )
+        return efCsI;
+    if (cobo==2 && aget==0) return eX6Ohmic;
+    if (cobo==2 && (aget==1 || aget==2)) return eX6Junction;
+    if (cobo==2 && aget==3) return eCsICT;
+
+    return -1;
 }
