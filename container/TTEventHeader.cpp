@@ -12,6 +12,7 @@ void TTEventHeader::Clear(Option_t *option)
     LKContainer::Clear(option);
     fIsGoodEvent = false;
     fIsMMEvent = false;
+    fEventNumber = -1;
     fSiBLR = -1;
     fsiLhit = -1;
     fsiRhit = -1;
@@ -51,6 +52,7 @@ void TTEventHeader::Copy(TObject &object) const
     // You should copy data from this container to objCopy
     LKContainer::Copy(object);
     auto objCopy = (TTEventHeader &) object;
+    objCopy.SetEventNumber(fEventNumber);
     objCopy.SetIsGoodEvent(fIsGoodEvent);
     objCopy.SetIsMMEvent(fIsMMEvent);
     objCopy.SetSiBLR(fSiBLR);

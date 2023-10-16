@@ -44,7 +44,7 @@ class MMChannel : public LKChannel
         void Print(Option_t *option="") const;
         void Copy(TObject &object) const;
 
-        Int_t GetEventIdx() const  { return fEventIdx; }
+        Int_t GetDetType() const  { return fDetType; }
         Int_t GetFrameNo() const  { return fFrameNo; }
         Int_t GetDecayNo() const  { return fDecayNo; }
         Int_t GetCobo() const  { return fCobo; }
@@ -57,7 +57,7 @@ class MMChannel : public LKChannel
         Int_t* GetWaveformX() { return fWaveformX; }
         Int_t* GetWaveformY() { return fWaveformY; }
 
-        void SetEventIdx(Int_t eventIdx) { fEventIdx = eventIdx; }
+        void SetDetType(Int_t eventIdx) { fDetType = eventIdx; }
         void SetFrameNo(Int_t frameNo) { fFrameNo = frameNo; }
         void SetDecayNo(Int_t decayNo) { fDecayNo = decayNo; }
         void SetCobo(Int_t cobo) { fCobo = cobo; }
@@ -70,7 +70,7 @@ class MMChannel : public LKChannel
         void SetWaveformX(const Int_t *waveform) { memcpy(fWaveformX, waveform, sizeof(Int_t)*512); }
         void SetWaveformY(const Int_t *waveform) { memcpy(fWaveformY, waveform, sizeof(Int_t)*512); }
 
-        Int_t        fEventIdx = -1;
+        Int_t        fDetType = -1;
         Int_t        fFrameNo = -1;
         Int_t        fDecayNo = -1;
         Int_t        fCobo = -1;
@@ -87,7 +87,7 @@ class MMChannel : public LKChannel
         void  SetBase(Int_t Base) { fBase = Base; }
         Int_t fBase = -1;
 
-    ClassDef(MMChannel,1);
+    ClassDef(MMChannel,2);
 };
 
 #endif

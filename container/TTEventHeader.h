@@ -43,8 +43,9 @@ class TTEventHeader : public LKContainer
         void Print(Option_t *option="") const;
         void Copy(TObject &object) const;
 
-        bool GetIsGoodEvent() const  { return fIsGoodEvent; }
-        bool GetIsMMEvent() const  { return fIsMMEvent; }
+        bool IsGoodEvent() const  { return fIsGoodEvent; }
+        bool IsMMEvent() const  { return fIsMMEvent; }
+        Int_t GetEventNumber() const  { return fEventNumber; }
         Int_t GetSiBLR() const  { return fSiBLR; }
         Int_t GetSiLhit() const  { return fsiLhit; }
         Int_t GetSiRhit() const  { return fsiRhit; }
@@ -54,6 +55,7 @@ class TTEventHeader : public LKContainer
 
         void SetIsGoodEvent(bool isGoodEvent) { fIsGoodEvent = isGoodEvent; }
         void SetIsMMEvent(bool isMMEvent) { fIsMMEvent = isMMEvent; }
+        void SetEventNumber(Int_t eventIdx) { fEventNumber = eventIdx; }
         void SetSiBLR(Int_t SiBLR) { fSiBLR = SiBLR; }
         void SetSiLhit(Int_t siLhit) { fsiLhit = siLhit; }
         void SetSiRhit(Int_t siRhit) { fsiRhit = siRhit; }
@@ -63,6 +65,7 @@ class TTEventHeader : public LKContainer
 
         bool         fIsGoodEvent = false;
         bool         fIsMMEvent = false;
+        Int_t        fEventNumber = -1;
         Int_t        fSiBLR = -1;
         Int_t        fsiLhit = -1;
         Int_t        fsiRhit = -1;
@@ -95,7 +98,7 @@ class TTEventHeader : public LKContainer
         Int_t       fFiredStrip = -1;
         Bool_t      fGoodMMEvt = false;
 
-    ClassDef(TTEventHeader,1);
+    ClassDef(TTEventHeader,2);
 };
 
 #endif
