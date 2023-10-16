@@ -48,7 +48,7 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
     auto eventHeader = (TTEventHeader *) fEventHeaderArray -> At(0);
     eventHeader -> SetIsMMEvent(false);
 
-    if (eventHeader->GetIsGoodEvent()==false)
+    if (eventHeader->IsGoodEvent()==false)
         return;
 
     timing_dt_xy -> Reset("ICES");

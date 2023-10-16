@@ -29,7 +29,7 @@ bool TTRootConversionTask::Init()
     {
         fInputTree -> SetBranchAddress("mmMul",&fmmMult);
         fInputTree -> SetBranchAddress("mmHit",&fmmHit);
-        fInputTree -> SetBranchAddress("mmEventIdx",&fmmEventIdx);
+        fInputTree -> SetBranchAddress("mmEventIdx",&fmmEventNumber);
         fInputTree -> SetBranchAddress("mmFrameNo",fmmFrameNo);
         fInputTree -> SetBranchAddress("mmDecayNo",fmmDecayNo);
         fInputTree -> SetBranchAddress("mmCobo",fmmCobo);
@@ -41,6 +41,7 @@ bool TTRootConversionTask::Init()
         fInputTree -> SetBranchAddress("mmWaveformX",fmmWaveformX);
         fInputTree -> SetBranchAddress("mmWaveformY",fmmWaveformY);
         Int_t fNumEvents = fInputTree -> GetEntries();
+        fInputTree -> Print();
         //Int_t fNumEvents = 2;
         fRun -> SetNumEvents(fNumEvents);
     }
@@ -91,6 +92,7 @@ void TTRootConversionTask::Exec(Option_t *option)
     else SiBLR = 9;
 
     auto eventHeader = (TTEventHeader *) fEventHeaderArray -> ConstructedAt(0);
+    eventHeader -> SetEventNumber(fmmEventNumber);
     eventHeader -> SetSiLhit(siLhit);
     eventHeader -> SetSiRhit(siRhit);
     eventHeader -> SetSiChit(siChit);
@@ -119,6 +121,7 @@ void TTRootConversionTask::Exec(Option_t *option)
         else if(chan>45 && chan<56) dchan = chan - 3;
         else if(chan>56           ) dchan = chan - 4;
 
+        auto type = fDetector -> GetTypeNumber(fmmCobo[iChannel],fmmAsad[iChannel],fmmAget[iChannel],fmmChan[iChannel]);
         //auto type = fDetector -> GetType(fmmCobo[iChannel],fmmAsad[iChannel],fmmAget[iChannel],fmmChan[iChannel]); // XXX
         //if (type==TexAT2::eType::kLeftStrip) ;
         //if (type==TexAT2::eType::kRightStrip) ;
@@ -134,7 +137,7 @@ void TTRootConversionTask::Exec(Option_t *option)
         //if (type==TexAT2::eType::kExternal) ;
 
         auto channel = (MMChannel *) fChannelArray -> ConstructedAt(iChannel);
-        channel -> SetEventIdx(fmmEventIdx);
+        channel -> SetDetType(type);
         channel -> SetFrameNo(fmmFrameNo[iChannel]);
         channel -> SetDecayNo(fmmDecayNo[iChannel]);
         channel -> SetCobo(fmmCobo[iChannel]);

@@ -47,7 +47,7 @@ class TTRootConversionTask : public LKTask
         TTree*       fInputTree;
         Int_t        fmmMult;
         Int_t        fmmHit;
-        Int_t        fmmEventIdx;
+        Int_t        fmmEventNumber;
         Int_t        fmmFrameNo[1030];    ///< [mmMult]
         Int_t        fmmDecayNo[1030];    ///< [mmMult]
         Int_t        fmmCobo[1030];       ///< [mmMult]
@@ -60,7 +60,7 @@ class TTRootConversionTask : public LKTask
         Int_t        fmmWaveformY[1030][512];  ///< [mmMult][time]
 
 
-    ClassDef(TTRootConversionTask,1);
+    ClassDef(TTRootConversionTask,2);
 };
 
 #endif

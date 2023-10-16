@@ -49,7 +49,7 @@ bool TTHoughTestTask::Init()
 void TTHoughTestTask::Exec(Option_t *)
 {
     auto eventHeader = (TTEventHeader *) fEventHeaderArray -> At(0);
-    if (eventHeader->GetIsGoodEvent()==false)
+    if (eventHeader->IsGoodEvent()==false)
         return;
 
     Long64_t evt = fRun -> GetCurrentEventID();
@@ -505,14 +505,9 @@ void TTHoughTestTask::Exec(Option_t *)
         }
     }
 
-    //lk_info << thetazt << " " << radzt << endl;
     Double_t tanzt = TMath::Tan(thetazt*TMath::DegToRad());
     Double_t sinzt = TMath::Sin(thetazt*TMath::DegToRad());
     Double_t coszt = TMath::Cos(thetazt*TMath::DegToRad());
-    //TF1* fhough_zt = new TF1("fhough_zt","[0]*x+[1]",0,128);
-    //fhough_zt -> SetParameter(0,-1/tanzt);
-    //fhough_zt -> SetParameter(1,radzt*(coszt/tanzt+sinzt));
-    //TH2D* fhough_zt = new TH2D("fhough_zt","fhough_zt;mmpx;dT(Beam-Chain)",128,0,128,300,-150,150);
 
     fhough_zt -> Reset("ICES");
     for(Double_t i=-150; i<150; i+=0.1)
@@ -523,7 +518,6 @@ void TTHoughTestTask::Exec(Option_t *)
     {
         fhough_zt -> Fill(loc_strip_all[i],(BeamT-StripT_all[i]),100);
     }
-    // ================================================== Draw Y vs Strip
 
     for(Int_t i=0; i<512; i++)
     {
@@ -536,57 +530,19 @@ void TTHoughTestTask::Exec(Option_t *)
         }
     }
 
-    //for(Int_t i=0; i<6; i++) LCWaveFormbyPixel[i] -> Delete(); // XXX Why delete?
-    //for(Int_t i=0; i<64; i++) HWaveFormbyPixel[i] -> Delete(); // XXX Why delete?
-
-    //TF1* fhough_xz = new TF1("fhough_xz","[0]*x+[1]",0,134);
-    //fhough_xz -> SetParameter(0,tanxt/tanzt);
-    //fhough_xz -> SetParameter(1,radxt*(-sinxt*tanxt/tanzt - cosxt/tanzt)+radzt*(coszt/tanzt + sinzt));
-    //TH2D* fhough_xz = new TH2D("fhough_xz","fhough_xz;mmpx;mmpy",134,0,134,128,0,128);
     fhough_xz -> Reset("ICES");
     for(Double_t i=-150; i<150; i+=0.1)
         if((-i*tanxt+radxt*(cosxt+sinxt*tanxt)>0 && -i*tanxt+radxt*(cosxt+sinxt*tanxt)<134)&&(-i*tanzt+radzt*(coszt+sinzt*tanzt)>0 && -i*tanzt+radzt*(coszt+sinzt*tanzt)<128))
             fhough_xz -> Fill(-i*tanxt+radxt*(cosxt+sinxt*tanxt),-i*tanzt+radzt*(coszt+sinzt*tanzt));
 
-    //TH2D* fhough_xz_check = new TH2D("fhough_xz_check","fhough_xz_check;mmpx;mmpy",134,0,134,128,0,128);
     fhough_xz_check -> Reset("ICES");
     for(Double_t i=0; i<134; i+=0.1)
         fhough_xz_check -> Fill(i,i*(tanzt/tanxt)-radxt*(tanzt*cosxt/tanxt+tanzt*sinxt)+radzt*(coszt+sinzt*tanzt));
 
-    //TCanvas* cvs_dt = new TCanvas("cvs_dt","cvs_dt",1800,1500);
-    //cvs_dt -> Divide(3,3);
-    //cvs_dt -> cd(1);
-    //timing_dt_xy -> Draw("colz");
-    //cvs_dt -> cd(2);
-    //timing_dt_zy -> Draw("colz");
-    //cvs_dt -> cd(3);
-    //timing_dt_xz -> Draw("colz");
-    //cvs_dt -> cd(4);
-    ////Hough_xt -> Draw("colz");
-    //fhough_xt -> Draw("colz");
-    //cvs_dt -> cd(5);
-    ////Hough_zt -> Draw("colz");
-    //fhough_zt -> Draw("colz");
-    //cvs_dt -> cd(6);
-    //fhough_xz -> Draw("colz");
-    //cvs_dt -> cd(7);
-    //Hough_xt -> Draw("colz");
-    //cvs_dt -> cd(8);
-    //Hough_zt -> Draw("colz");
-    //cvs_dt -> cd(9);
-    //fhough_xz_check -> Draw("colz");
-    //cvs_dt -> SaveAs(Form("./drawing/evt%d_track.jpg",evt));
-
-    //const char* fileName = Form("%s/%s_%04d_%d.root", "data", "historgram", 1, 1);
-    //const char* fileName = Form("%s/%s_%04d_%d.root", "data", "histogram", 1, 1);
-    //const char* fileName = Form("%s/%s_%04d_%lld.root", fHistDataPath.Data(), fRun->GetRunName(), fRun->GetRunID(), evt);
     auto file = fRun -> GetOutputFile();
     auto dir = file -> mkdir(Form("event_%lld",evt));
     dir -> cd();
 
-    //const char* fileName = "data/histogram.root";
-    //lk_info << "Creating " << fileName << endl;
-    //auto file = new TFile(fileName.Data(),"recreate");
     timing_dt_xy -> Write();
     timing_dt_zy -> Write();
     timing_dt_xz -> Write();
@@ -597,9 +553,7 @@ void TTHoughTestTask::Exec(Option_t *)
     fhough_zt -> Write();
     fhough_xz -> Write();
     fhough_xz_check -> Write();
-    /*
-    file -> Close();
-    */
+    dir -> Print();
 
     lk_info << "TTHoughTestTask" << std::endl;
 }
