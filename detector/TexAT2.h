@@ -50,6 +50,27 @@ class TexAT2 : public LKDetector
         bool BuildDetectorPlane();
         bool IsInBoundary(Double_t x, Double_t y, Double_t z);
 
+        int GetTypeNumber(eType type)
+        {
+            if (type==eType::kLeftStrip) return 0;
+            if (type==eType::kRightStrip) return 1;
+            if (type==eType::kLeftChain) return 2;
+            if (type==eType::kRightChain) return 3;
+            if (type==eType::kLowCenter) return 4;
+            if (type==eType::kHighCenter) return 5;
+            if (type==eType::kForwardSi) return 6;
+            if (type==eType::kForwardCsI) return 7;
+            if (type==eType::kCENSX6) return 10;
+            if (type==eType::kCENSCsI) return 11;
+            if (type==eType::kExternal) return 100;
+            return -1;
+        }
+
+        int GetTypeNumber(int cobo, int asad, int aget, int chan) {
+            auto type = fType[cobo][asad][aget][chan];
+            return GetTypeNumber(type);
+        }
+
         eType   GetType  (int cobo, int asad, int aget, int chan) { return fType  [cobo][asad][aget][chan]; }
         eDetLoc GetDetLoc(int cobo, int asad, int aget, int chan) { return fDetLoc[cobo][asad][aget][chan]; }
         Int_t   Getmmpx           (int asad, int aget, int dchan) { return fmmpx       [asad][aget][dchan]; }
@@ -84,6 +105,10 @@ class TexAT2 : public LKDetector
 
         int GetElectronicsID(int cobo, int asad, int aget, int chan);
         LKChannelAnalyzer* GetChannelAnalyzer(int id) { return fChannelAnalyzer[id]; }
+
+        void CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan,
+                Double_t &posx, Double_t &posy, Double_t &posz,
+                Double_t &errx, Double_t &erry, Double_t &errz);
 
     private:
         const Int_t  fmmnum = 1024;       ///<  # of all channels
@@ -137,7 +162,7 @@ class TexAT2 : public LKDetector
         Double_t fX6OEpar0[30][4];
         Double_t fX6OEpar1[30][4];
 
-        const int fNumTypes = 18;
+        const int fNumPSAType = 18;
         const int eMMCenterSideA0   = 0;
         const int eMMCenterSideA1   = 1;
         const int eMMCenterSideA2   = 2;
