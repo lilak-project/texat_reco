@@ -52,6 +52,7 @@ class TTEventHeader : public LKContainer
         Int_t GetSiChit() const  { return fsiChit; }
         Int_t GetX6Lhit() const  { return fX6Lhit; }
         Int_t GetX6Rhit() const  { return fX6Rhit; }
+        bool GetIsListedEvt() { return fIsListed; }
 
         void SetIsGoodEvent(bool isGoodEvent) { fIsGoodEvent = isGoodEvent; }
         void SetIsMMEvent(bool isMMEvent) { fIsMMEvent = isMMEvent; }
@@ -62,6 +63,7 @@ class TTEventHeader : public LKContainer
         void SetSiChit(Int_t siChit) { fsiChit = siChit; }
         void SetX6Lhit(Int_t X6Lhit) { fX6Lhit = X6Lhit; }
         void SetX6Rhit(Int_t X6Rhit) { fX6Rhit = X6Rhit; }
+        void SetIsListedEvt(bool IsListed) { fIsListed = IsListed; }
 
         bool         fIsGoodEvent = false;
         bool         fIsMMEvent = false;
@@ -97,6 +99,7 @@ class TTEventHeader : public LKContainer
         Int_t       fFiredDet = -1;
         Int_t       fFiredStrip = -1;
         Bool_t      fGoodMMEvt = false;
+        Bool_t      fIsListed = false;
 
     ClassDef(TTEventHeader,2);
 };
