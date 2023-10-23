@@ -57,6 +57,8 @@ class MMChannel : public LKChannel
         Int_t* GetWaveformX() { return fWaveformX; }
         Int_t* GetWaveformY() { return fWaveformY; }
 
+        Int_t GetCAAC() const  { return fCobo*10000+fAsad*1000+fAget*100+fChan; }
+
         void SetDetType(Int_t eventIdx) { fDetType = eventIdx; }
         void SetFrameNo(Int_t frameNo) { fFrameNo = frameNo; }
         void SetDecayNo(Int_t decayNo) { fDecayNo = decayNo; }
