@@ -48,14 +48,14 @@ bool TTMicromegas::Init()
     fHistPlaneChain -> SetStats(0);
     ifstream fileCC(mapFileNameChain);
     while (fileCC >> cobo >> asad >> aget >> chan >> x0 >> x1 >> x2 >> z0 >> z1 >> z2) {
-        if (fXMin > x1) fXMin < x1;
-        if (fXMax < x1) fXMin < x1;
-        if (fXMin > x2) fXMin < x2;
-        if (fXMax < x2) fXMin < x2;
-        if (fZMin > z1) fXMin < z1;
-        if (fZMax < z1) fXMin < z1;
-        if (fZMin > z2) fXMin < z2;
-        if (fZMax < z2) fXMin < z2;
+        if (fXMin > x1) fXMin = x1;
+        if (fXMax < x1) fXMin = x1;
+        if (fXMin > x2) fXMin = x2;
+        if (fXMax < x2) fXMin = x2;
+        if (fZMin > z1) fXMin = z1;
+        if (fZMax < z1) fXMin = z1;
+        if (fZMin > z2) fXMin = z2;
+        if (fZMax < z2) fXMin = z2;
         auto bin = fHistPlaneChain -> AddBin(x1,z1,x2,z2);
         int caac = cobo*10000 + asad*1000 + aget*100 + chan;
         fMapCAACToBinChain.insert(std::pair<int, int>(caac,bin));
@@ -70,14 +70,14 @@ bool TTMicromegas::Init()
     fHistPlaneStrip -> SetStats(0);
     ifstream fileCS(mapFileNameStrip);
     while (fileCS >> cobo >> asad >> aget >> chan >> x0 >> x1 >> x2 >> z0 >> z1 >> z2) {
-        if (fXMin > x1) fXMin < x1;
-        if (fXMax < x1) fXMin < x1;
-        if (fXMin > x2) fXMin < x2;
-        if (fXMax < x2) fXMin < x2;
-        if (fZMin > z1) fXMin < z1;
-        if (fZMax < z1) fXMin < z1;
-        if (fZMin > z2) fXMin < z2;
-        if (fZMax < z2) fXMin < z2;
+        if (fXMin > x1) fXMin = x1;
+        if (fXMax < x1) fXMin = x1;
+        if (fXMin > x2) fXMin = x2;
+        if (fXMax < x2) fXMin = x2;
+        if (fZMin > z1) fXMin = z1;
+        if (fZMax < z1) fXMin = z1;
+        if (fZMin > z2) fXMin = z2;
+        if (fZMax < z2) fXMin = z2;
         auto bin = fHistPlaneStrip -> AddBin(x1,z1,x2,z2);
         int caac = cobo*10000 + asad*1000 + aget*100 + chan;
         fMapCAACToBinStrip.insert(std::pair<int, int>(caac,bin));
@@ -329,9 +329,9 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
                 auto hit = (LKHit *) hitArray -> At(iHit);
                 if (caac==hit -> GetChannelID()) {
                     auto caac0 = caac;
-                    auto cobo = int(caac0/10000); caac0 - cobo*10000;
-                    auto asad = int(caac0/1000); caac0 - asad*1000;
-                    auto aget = int(caac0/100); caac0 - aget*100;
+                    auto cobo = int(caac0/10000); caac0 -= cobo*10000;
+                    auto asad = int(caac0/1000); caac0 -= asad*1000;
+                    auto aget = int(caac0/100); caac0 -= aget*100;
                     auto chan = caac0;
                     if (texat!=nullptr) {
                         auto electronicsID = texat -> GetElectronicsID(cobo,asad,aget,chan);
