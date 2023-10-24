@@ -108,6 +108,9 @@ class TTMicromegas : public LKPadPlane
         Double_t fZMin = DBL_MAX;
         Double_t fZMax = -DBL_MAX;
 
+        int fCAAC = -1;
+        vector<TClonesArray*> fHitArrayList;
+
         TGraph *fGraphChannelBoundaryChain = nullptr;
         TGraph *fGraphChannelBoundaryStrip = nullptr;
 

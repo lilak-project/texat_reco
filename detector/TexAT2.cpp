@@ -13,6 +13,18 @@ TexAT2::TexAT2()
         fChannelAnalyzer[type] = nullptr;
 }
 
+TexAT2::TexAT2(TString parName) : TexAT2()
+{
+    AddPar(parName);
+    Init();
+}
+
+TexAT2::TexAT2(LKParameterContainer* par) : TexAT2()
+{
+    AddPar(par);
+    Init();
+}
+
 bool TexAT2::Init()
 {
     LKDetector::Init();

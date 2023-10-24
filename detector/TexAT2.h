@@ -4,6 +4,7 @@
 #include "LKDetector.h"
 #include "LKLogger.h"
 #include "LKChannelAnalyzer.h"
+#include "MMChannel.h"
 
 /*
  * Remove this comment block after reading it through
@@ -18,6 +19,9 @@ class TexAT2 : public LKDetector
     public:
         TexAT2();
         virtual ~TexAT2() { ; }
+
+        TexAT2(TString parName); ///< Init with parName
+        TexAT2(LKParameterContainer* par); ///< Init with par
 
         enum class eType
         {
@@ -106,6 +110,13 @@ class TexAT2 : public LKDetector
         int GetElectronicsID(int caac);
         int GetElectronicsID(int cobo, int asad, int aget, int chan);
         LKChannelAnalyzer* GetChannelAnalyzer(int id) { return fChannelAnalyzer[id]; }
+        LKChannelAnalyzer* GetChannelAnalyzer(MMChannel* channel) {
+            auto caac = channel -> GetCAAC();
+            auto electronicsID = GetElectronicsID(caac);
+            if (electronicsID>=0)
+                return GetChannelAnalyzer(electronicsID);
+            return (LKChannelAnalyzer*) nullptr;
+        }
 
         void CAACToGlobalPosition(Int_t caac,
                 Double_t &posx, Double_t &posy, Double_t &posz,
