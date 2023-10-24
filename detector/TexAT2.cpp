@@ -342,7 +342,7 @@ bool TexAT2::Init()
     x6ocal.close();
     x6ocal.clear();
 
-    //InitChannelAnalyzer();
+    InitChannelAnalyzer();
 
     return true;
 }

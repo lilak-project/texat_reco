@@ -30,7 +30,8 @@ bool TTMicromegas::Init()
         histChannel -> GetXaxis() -> SetTitleSize(0.065);
         histChannel -> GetYaxis() -> SetTitleSize(0.065);
         histChannel -> GetXaxis() -> SetTitleOffset(1.20);
-        histChannel -> GetYaxis() -> SetTitleOffset(0.68);
+        //histChannel -> GetYaxis() -> SetTitleOffset(0.68);
+        histChannel -> GetYaxis() -> SetTitleOffset(0.80);
     }
 
     int cobo, asad, aget, chan, dumi;
@@ -44,7 +45,10 @@ bool TTMicromegas::Init()
     if (mapFileNameChain.IsNull()) mapFileNameChain = "position_channels_center_and_chain.txt";
     if (mapFileNameStrip.IsNull()) mapFileNameStrip = "position_channels_center_and_strip.txt";
 
-    fHistPlaneChain = new TH2Poly("hist_TexATv2_plane_center_chain","TexAT2 Micromegas Center and Chain;x (mm);z (beam-axis)",-125,125,180,420);
+    fHistPlaneChainFrame = new TH2Poly("frame_TexATv2_plane_center_chain","TexAT2 Micromegas Center and Chain;x (mm);z (beam-axis)",-130,130,180,420);
+    fHistPlaneChainFrame -> SetStats(0);
+    fHistPlaneChainFrame -> SetLineColorAlpha(kBlack,0.5);
+    fHistPlaneChain = new TH2Poly("hist_TexATv2_plane_center_chain","TexAT2 Micromegas Center and Chain;x (mm);z (beam-axis)",-130,130,180,420);
     fHistPlaneChain -> SetStats(0);
     ifstream fileCC(mapFileNameChain);
     while (fileCC >> cobo >> asad >> aget >> chan >> x0 >> x1 >> x2 >> z0 >> z1 >> z2) {
@@ -56,7 +60,8 @@ bool TTMicromegas::Init()
         if (fZMax < z1) fXMin = z1;
         if (fZMin > z2) fXMin = z2;
         if (fZMax < z2) fXMin = z2;
-        auto bin = fHistPlaneChain -> AddBin(x1,z1,x2,z2);
+        auto bin = fHistPlaneChainFrame -> AddBin(x1,z1,x2,z2);
+        fHistPlaneChain -> AddBin(x1,z1,x2,z2);
         int caac = cobo*10000 + asad*1000 + aget*100 + chan;
         fMapCAACToBinChain.insert(std::pair<int, int>(caac,bin));
         fMapBinToCAACChain.insert(std::pair<int, int>(bin,caac));
@@ -66,7 +71,10 @@ bool TTMicromegas::Init()
         fMapBinToZ2Chain.insert(std::pair<int, double>(bin,z2));
     }
 
-    fHistPlaneStrip = new TH2Poly("hist_TexATv2_plane_center_strip","TexAT2 Micromegas Center and Strip;x (mm);z (beam-axis)",-125,125,180,420);
+    fHistPlaneStripFrame = new TH2Poly("frame_TexATv2_plane_center_strip","TexAT2 Micromegas Center and Strip;x (mm);z (beam-axis)",-130,130,180,420);
+    fHistPlaneStripFrame -> SetStats(0);
+    fHistPlaneChainFrame -> SetLineColorAlpha(kGray,0.5);
+    fHistPlaneStrip = new TH2Poly("hist_TexATv2_plane_center_strip","TexAT2 Micromegas Center and Strip;x (mm);z (beam-axis)",-130,130,180,420);
     fHistPlaneStrip -> SetStats(0);
     ifstream fileCS(mapFileNameStrip);
     while (fileCS >> cobo >> asad >> aget >> chan >> x0 >> x1 >> x2 >> z0 >> z1 >> z2) {
@@ -78,7 +86,8 @@ bool TTMicromegas::Init()
         if (fZMax < z1) fXMin = z1;
         if (fZMin > z2) fXMin = z2;
         if (fZMax < z2) fXMin = z2;
-        auto bin = fHistPlaneStrip -> AddBin(x1,z1,x2,z2);
+        auto bin = fHistPlaneStripFrame -> AddBin(x1,z1,x2,z2);
+        fHistPlaneStrip -> AddBin(x1,z1,x2,z2);
         int caac = cobo*10000 + asad*1000 + aget*100 + chan;
         fMapCAACToBinStrip.insert(std::pair<int, int>(caac,bin));
         fMapBinToCAACStrip.insert(std::pair<int, int>(bin,caac));
@@ -91,10 +100,12 @@ bool TTMicromegas::Init()
     SetDataFromBranch();
 
     fGraphChannelBoundaryChain = new TGraph();
+    fGraphChannelBoundaryChain -> SetName("graphChannelBoundaryChain");
     fGraphChannelBoundaryChain -> SetLineColor(kRed);
     fGraphChannelBoundaryChain -> SetLineWidth(2);
 
     fGraphChannelBoundaryStrip = new TGraph();
+    fGraphChannelBoundaryChain -> SetName("graphChannelBoundaryStrip");
     fGraphChannelBoundaryStrip -> SetLineColor(kRed);
     fGraphChannelBoundaryStrip -> SetLineWidth(2);
 
@@ -134,10 +145,8 @@ Int_t TTMicromegas::FindChannelID(Int_t section, Int_t row, Int_t layer)
 
 TCanvas* TTMicromegas::GetCanvas(Option_t *option)
 {
-    lk_debug << endl;
     if (fCanvas==nullptr) {
-        lk_debug << endl;
-        fCanvas = new TCanvas("TTMicromegas","",fScale*1100,fScale*700);
+        fCanvas = new TCanvas("TTMicromegas","Micromegas",fScale*1100,fScale*700);
         auto pad1 = new TPad("pad1","",0,230./700,0.5,1);
         pad1 -> SetMargin(0.12,0.15,0.1,0.1);
         pad1 -> SetNumber(1);
@@ -157,6 +166,7 @@ TCanvas* TTMicromegas::GetCanvas(Option_t *option)
         pad4 -> SetNumber(4);
         pad4 -> Draw();
         fCanvas -> Modified();
+        fCanvas -> Update();
     }
     return fCanvas;
 }
@@ -186,25 +196,31 @@ void TTMicromegas::FillDataToHist()
     if (fHitCenterArray==nullptr)
         return;
 
+    fHistPlaneChain -> Reset("ICES");
+    fHistPlaneStrip -> Reset("ICES");
+
+    lk_debug << endl; int lki=0;
     for (auto hitArray : {fHitCenterArray,fHitLChainArray,fHitRChainArray})
     {
         auto numHits = hitArray -> GetEntries();
+        lk_debug << lki++ << " " << numHits << endl;
         for (auto iHit=0; iHit<numHits; ++iHit)
         {
             auto hit = (LKHit *) hitArray -> At(iHit);
             auto position = hit -> GetPosition();
-            fHistPlaneChain -> Fill(position.X(), position.Z());
+            fHistPlaneChain -> Fill(position.X(), position.Z(), hit->GetCharge());
         }
     }
 
     for (auto hitArray : {fHitCenterArray,fHitLStripArray,fHitRStripArray})
     {
         auto numHits = hitArray -> GetEntries();
+        lk_debug << lki++ << " " << numHits << endl;
         for (auto iHit=0; iHit<numHits; ++iHit)
         {
             auto hit = (LKHit *) hitArray -> At(iHit);
             auto position = hit -> GetPosition();
-            fHistPlaneStrip -> Fill(position.X(), position.Z());
+            fHistPlaneStrip -> Fill(position.X(), position.Z(), hit->GetCharge());
         }
     }
 
@@ -215,8 +231,10 @@ void TTMicromegas::FillDataToHist()
 
 void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
 {
+    lk_debug << endl;
     if (isChain) lk_info << "SelectAndDrawChannel (Chain) " << bin << endl;
     else         lk_info << "SelectAndDrawChannel (Strip) " << bin << endl;
+    lk_debug << endl;
 
     auto cvsPlane = fCanvas -> cd(3);
     auto cvsChannel = fCanvas -> cd(4);
@@ -224,22 +242,27 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
         cvsPlane = fCanvas -> cd(1);
         cvsChannel = fCanvas -> cd(2);
     }
+    lk_debug << endl;
 
     bool existHitArray = false;
     bool existBufferArray = (fBufferArray!=nullptr);
     if (isChain) existHitArray = (fHitCenterArray!=nullptr&&fHitLChainArray!=nullptr&&fHitRChainArray!=nullptr);
     else         existHitArray = (fHitCenterArray!=nullptr&&fHitLStripArray!=nullptr&&fHitRStripArray!=nullptr);
+    lk_debug << endl;
 
     vector<TClonesArray*> hitArrayList = {fHitCenterArray};
     if (isChain) {
+        lk_debug << endl;
         hitArrayList.push_back(fHitLChainArray);
         hitArrayList.push_back(fHitRChainArray);
     }
     else {
+        lk_debug << endl;
         hitArrayList.push_back(fHitLStripArray);
         hitArrayList.push_back(fHitRStripArray);
     }
     if (bin<0) {
+        lk_debug << endl;
         if (existHitArray) {
             LKHit *hit = nullptr;
             for (auto hitArray : hitArrayList) {
@@ -254,11 +277,12 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
             else         bin = fMapCAACToBinStrip[caac];
         }
     }
+    lk_debug << "bin " << bin << endl;
 
     if (bin<0)
         return;
+    lk_debug << endl;
 
-    cvsPlane -> cd();
     double x1,x2,z1,z2;
     TGraph* graphBoundary;
     if (isChain) {
@@ -283,7 +307,12 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
     graphBoundary -> SetPoint(2,x2,z2);
     graphBoundary -> SetPoint(3,x1,z2);
     graphBoundary -> SetPoint(4,x1,z1);
+    graphBoundary -> SetLineColor(kBlue);
+    lk_debug << endl;
+
+    cvsPlane -> cd();
     graphBoundary -> Draw("samel");
+    lk_debug << endl;
 
     int caac = 0;
     if (isChain) caac = fMapBinToCAACChain[bin];
@@ -293,13 +322,16 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
     if (isChain) histChannel = fHistChannelChain;
     else         histChannel = fHistChannelStrip;
     histChannel -> SetTitle(Form("CAAC=%d, position=(%.2f, %.2f)",caac,x0,z0));
+    lk_debug << endl;
     
     cvsChannel -> Modified();
     cvsChannel -> Update();
+    lk_debug << endl;
 
     if (!existBufferArray)
         return;
 
+    lk_debug << endl;
     MMChannel* channel = nullptr;
     auto numChannels = fBufferArray -> GetEntries();
     for (auto iChannel=0; iChannel<numChannels; ++iChannel)
@@ -313,6 +345,7 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
     if (channel==nullptr)
         return;
 
+    lk_debug << endl;
     auto buffer = channel -> GetWaveformY();
     histChannel -> Reset();
     for (auto tb=0; tb<360; ++tb)
@@ -323,25 +356,44 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
     //if (texat==nullptr) ...;
     if (existHitArray)
     {
+        int countHitsInChannel = 0;
+        lk_debug << endl;
         for (auto hitArray : hitArrayList) {
             auto numHits = hitArray -> GetEntries();
-            for (auto iHit=0; iHit<numHits; ++iHit) {
+            lk_debug << numHits << endl;
+            for (auto iHit=0; iHit<numHits; ++iHit)
+            {
                 auto hit = (LKHit *) hitArray -> At(iHit);
-                if (caac==hit -> GetChannelID()) {
+                if (caac==hit -> GetChannelID())
+                {
+                    ++countHitsInChannel;
+                    lk_debug << caac << endl;
                     auto caac0 = caac;
                     auto cobo = int(caac0/10000); caac0 -= cobo*10000;
                     auto asad = int(caac0/1000); caac0 -= asad*1000;
                     auto aget = int(caac0/100); caac0 -= aget*100;
                     auto chan = caac0;
-                    if (texat!=nullptr) {
+                    lk_debug << caac << endl;
+                    if (texat!=nullptr)
+                    {
                         auto electronicsID = texat -> GetElectronicsID(cobo,asad,aget,chan);
                         auto pulse = texat -> GetChannelAnalyzer(electronicsID) -> GetPulse();
                         pulse -> GetPulseGraph(hit->GetY(), hit -> GetCharge());
-                        pulse -> Draw("samel"); }
+                        cvsChannel -> cd();
+                        pulse -> Draw("samel");
+                    }
+                    lk_debug << caac << endl;
+                    /*XXX*/
+                    graphBoundary -> SetLineColor(kRed);
+                    cvsPlane -> cd();
+                    graphBoundary -> Draw("samel");
                 }
             }
+            //histChannel -> Draw();
+            histChannel -> SetTitle(Form("CAAC=%d, position=(%.2f, %.2f), #Hits=%d",caac,x0,z0,countHitsInChannel));
         }
     }
+    lk_debug << endl;
 
     fCanvas -> Modified();
     fCanvas -> Update();
@@ -355,15 +407,20 @@ void TTMicromegas::DrawFrame(Option_t *option)
 void TTMicromegas::Draw(Option_t *option)
 {
     //SetDataFromBranch();
+    lk_debug << endl;
     FillDataToHist();
+    lk_debug << endl;
 
     auto cvs = GetCanvas();
 
     cvs -> cd(1);
     if (fHistPlaneChain->GetEntries()==0)
-        fHistPlaneChain -> Draw();
-    else
-        fHistPlaneChain -> Draw("colz");
+        fHistPlaneChainFrame -> Draw();
+    else {
+        fHistPlaneChainFrame -> SetMinimum(0.1);
+        fHistPlaneChain -> SetMinimum(0.1);
+        fHistPlaneChain -> Draw("same colz");
+    }
 
     cvs -> cd(2);
     fHistChannelChain -> Draw();
@@ -377,9 +434,12 @@ void TTMicromegas::Draw(Option_t *option)
 
     cvs -> cd(3);
     if (fHistPlaneStrip->GetEntries()==0)
-        fHistPlaneStrip -> Draw();
-    else
-        fHistPlaneStrip -> Draw("colz");
+        fHistPlaneStripFrame -> Draw();
+    else {
+        fHistPlaneStripFrame -> Draw("");
+        fHistPlaneStrip -> SetMinimum(0.1);
+        fHistPlaneStrip -> Draw("same colz");
+    }
 
     cvs -> cd(4);
     fHistChannelStrip -> Draw();

@@ -87,6 +87,8 @@ class TTMicromegas : public LKPadPlane
         //void ClickedAtPosition(Double_t x, Double_t y);
 
     private:
+        TH2Poly* fHistPlaneChainFrame = nullptr;
+        TH2Poly* fHistPlaneStripFrame = nullptr;
         TH2Poly* fHistPlaneChain = nullptr;
         TH2Poly* fHistPlaneStrip = nullptr;
         TH1D*    fHistChannelChain = nullptr;
