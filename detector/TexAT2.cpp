@@ -424,6 +424,15 @@ bool TexAT2::IsInBoundary(Double_t x, Double_t y, Double_t z)
     return true;
 }
 
+int TexAT2::GetElectronicsID(int caac) {
+    auto caac0 = caac;
+    auto cobo = int(caac0/10000); caac0 -= cobo*10000;
+    auto asad = int(caac0/1000); caac0 -= asad*1000;
+    auto aget = int(caac0/100); caac0 -= aget*100;
+    auto chan = caac0;
+    return GetElectronicsID(cobo, asad, aget, chan);
+}
+
 int TexAT2::GetElectronicsID(int cobo, int asad, int aget, int chan)
 {
     if (cobo==0 && (asad==0 || asad==1)) {
@@ -473,6 +482,18 @@ int TexAT2::GetElectronicsID(int cobo, int asad, int aget, int chan)
     if (cobo==2 && aget==3) return eCsICT;
 
     return -1;
+}
+
+void TexAT2::CAACToGlobalPosition(Int_t caac,
+        Double_t &posx, Double_t &posy, Double_t &posz,
+        Double_t &errx, Double_t &erry, Double_t &errz)
+{
+    auto caac0 = caac;
+    auto cobo = int(caac0/10000); caac0 -= cobo*10000;
+    auto asad = int(caac0/1000); caac0 -= asad*1000;
+    auto aget = int(caac0/100); caac0 -= aget*100;
+    auto chan = caac0;
+    CAACToGlobalPosition(cobo,asad,aget,chan,posx,posy,posz,errx,erry,errz);
 }
 
 void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan,

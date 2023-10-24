@@ -101,13 +101,13 @@ class TTMicromegas : public LKPadPlane
         TGraph *fGraphChannelBoundaryChain = nullptr;
         TGraph *fGraphChannelBoundaryStrip = nullptr;
 
-        TClonesArray* fEventHeaderHolder = nullptr;
         TClonesArray* fBufferArray = nullptr;
         TClonesArray* fHitCenterArray = nullptr;
         TClonesArray* fHitLChainArray = nullptr;
         TClonesArray* fHitRChainArray = nullptr;
         TClonesArray* fHitLStripArray = nullptr;
         TClonesArray* fHitRStripArray = nullptr;
+        TClonesArray* fEventHeaderHolder = nullptr;
 
         std::map<int, int> fMapBinToCAACChain;
         std::map<int, int> fMapCAACToBinChain;

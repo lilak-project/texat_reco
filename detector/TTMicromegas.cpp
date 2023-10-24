@@ -183,13 +183,13 @@ bool TTMicromegas::SetDataFromBranch()
     if (fRun==nullptr)
         return false;
 
-    fEventHeadherHolder = fRun -> GetBranchA("EventHeader");
     fBufferArray = fRun -> GetBranchA("RawData");
     fHitCenterArray = fRun -> GetBranchA("HitCenter");
     fHitLChainArray = fRun -> GetBranchA("HitLChain");
     fHitRChainArray = fRun -> GetBranchA("HitRChain");
     fHitLStripArray = fRun -> GetBranchA("HitLStrip");
     fHitRStripArray = fRun -> GetBranchA("HitRStrip");
+    fEventHeaderHolder = fRun -> GetBranchA("EventHeader");
     return true;
 }
 
@@ -204,19 +204,19 @@ void TTMicromegas::FillDataToHist()
     Long64_t eventIDFromRun = -1;
     int evenIDFromHeader = -1;
     if (fRun!=nullptr) eventIDFromRun = fRun -> GetCurrentEventID();
-    if (fEventHeadherHolder!=nullptr) {
-        auto eventHeader = (TTEventHeader*) fEventHeadherHolder -> At(0);
+    if (fEventHeaderHolder!=nullptr) {
+        auto eventHeader = (TTEventHeader*) fEventHeaderHolder -> At(0);
         if (eventHeader!=nullptr) {
             evenIDFromHeader = eventHeader -> GetEventNumber();
         }
     }
     if (eventIDFromRun>=0 && evenIDFromHeader>=0) {
-        fHistPlaneChain -> SetTitle("Event %d (%d)",eventIDFromRun,evenIDFromHeader);
-        fHistPlaneStrip -> SetTitle("Event %d (%d)",eventIDFromRun,evenIDFromHeader);
+        fHistPlaneChain -> SetTitle(Form("Event %d (%d)",eventIDFromRun,evenIDFromHeader));
+        fHistPlaneStrip -> SetTitle(Form("Event %d (%d)",eventIDFromRun,evenIDFromHeader));
     }
     else if (eventIDFromRun>=0 && evenIDFromHeader<0) {
-        fHistPlaneChain -> SetTitle("Event %d",eventIDFromRun);
-        fHistPlaneStrip -> SetTitle("Event %d",eventIDFromRun);
+        fHistPlaneChain -> SetTitle(Form("Event %d",eventIDFromRun));
+        fHistPlaneStrip -> SetTitle(Form("Event %d",eventIDFromRun));
     }
 
     for (auto hitArray : {fHitCenterArray,fHitLChainArray,fHitRChainArray})
@@ -323,12 +323,15 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
     int caac = 0;
     if (isChain) caac = fMapBinToCAACChain[bin];
     else         caac = fMapBinToCAACStrip[bin];
+
+    auto texat = (TexAT2*) fDetector;
     
     TH1D* histChannel = nullptr;
     if (isChain) histChannel = fHistChannelChain;
     else         histChannel = fHistChannelStrip;
     histChannel -> Reset();
-    histChannel -> SetTitle(Form("CAAC=%d, position=(%.2f, %.2f)",caac,x0,z0));
+    int electronicsID = texat -> GetElectronicsID(caac);
+    histChannel -> SetTitle(Form("CAAC=%d, eID=%d, position=(%.2f, %.2f), #Hits=%d",caac,electronicsID,x0,z0,0));
     
     cvsChannel -> Modified();
     cvsChannel -> Update();
@@ -357,7 +360,6 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
         histChannel -> SetBinContent(tb+1,buffer[tb]);
     cvsChannel -> cd();
     histChannel -> Draw();
-    auto texat = (TexAT2*) fDetector;
     //if (texat==nullptr) ...;
     if (existHitArray)
     {
@@ -365,23 +367,17 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
         for (auto hitArray : hitArrayList) {
             auto numHits = hitArray -> GetEntries();
             lk_debug << numHits << endl;
+;
             for (auto iHit=0; iHit<numHits; ++iHit)
             {
                 auto hit = (LKHit *) hitArray -> At(iHit);
                 if (caac==hit -> GetChannelID())
                 {
                     ++countHitsInChannel;
-                    auto caac0 = caac;
-                    auto cobo = int(caac0/10000); caac0 -= cobo*10000;
-                    auto asad = int(caac0/1000); caac0 -= asad*1000;
-                    auto aget = int(caac0/100); caac0 -= aget*100;
-                    auto chan = caac0;
-                    lk_debug << caac << endl;
                     if (texat!=nullptr)
                     {
-                        auto electronicsID = texat -> GetElectronicsID(cobo,asad,aget,chan);
-                        auto pulse = texat -> GetChannelAnalyzer(electronicsID) -> GetPulse();
                         lk_debug << electronicsID << " " << hit->GetY() << " " << hit -> GetCharge() << endl;
+                        auto pulse = texat -> GetChannelAnalyzer(electronicsID) -> GetPulse();
                         auto graph = pulse -> GetPulseGraph(hit->GetY(), hit -> GetCharge());
                         cvsChannel -> cd();
                         graph -> Draw("samelx");

@@ -103,10 +103,14 @@ class TexAT2 : public LKDetector
         Double_t GetX6OEpar0(int det, int strip) { return fX6OEpar0[det][strip]; }
         Double_t GetX6OEpar1(int det, int strip) { return fX6OEpar1[det][strip]; }
 
+        int GetElectronicsID(int caac);
         int GetElectronicsID(int cobo, int asad, int aget, int chan);
         LKChannelAnalyzer* GetChannelAnalyzer(int id) { return fChannelAnalyzer[id]; }
 
-        void CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan,
+        void CAACToGlobalPosition(Int_t caac,
+                Double_t &posx, Double_t &posy, Double_t &posz,
+                Double_t &errx, Double_t &erry, Double_t &errz);
+        void CAACToGlobalPosition(Int_t cobo, Int_t asad, Int_t aget, Int_t chan,
                 Double_t &posx, Double_t &posy, Double_t &posz,
                 Double_t &errx, Double_t &erry, Double_t &errz);
 
