@@ -1,4 +1,5 @@
 #include "TexAT2.h"
+#include "TTMicromegas.h"
 
 ClassImp(TexAT2);
 
@@ -14,6 +15,8 @@ TexAT2::TexAT2()
 
 bool TexAT2::Init()
 {
+    LKDetector::Init();
+
     // Put intialization todos here which are not iterative job though event
     e_info << "Initializing TexAT2" << std::endl;
 
@@ -407,6 +410,8 @@ bool TexAT2::BuildDetectorPlane()
 {
     // example plane
     // AddPlane(new MyPlane);
+    auto mm = new TTMicromegas;
+    AddPlane(mm);
     return true;
 }
 
