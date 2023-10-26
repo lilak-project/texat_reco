@@ -101,6 +101,7 @@ class TTMicromegas : public LKPadPlane
         TGraph *fGraphChannelBoundaryChain = nullptr;
         TGraph *fGraphChannelBoundaryStrip = nullptr;
 
+        TClonesArray* fEventHeaderHolder = nullptr;
         TClonesArray* fBufferArray = nullptr;
         TClonesArray* fHitCenterArray = nullptr;
         TClonesArray* fHitLChainArray = nullptr;
