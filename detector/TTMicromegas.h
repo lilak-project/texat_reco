@@ -4,6 +4,7 @@
 #include "LKLogger.h"
 #include "LKPadPlane.h"
 #include "TH2Poly.h"
+#include "MMChannel.h"
 
 /*
  * Remove this comment block after reading it through
@@ -82,9 +83,18 @@ class TTMicromegas : public LKPadPlane
         void SelectAndDrawChannelStrip(Int_t bin=-1) { SelectAndDrawChannel(false,bin); }
         void FillDataToHist();
 
+        void WriteCurrentChannel(TString name="");
+
         static void MouseClickEventChain();
         static void MouseClickEventStrip();
         //void ClickedAtPosition(Double_t x, Double_t y);
+
+        int GetNumCPads() { return 2; }
+        TPad *GetCPad(int iPad) {
+            if (iPad==0) return (TPad*) fCanvas -> cd(1);
+            if (iPad==1) return (TPad*) fCanvas -> cd(3);
+            return (TPad*) nullptr;
+        }
 
     private:
         TH2Poly* fHistPlaneChainFrame = nullptr;
@@ -122,6 +132,9 @@ class TTMicromegas : public LKPadPlane
         std::map<int, double> fMapBinToX2Strip;
         std::map<int, double> fMapBinToZ1Strip;
         std::map<int, double> fMapBinToZ2Strip;
+
+        int fCurrElectronicsID = -1;
+        MMChannel* fCurrSelChannel = nullptr;
 
         double fScale = 2.5;
 
