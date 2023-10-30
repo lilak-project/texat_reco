@@ -12,57 +12,55 @@ void TTEventHeader::Clear(Option_t *option)
     LKContainer::Clear(option);
     fIsGoodEvent = false;
     fIsMMEvent = false;
-    fEventNumber = -1;
-    fSiBLR = -1;
-    fsiLhit = -1;
-    fsiRhit = -1;
-    fsiChit = -1;
-    fX6Lhit = -1;
-    fX6Rhit = -1;
+    fGoodMMEvt = false;
     fGoodSiEvt = eGoodSiEvt::kNon;
+    fIsListed = false;
     fFiredDet = -1;
     fFiredStrip = -1;
-    fGoodMMEvt = false;
+    fEventNumber = -1;
+    fSiBLR = -1;
+    fSiLhit = -1;
+    fSiRhit = -1;
+    fSiChit = -1;
+    fX6Lhit = -1;
+    fX6Rhit = -1;
 }
 
 void TTEventHeader::Print(Option_t *option) const
 {
-    // You will probability need to modify here
-    e_info << "GoodSiEvt " << (int)fGoodSiEvt
-        << " at Det " << fFiredDet
-        << ", " << fFiredStrip
-        << " GoodMMEvt " << fGoodMMEvt
-        << std::endl;
-    //e_info << "good mm B / L R C / XL XR :"
-    //    << " " << fIsGoodEvent
-    //    << " " << fIsMMEvent
-    //    << " " << fSiBLR
-    //    << " / " << fsiLhit
-    //    << " " << fsiRhit
-    //    << " " << fsiChit
-    //    << " / " << fX6Lhit
-    //    << " " << fX6Rhit
-    //    << " | " << (int)fGoodSiEvt
-    //    << " " << fGoodMMEvt
-    //    << std::endl;
+    e_info << "[TexAT EventHeader]" << std::endl;
+    e_cout << "- fIsGoodEvent : " << fIsGoodEvent << std::endl;
+    e_cout << "- fIsMMEvent   : " << fIsMMEvent << std::endl;
+    e_cout << "- fGoodMMEvt   : " << fGoodMMEvt << std::endl;
+    e_cout << "- fGoodSiEvt   : " << (Int_t) fGoodSiEvt << std::endl;
+    e_cout << "- fIsListed    : " << fIsListed << std::endl;
+    e_cout << "- fFiredDet    : " << fFiredDet << std::endl;
+    e_cout << "- fFiredStrip  : " << fFiredStrip << std::endl;
+    e_cout << "- fEventNumber : " << fEventNumber << std::endl;
+    e_cout << "- fSiBLR  : " << fSiBLR << std::endl;
+    e_cout << "- fSiLhit : " << fSiLhit << std::endl;
+    e_cout << "- fSiRhit : " << fSiRhit << std::endl;
+    e_cout << "- fSiChit : " << fSiChit << std::endl;
+    e_cout << "- fX6Lhit : " << fX6Lhit << std::endl;
+    e_cout << "- fX6Rhit : " << fX6Rhit << std::endl;
 }
 
 void TTEventHeader::Copy(TObject &object) const
 {
-    // You should copy data from this container to objCopy
     LKContainer::Copy(object);
     auto objCopy = (TTEventHeader &) object;
-    objCopy.SetEventNumber(fEventNumber);
     objCopy.SetIsGoodEvent(fIsGoodEvent);
     objCopy.SetIsMMEvent(fIsMMEvent);
-    objCopy.SetSiBLR(fSiBLR);
-    objCopy.SetSiLhit(fsiLhit);
-    objCopy.SetSiRhit(fsiRhit);
-    objCopy.SetSiChit(fsiChit);
-    objCopy.SetX6Lhit(fX6Lhit);
-    objCopy.SetX6Rhit(fX6Rhit);
+    objCopy.SetGoodMMEvt(fGoodMMEvt);
     objCopy.SetGoodSiEvt(fGoodSiEvt);
+    objCopy.SetIsListed(fIsListed);
     objCopy.SetFiredDet(fFiredDet);
     objCopy.SetFiredStrip(fFiredStrip);
-    objCopy.SetGoodMMEvt(fGoodMMEvt);
+    objCopy.SetEventNumber(fEventNumber);
+    objCopy.SetSiBLR(fSiBLR);
+    objCopy.SetSiLhit(fSiLhit);
+    objCopy.SetSiRhit(fSiRhit);
+    objCopy.SetSiChit(fSiChit);
+    objCopy.SetX6Lhit(fX6Lhit);
+    objCopy.SetX6Rhit(fX6Rhit);
 }

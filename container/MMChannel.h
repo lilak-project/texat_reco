@@ -43,6 +43,7 @@ class MMChannel : public LKChannel
         void Clear(Option_t *option="");
         void Print(Option_t *option="") const;
         void Copy(TObject &object) const;
+        MMChannel* CloneChannel() const;
 
         Int_t GetDetType() const  { return fDetType; }
         Int_t GetFrameNo() const  { return fFrameNo; }

@@ -60,3 +60,21 @@ void MMChannel::Copy(TObject &object) const
     objCopy.SetWaveformX(fWaveformX);
     objCopy.SetWaveformY(fWaveformY);
 }
+
+MMChannel* MMChannel::CloneChannel() const
+{
+    auto clone = new MMChannel();
+    clone -> SetDetType(fDetType);
+    clone -> SetFrameNo(fFrameNo);
+    clone -> SetDecayNo(fDecayNo);
+    clone -> SetCobo(fCobo);
+    clone -> SetAsad(fAsad);
+    clone -> SetAget(fAget);
+    clone -> SetChan(fChan);
+    clone -> SetDChan(fDChan);
+    clone -> SetTime(fTime);
+    clone -> SetEnergy(fEnergy);
+    clone -> SetWaveformX(fWaveformX);
+    clone -> SetWaveformY(fWaveformY);
+    return clone;
+}
