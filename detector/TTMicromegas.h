@@ -58,7 +58,7 @@
 class TTMicromegas : public LKPadPlane
 {
     public:
-        static TTMicromegas* GetMMCC();
+        static TTMicromegas* GetPlane();
 
         TTMicromegas();
         virtual ~TTMicromegas() { ; }

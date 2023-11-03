@@ -6,7 +6,7 @@
 ClassImp(TTMicromegas);
 
 TTMicromegas* TTMicromegas::fInstance = nullptr;
-TTMicromegas* TTMicromegas::GetMMCC() { return fInstance; }
+TTMicromegas* TTMicromegas::GetPlane() { return fInstance; }
 
 TTMicromegas::TTMicromegas()
 {
@@ -208,13 +208,15 @@ void TTMicromegas::FillDataToHist()
             evenIDFromHeader = eventHeader -> GetEventNumber();
         }
     }
+    lk_info << "LKRun eventID: " << eventIDFromRun << endl;
+    lk_info << "Experiment eventID: " << evenIDFromHeader << endl;
     if (eventIDFromRun>=0 && evenIDFromHeader>=0) {
-        fHistPlaneChain -> SetTitle(Form("Event %lld (%d)",eventIDFromRun,evenIDFromHeader));
-        fHistPlaneStrip -> SetTitle(Form("Event %lld (%d)",eventIDFromRun,evenIDFromHeader));
+        fHistPlaneChainFrame -> SetTitle(Form("TexAT2 Micromegas C.C., Event %lld (%d)",eventIDFromRun,evenIDFromHeader));
+        fHistPlaneStripFrame -> SetTitle(Form("TexAT2 Micromegas C.S., Event %lld (%d)",eventIDFromRun,evenIDFromHeader));
     }
     else if (eventIDFromRun>=0 && evenIDFromHeader<0) {
-        fHistPlaneChain -> SetTitle(Form("Event %lld",eventIDFromRun));
-        fHistPlaneStrip -> SetTitle(Form("Event %lld",eventIDFromRun));
+        fHistPlaneChainFrame -> SetTitle(Form("TexAT2 Micromegas C.C.,Event %lld",eventIDFromRun));
+        fHistPlaneStripFrame -> SetTitle(Form("TexAT2 Micromegas C.S.,Event %lld",eventIDFromRun));
     }
 
     lk_info << "# of hits in Center : " << fHitCenterArray -> GetEntriesFast() << endl;
@@ -435,7 +437,6 @@ void TTMicromegas::WriteCurrentChannel(TString name)
     }
 }
 
-
 void TTMicromegas::DrawFrame(Option_t *option)
 {
     ;
@@ -521,7 +522,7 @@ void TTMicromegas::MouseClickEventChain()
     if (binCurr<=0)
         return;
 
-    TTMicromegas::GetMMCC() -> SelectAndDrawChannelChain(binCurr);
+    TTMicromegas::GetPlane() -> SelectAndDrawChannelChain(binCurr);
 }
 
 void TTMicromegas::MouseClickEventStrip()
@@ -560,5 +561,5 @@ void TTMicromegas::MouseClickEventStrip()
 
     gPad -> SetUniqueID(binCurr);
     gPad -> GetCanvas() -> SetClickSelected(nullptr);
-    TTMicromegas::GetMMCC() -> SelectAndDrawChannelStrip(binCurr);
+    TTMicromegas::GetPlane() -> SelectAndDrawChannelStrip(binCurr);
 }
