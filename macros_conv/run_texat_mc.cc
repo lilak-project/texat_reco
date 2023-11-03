@@ -1,19 +1,22 @@
 #include "LKLogger.h"
-#include "LKG4RunManager.h"
+
+#ifdef LILAK_GEANT4
 #include "LKParameterContainer.h"
 #include "LKPrimaryGeneratorAction.h"
 #include "LKEventAction.h"
 #include "LKTrackingAction.h"
 #include "LKSteppingAction.h"
-
 #include "QGSP_BERT.hh"
+#include "LKG4RunManager.h"
 #include "G4StepLimiterPhysics.hh"
 #include "TTDetectorConstruction.h"
+#endif
 
 int main(int argc, char** argv)
 {
     lk_logger("data/log");
 
+#ifdef LILAK_GEANT4
     auto runManager = new LKG4RunManager();
 
     G4VModularPhysicsList* physicsList = new QGSP_BERT;
@@ -26,6 +29,7 @@ int main(int argc, char** argv)
     runManager -> Run(argc, argv);
 
     delete runManager;
+#endif
 
     return 0;
 }

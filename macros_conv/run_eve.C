@@ -6,7 +6,7 @@ void run_eve()
 
     auto run = new LKRun();
     run -> AddDetector(new TexAT2());
-    run -> AddInputFile("data/texat_0824.raw.master.8.ccf152e.root");
+    run -> AddInputFile("data/texat_0824.raw.root");
     run -> SetTag("eve");
     run -> Add(new LKEveTask());
 

@@ -2,6 +2,6 @@ HoughHit/persistency true
 HoughTrack/persistency true
 Hit/persistency true
 
-LKRun/DataPath e{LILAK_PATH}/texat_ana/macros/data
+LKRun/DataPath e{LILAK_PATH}/texat_reco/macros/data
 
 TTHoughTestTask/HistDataPath e{PWD}/data

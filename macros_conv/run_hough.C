@@ -16,5 +16,5 @@ void run_hough()
     run -> Add(new TTHoughTestTask());
 
     run -> Init();
-    run -> Run(0,80);
+    run -> Run(0,30);
 }

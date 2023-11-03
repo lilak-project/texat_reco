@@ -1,6 +1,6 @@
 void test_track()
 {
-    auto file = new TFile("data/texat_0824.hough.master.10.228c308.root");
+    auto file = new TFile("data/texat_0824.hough.root");
     auto tree = file -> Get<TTree>("event");
 
     TClonesArray *trackArray = nullptr;
