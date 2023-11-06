@@ -252,8 +252,8 @@ void TTMicromegas::FillDataToHist()
 
 void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
 {
-    if (isChain) lk_info << "SelectAndDrawChannel (Chain) bin=" << bin << endl;
-    else         lk_info << "SelectAndDrawChannel (Strip) bin=" << bin << endl;
+    //if (isChain) lk_info << "SelectAndDrawChannel (Chain) bin = " << bin << endl;
+    //else         lk_info << "SelectAndDrawChannel (Strip) bin = " << bin << endl;
 
     auto cvsPlane = fCanvas -> cd(3);
     auto cvsChannel = fCanvas -> cd(4);
@@ -290,13 +290,15 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
             auto caac = hit -> GetChannelID();
             if (isChain) bin = fMapCAACToBinChain[caac];
             else         bin = fMapCAACToBinStrip[caac];
-            if (isChain) lk_info << "SelectAndDrawChannel (Chain) bin=" << bin << endl;
-            else         lk_info << "SelectAndDrawChannel (Strip) bin=" << bin << endl;
+            if (isChain) lk_info << "SelectAndDrawChannel (Chain) CAAC=" << Form("%05d",bin) << endl;
+            else         lk_info << "SelectAndDrawChannel (Strip) CAAC=" << Form("%05d",bin) << endl;
         }
     }
 
-    if (bin<0)
+    if (bin<0) {
+        lk_warning << "bin<0" << bin << endl;
         return;
+    }
 
     double x0,x1,x2,z0,z1,z2;
     TGraph* graphBoundary;

@@ -53,6 +53,7 @@ class TexAT2 : public LKDetector
         bool BuildGeometry();
         bool BuildDetectorPlane();
         bool IsInBoundary(Double_t x, Double_t y, Double_t z);
+        bool GetEffectiveDimension(Double_t &x1, Double_t &y1, Double_t &z1, Double_t &x2, Double_t &y2, Double_t &z2);
 
         int GetTypeNumber(eType type)
         {

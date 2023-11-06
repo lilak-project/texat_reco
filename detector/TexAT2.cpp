@@ -436,6 +436,17 @@ bool TexAT2::IsInBoundary(Double_t x, Double_t y, Double_t z)
     return true;
 }
 
+bool TexAT2::GetEffectiveDimension(Double_t &x1, Double_t &y1, Double_t &z1, Double_t &x2, Double_t &y2, Double_t &z2)
+{
+    x1 = -120;
+    x2 = +120;
+    y1 = 0;
+    y2 = 350;
+    z1 = 150;
+    z2 = 500;
+    return true;
+}
+
 int TexAT2::GetElectronicsID(int caac) {
     auto caac0 = caac;
     auto cobo = int(caac0/10000); caac0 -= cobo*10000;
