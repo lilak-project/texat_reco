@@ -56,12 +56,16 @@ void TTHTBeamTrackingTask::Exec(Option_t *option)
             if (paramPoint->GetWeight() < fNumHitsCutForTransform)
                 break;
 
+
+            fTracker -> SelectPoints(paramPoint);
+            auto hitArray = fTracker -> GetSelectedHitArray();
             auto track = (LKLinearTrack*) fTrackArray -> ConstructedAt(fNumTracks++);
-            TIter next(fTracker->GetSelectedHitArray());
+            TIter next(hitArray);
             LKHit* hit;
             while ((hit=(LKHit*)next()))
                 track -> AddHit(hit);
             track -> Fit();
+            fTracker -> RemoveSelectedPoints();
         }
     }
 
