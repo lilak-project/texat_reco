@@ -1,3 +1,5 @@
+<config_common config_common.mac
+
 Track/lineColor kRed
 
 HitCenter/markerColor kGray+2
