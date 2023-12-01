@@ -60,6 +60,8 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
     int countHitOthers = 0;
 
     double buffer[350];
+    //double buffer[512];
+    //int MaxBin[3] = { 350, 512, 512 };
 
     double xPos;
     double yPos;
@@ -84,10 +86,15 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
         auto z = fDetector -> Getmmpy(asad, aget, dchan);
         auto caac = cobo*10000 + asad*1000 + aget*100 + chan;
 
-       if (cobo!=0) continue;
+	if(cobo==1 && asad==1) continue;
 
         for (auto tb=0; tb<350; ++tb)
             buffer[tb] = double(data[tb]);
+        //for (auto tb=0; tb<512; ++tb)
+	//{
+        //    if(tb>=MaxBin[cobo]) buffer[tb] = 0.;
+	//    else	 	 buffer[tb] = double(data[tb]);
+	//}
         auto ana = fDetector -> GetChannelAnalyzer(electronicsID);
         ana -> Analyze(buffer);
 
