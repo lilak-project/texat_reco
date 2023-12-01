@@ -84,26 +84,26 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
         auto z = fDetector -> Getmmpy(asad, aget, dchan);
         auto caac = cobo*10000 + asad*1000 + aget*100 + chan;
 
-        if (cobo!=0)
-            continue;
+       if (cobo!=0) continue;
 
         for (auto tb=0; tb<350; ++tb)
             buffer[tb] = double(data[tb]);
         auto ana = fDetector -> GetChannelAnalyzer(electronicsID);
         ana -> Analyze(buffer);
 
-        if(cobo==0) {
-            if(chan<11) chan = chan;
-            else if(chan<21) chan = chan +1;
-            else if(chan<43) chan = chan +2;
-            else if(chan<53) chan = chan +3;
-            else if(chan<64) chan = chan +4;
-        }
+        //if(cobo==0) {
+        //    if(chan<11) chan = chan;
+        //    else if(chan<21) chan = chan +1;
+        //    else if(chan<43) chan = chan +2;
+        //    else if(chan<53) chan = chan +3;
+        //    else if(chan<64) chan = chan +4;
+        //}
 
         fDetector -> CAACToGlobalPosition(cobo,asad,aget,chan, xPos,yPos,zPos,xErr,yErr,zErr);
 
         double alpha = 0;
         auto detType = fDetector -> GetType(cobo,asad,aget,chan);
+        if(cobo==0) detType = fDetector -> GetType(cobo,asad,aget,dchan);
              if (detType==TexAT2::eType::kLeftStrip)  alpha = -100;
         else if (detType==TexAT2::eType::kRightStrip) alpha = +100;
         else if (detType==TexAT2::eType::kLeftChain)  alpha = -200;
@@ -118,13 +118,13 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
             auto ndf       = ana -> GetNDF(iHit);
             auto pedestal  = ana -> GetPedestal();
             LKHit* hit = nullptr;
-                 if (chDetType==fITypeLCenter) hit = (LKHit*) fHitArrayCenter -> ConstructedAt(countHitCenter++);
-            else if (chDetType==fITypeHCenter) hit = (LKHit*) fHitArrayCenter -> ConstructedAt(countHitCenter++);
-            else if (chDetType==fITypeLStrip ) hit = (LKHit*) fHitArrayLStrip -> ConstructedAt(countHitLStrip++);
-            else if (chDetType==fITypeLChain ) hit = (LKHit*) fHitArrayLChain -> ConstructedAt(countHitLChain++);
-            else if (chDetType==fITypeRStrip ) hit = (LKHit*) fHitArrayRStrip -> ConstructedAt(countHitRStrip++);
-            else if (chDetType==fITypeRChain ) hit = (LKHit*) fHitArrayRChain -> ConstructedAt(countHitRChain++);
-            else                               hit = (LKHit*) fHitArrayOthers -> ConstructedAt(countHitOthers++);
+                 if (detType==TexAT2::eType::kLowCenter) hit = (LKHit*) fHitArrayCenter -> ConstructedAt(countHitCenter++);
+            else if (detType==TexAT2::eType::kHighCenter) hit = (LKHit*) fHitArrayCenter -> ConstructedAt(countHitCenter++);
+            else if (detType==TexAT2::eType::kLeftStrip ) hit = (LKHit*) fHitArrayLStrip -> ConstructedAt(countHitLStrip++);
+            else if (detType==TexAT2::eType::kLeftChain ) hit = (LKHit*) fHitArrayLChain -> ConstructedAt(countHitLChain++);
+            else if (detType==TexAT2::eType::kRightStrip ) hit = (LKHit*) fHitArrayRStrip -> ConstructedAt(countHitRStrip++);
+            else if (detType==TexAT2::eType::kRightChain ) hit = (LKHit*) fHitArrayRChain -> ConstructedAt(countHitRChain++);
+            else                             hit = (LKHit*) fHitArrayOthers -> ConstructedAt(countHitOthers++);
 
             hit -> SetHitID(countHits);
             hit -> SetChannelID(caac);

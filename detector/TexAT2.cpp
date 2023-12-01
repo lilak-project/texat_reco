@@ -458,6 +458,8 @@ int TexAT2::GetElectronicsID(int caac) {
 
 int TexAT2::GetElectronicsID(int cobo, int asad, int aget, int chan)
 {
+    if(chan==11 || chan==22 || chan==45 || chan==56) return -1;
+
     if (cobo==0 && (asad==0 || asad==1)) {
         int mchannel = chan;
              if(chan<11) mchannel = chan;
@@ -502,8 +504,8 @@ int TexAT2::GetElectronicsID(int cobo, int asad, int aget, int chan)
         return efCsI;
     if (cobo==2 && aget==0) return eX6Ohmic;
     if (cobo==2 && (aget==1 || aget==2)) return eX6Junction;
-    if (cobo==2 && aget==3) return eCsICT;
-
+    if (cobo==2 && asad==1 && aget==3) return eCsICT;
+    
     return -1;
 }
 

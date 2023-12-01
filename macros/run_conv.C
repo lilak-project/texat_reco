@@ -1,6 +1,6 @@
 #include "LKLogger.h"
 
-void run_conversion()
+void run_conv()
 {
     lk_logger("data/run_conv.log");
 
