@@ -2,6 +2,7 @@
 #include "TPaveText.h"
 #include "TexAT2.h"
 #include "TTEventHeader.h"
+#include "LKWindowManager.h"
 
 ClassImp(TTMicromegas);
 
@@ -145,7 +146,7 @@ Int_t TTMicromegas::FindChannelID(Int_t section, Int_t row, Int_t layer)
 TCanvas* TTMicromegas::GetCanvas(Option_t *option)
 {
     if (fCanvas==nullptr) {
-        fCanvas = new TCanvas("TTMicromegas","Micromegas",fScale*1100,fScale*700);
+        fCanvas = LKWindowManager::GetWindowManager() -> CanvasResize("TTMicromegas","TTMicromegas",1100,700,0.9);
         auto pad1 = new TPad("pad1","",0,230./700,0.5,1);
         pad1 -> SetMargin(0.12,0.15,0.1,0.1);
         pad1 -> SetNumber(1);
@@ -353,7 +354,7 @@ void TTMicromegas::SelectAndDrawChannel(bool isChain, Int_t bin)
     auto numChannels = fBufferArray -> GetEntries();
     for (auto iChannel=0; iChannel<numChannels; ++iChannel)
     {
-        auto channel0 = (MMChannel* ) fBufferArray -> At(iChannel);
+        auto channel0 = (GETChannel* ) fBufferArray -> At(iChannel);
         if (fCAAC==channel0->GetCAAC()) {
             fCurrSelChannel = channel0;
             break;

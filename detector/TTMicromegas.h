@@ -4,7 +4,7 @@
 #include "LKLogger.h"
 #include "LKPadPlane.h"
 #include "TH2Poly.h"
-#include "MMChannel.h"
+#include "GETChannel.h"
 
 /*
  * Remove this comment block after reading it through
@@ -137,7 +137,7 @@ class TTMicromegas : public LKPadPlane
         std::map<int, double> fMapBinToZ2Strip;
 
         int fCurrElectronicsID = -1;
-        MMChannel* fCurrSelChannel = nullptr;
+        GETChannel* fCurrSelChannel = nullptr;
 
         double fScale = 2.5;
 

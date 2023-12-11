@@ -4,7 +4,7 @@
 #include "LKDetector.h"
 #include "LKLogger.h"
 #include "LKChannelAnalyzer.h"
-#include "MMChannel.h"
+#include "GETChannel.h"
 
 /*
  * Remove this comment block after reading it through
@@ -111,7 +111,7 @@ class TexAT2 : public LKDetector
         int GetElectronicsID(int caac);
         int GetElectronicsID(int cobo, int asad, int aget, int chan);
         LKChannelAnalyzer* GetChannelAnalyzer(int id) { return fChannelAnalyzer[id]; }
-        LKChannelAnalyzer* GetChannelAnalyzer(MMChannel* channel) {
+        LKChannelAnalyzer* GetChannelAnalyzer(GETChannel* channel) {
             auto caac = channel -> GetCAAC();
             auto electronicsID = GetElectronicsID(caac);
             if (electronicsID>=0)
