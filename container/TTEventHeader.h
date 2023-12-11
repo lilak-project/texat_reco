@@ -4,9 +4,10 @@
 #include "TClonesArray.h"
 #include "LKContainer.h"
 #include "LKLogger.h"
+#include "LKEventHeader.h"
 
 /// Event header for TexAT experiment
-class TTEventHeader : public LKContainer
+class TTEventHeader : public LKEventHeader
 {
     public:
         TTEventHeader();
@@ -22,14 +23,12 @@ class TTEventHeader : public LKContainer
             kFSiX6/*7*/
         };
 
-        Bool_t     IsGoodEvent()    const  { return fIsGoodEvent; }
         Bool_t     IsMMEvent()      const  { return fIsMMEvent; }
         Bool_t     GetGoodMMEvt()   const  { return fGoodMMEvt; }
         eGoodSiEvt GetGoodSiEvt()   const  { return fGoodSiEvt; }
         Bool_t     IsListed()       const  { return fIsListed; }
         Int_t      GetFiredDet()    const  { return fFiredDet; }
         Int_t      GetFiredStrip()  const  { return fFiredStrip; }
-        Int_t      GetEventNumber() const  { return fEventNumber; }
         Int_t      GetSiBLR()  const  { return fSiBLR; }
         Int_t      GetSiLhit() const  { return fSiLhit; }
         Int_t      GetSiRhit() const  { return fSiRhit; }
@@ -37,14 +36,12 @@ class TTEventHeader : public LKContainer
         Int_t      GetX6Lhit() const  { return fX6Lhit; }
         Int_t      GetX6Rhit() const  { return fX6Rhit; }
 
-        void SetIsGoodEvent(Bool_t isGoodEvent) { fIsGoodEvent = isGoodEvent; }
         void SetIsMMEvent(Bool_t isMMEvent) { fIsMMEvent = isMMEvent; }
         void SetGoodMMEvt(Bool_t goodMMEvt) { fGoodMMEvt = goodMMEvt; }
         void SetGoodSiEvt(eGoodSiEvt goodSiEvt) { fGoodSiEvt = goodSiEvt; }
         void SetIsListed(Bool_t isListed) { fIsListed = isListed; }
         void SetFiredDet(Int_t firedDet) { fFiredDet = firedDet; }
         void SetFiredStrip(Int_t firedStrip) { fFiredStrip = firedStrip; }
-        void SetEventNumber(Int_t eventNumber) { fEventNumber = eventNumber; }
         void SetSiBLR(Int_t siBLR) { fSiBLR = siBLR; }
         void SetSiLhit(Int_t siLhit) { fSiLhit = siLhit; }
         void SetSiRhit(Int_t siRhit) { fSiRhit = siRhit; }
@@ -53,14 +50,12 @@ class TTEventHeader : public LKContainer
         void SetX6Rhit(Int_t x6Rhit) { fX6Rhit = x6Rhit; }
 
     private:
-        Bool_t       fIsGoodEvent = false;
         Bool_t       fIsMMEvent = false;
         Bool_t       fGoodMMEvt = false;
         eGoodSiEvt   fGoodSiEvt = eGoodSiEvt::kNon;
         Bool_t       fIsListed = false;
         Int_t        fFiredDet = -1;
         Int_t        fFiredStrip = -1;
-        Int_t        fEventNumber = -1;
         Int_t        fSiBLR = -1;
         Int_t        fSiLhit = -1;
         Int_t        fSiRhit = -1;

@@ -10,14 +10,12 @@ TTEventHeader::TTEventHeader()
 void TTEventHeader::Clear(Option_t *option)
 {
     LKContainer::Clear(option);
-    fIsGoodEvent = false;
     fIsMMEvent = false;
     fGoodMMEvt = false;
     fGoodSiEvt = eGoodSiEvt::kNon;
     fIsListed = false;
     fFiredDet = -1;
     fFiredStrip = -1;
-    fEventNumber = -1;
     fSiBLR = -1;
     fSiLhit = -1;
     fSiRhit = -1;
@@ -49,14 +47,12 @@ void TTEventHeader::Copy(TObject &object) const
 {
     LKContainer::Copy(object);
     auto objCopy = (TTEventHeader &) object;
-    objCopy.SetIsGoodEvent(fIsGoodEvent);
     objCopy.SetIsMMEvent(fIsMMEvent);
     objCopy.SetGoodMMEvt(fGoodMMEvt);
     objCopy.SetGoodSiEvt(fGoodSiEvt);
     objCopy.SetIsListed(fIsListed);
     objCopy.SetFiredDet(fFiredDet);
     objCopy.SetFiredStrip(fFiredStrip);
-    objCopy.SetEventNumber(fEventNumber);
     objCopy.SetSiBLR(fSiBLR);
     objCopy.SetSiLhit(fSiLhit);
     objCopy.SetSiRhit(fSiRhit);
