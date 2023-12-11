@@ -1,6 +1,6 @@
 #include "TTPulseAnalysisTask.h"
 #include "TTEventHeader.h"
-#include "MMChannel.h"
+#include "GETChannel.h"
 #include "LKHit.h"
 
 ClassImp(TTPulseAnalysisTask);
@@ -73,13 +73,13 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
     int numChannel = fChannelArray -> GetEntriesFast();
     for (int iChannel = 0; iChannel < numChannel; ++iChannel)
     {
-        auto channel = (MMChannel *) fChannelArray -> At(iChannel);
+        auto channel = (GETChannel *) fChannelArray -> At(iChannel);
         auto chDetType = channel -> GetDetType();
         auto cobo = channel -> GetCobo();
         auto asad = channel -> GetAsad();
         auto aget = channel -> GetAget();
         auto chan = channel -> GetChan();
-        auto dchan = channel -> GetDChan();
+        auto dchan = channel -> GetChan2();
         auto data = channel -> GetWaveformY();
         auto electronicsID = fDetector -> GetElectronicsID(cobo, asad, aget, chan);
         auto x = fDetector -> Getmmpx(asad, aget, dchan);

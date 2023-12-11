@@ -1,5 +1,5 @@
 #include "TTHitFindingHoughTask.h"
-#include "MMChannel.h"
+#include "GETChannel.h"
 #include "LKHit.h"
 #include "LKLinearTrack.h"
 
@@ -85,9 +85,9 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
 
     for(Int_t iChannel=0; iChannel<mmMult; iChannel++)
     {
-        auto channel = (MMChannel *) fChannelArray -> At(iChannel);
+        auto channel = (GETChannel *) fChannelArray -> At(iChannel);
         Int_t chan = channel -> GetChan();
-        Int_t dchan = channel -> GetDChan();
+        Int_t dchan = channel -> GetChan2();
         Int_t mmCobo = channel -> GetCobo();
         Int_t mmAsad = channel -> GetAsad();
         Int_t mmAget = channel -> GetAget();
@@ -149,9 +149,9 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
         {
             for(Int_t iChannel=0; iChannel<mmMult; iChannel++)
             {
-                auto channel = (MMChannel *) fChannelArray -> At(iChannel);
+                auto channel = (GETChannel *) fChannelArray -> At(iChannel);
                 Int_t chan = channel -> GetChan();
-                Int_t dchan = channel -> GetDChan();
+                Int_t dchan = channel -> GetChan2();
                 Int_t mmCobo = channel -> GetCobo();
                 Int_t mmAsad = channel -> GetAsad();
                 Int_t mmAget = channel -> GetAget();
@@ -222,9 +222,9 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
         {
             for(Int_t iChannel=0; iChannel<mmMult; iChannel++)
             {
-                auto channel = (MMChannel *) fChannelArray -> At(iChannel);
+                auto channel = (GETChannel *) fChannelArray -> At(iChannel);
                 Int_t chan = channel -> GetChan();
-                Int_t dchan = channel -> GetDChan();
+                Int_t dchan = channel -> GetChan2();
                 Int_t mmCobo = channel -> GetCobo();
                 Int_t mmAsad = channel -> GetAsad();
                 Int_t mmAget = channel -> GetAget();
@@ -329,9 +329,9 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
         {
             for(Int_t iChannel=0; iChannel<mmMult; iChannel++)
             {
-                auto channel = (MMChannel *) fChannelArray -> At(iChannel);
+                auto channel = (GETChannel *) fChannelArray -> At(iChannel);
                 Int_t chan = channel -> GetChan();
-                Int_t dchan = channel -> GetDChan();
+                Int_t dchan = channel -> GetChan2();
                 Int_t mmCobo = channel -> GetCobo();
                 Int_t mmAsad = channel -> GetAsad();
                 Int_t mmAget = channel -> GetAget();

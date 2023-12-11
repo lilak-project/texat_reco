@@ -44,7 +44,7 @@ void TTPulseExtractionTask::Exec(Option_t *option)
     int numChannels = fChannelArray -> GetEntries();
     for (int iChannel=0; iChannel<numChannels; iChannel++)
     {
-        auto channel = (MMChannel *) fChannelArray -> At(iChannel);
+        auto channel = (GETChannel *) fChannelArray -> At(iChannel);
         auto cobo = channel -> GetCobo();
         auto asad = channel -> GetAsad();
         auto aget = channel -> GetAget();

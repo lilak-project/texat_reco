@@ -1,5 +1,5 @@
 #include "TTHoughTestTask.h"
-#include "MMChannel.h"
+#include "GETChannel.h"
 #include "LKHit.h"
 
 ClassImp(TTHoughTestTask);
@@ -94,14 +94,14 @@ void TTHoughTestTask::Exec(Option_t *)
 
     for(Int_t iChannel=0; iChannel<mmMult; iChannel++)
     {
-        auto channel = (MMChannel *) fChannelArray -> At(iChannel);
+        auto channel = (GETChannel *) fChannelArray -> At(iChannel);
         //auto fameNo = channel -> GetFrameNo();
         //auto decayNo = channel -> GetDecayNo();
         //auto mmTime = channel -> GetTime();
         //auto energy = channel -> GetEnergy();
         //Int_t *waveformX = channel -> GetWaveformX();
         Int_t chan = channel -> GetChan();
-        Int_t dchan = channel -> GetDChan();
+        Int_t dchan = channel -> GetChan2();
         Int_t mmCobo = channel -> GetCobo();
         Int_t mmAsad = channel -> GetAsad();
         Int_t mmAget = channel -> GetAget();
@@ -194,9 +194,9 @@ void TTHoughTestTask::Exec(Option_t *)
         {
             for(Int_t iChannel=0; iChannel<mmMult; iChannel++)
             {
-                auto channel = (MMChannel *) fChannelArray -> At(iChannel);
+                auto channel = (GETChannel *) fChannelArray -> At(iChannel);
                 Int_t chan = channel -> GetChan();
-                Int_t dchan = channel -> GetDChan();
+                Int_t dchan = channel -> GetChan2();
                 Int_t mmCobo = channel -> GetCobo();
                 Int_t mmAsad = channel -> GetAsad();
                 Int_t mmAget = channel -> GetAget();
@@ -274,9 +274,9 @@ void TTHoughTestTask::Exec(Option_t *)
         {
             for(Int_t iChannel=0; iChannel<mmMult; iChannel++)
             {
-                auto channel = (MMChannel *) fChannelArray -> At(iChannel);
+                auto channel = (GETChannel *) fChannelArray -> At(iChannel);
                 Int_t chan = channel -> GetChan();
-                Int_t dchan = channel -> GetDChan();
+                Int_t dchan = channel -> GetChan2();
                 //Int_t mmCobo = channel -> GetCobo();
                 Int_t mmAsad = channel -> GetAsad();
                 Int_t mmAget = channel -> GetAget();
@@ -407,9 +407,9 @@ void TTHoughTestTask::Exec(Option_t *)
         {
             for(Int_t iChannel=0; iChannel<mmMult; iChannel++)
             {
-                auto channel = (MMChannel *) fChannelArray -> At(iChannel);
+                auto channel = (GETChannel *) fChannelArray -> At(iChannel);
                 Int_t chan = channel -> GetChan();
-                Int_t dchan = channel -> GetDChan();
+                Int_t dchan = channel -> GetChan2();
                 //Int_t mmCobo = channel -> GetCobo();
                 Int_t mmAsad = channel -> GetAsad();
                 Int_t mmAget = channel -> GetAget();

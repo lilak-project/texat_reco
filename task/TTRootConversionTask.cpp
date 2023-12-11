@@ -1,5 +1,5 @@
 #include "TTRootConversionTask.h"
-#include "MMChannel.h"
+#include "GETChannel.h"
 
 ClassImp(TTRootConversionTask);
 
@@ -19,7 +19,7 @@ bool TTRootConversionTask::Init()
         fInputFileName = fPar -> GetParString("TTRootConversionTask/inputFileName");
 
     fEventHeaderArray = fRun -> RegisterBranchA("EventHeader", "TTEventHeader", 1);
-    fChannelArray = fRun -> RegisterBranchA("RawData", "MMChannel", 200);
+    fChannelArray = fRun -> RegisterBranchA("RawData", "GETChannel", 200);
 
     lk_info << "Input file is " << fInputFileName << endl;
     fInputFile = new TFile(fInputFileName, "read");
@@ -136,7 +136,7 @@ void TTRootConversionTask::Exec(Option_t *option)
         //if (type==TexAT2::eType::kCENSCsI) ;
         //if (type==TexAT2::eType::kExternal) ;
 
-        auto channel = (MMChannel *) fChannelArray -> ConstructedAt(iChannel);
+        auto channel = (GETChannel *) fChannelArray -> ConstructedAt(iChannel);
         channel -> SetDetType(type);
         channel -> SetFrameNo(fmmFrameNo[iChannel]);
         channel -> SetDecayNo(fmmDecayNo[iChannel]);
@@ -144,7 +144,7 @@ void TTRootConversionTask::Exec(Option_t *option)
         channel -> SetAsad(fmmAsad[iChannel]);
         channel -> SetAget(fmmAget[iChannel]);
         channel -> SetChan(fmmChan[iChannel]);
-        channel -> SetDChan(dchan);
+        channel -> SetChan2(dchan);
         channel -> SetTime(fmmTime[iChannel]);
         channel -> SetEnergy(fmmEnergy[iChannel]);
         channel -> SetWaveformX(fmmWaveformX[iChannel]);

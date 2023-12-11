@@ -7,7 +7,7 @@
 #include "LKRun.h"
 #include "LKTask.h"
 #include "LKPulseAnalyzer.h"
-#include "MMChannel.h"
+#include "GETChannel.h"
 
 #define fNumTypes 18
 

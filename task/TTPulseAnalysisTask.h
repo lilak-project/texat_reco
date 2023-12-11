@@ -9,7 +9,7 @@
 #include "TTEventHeader.h"
 #include "TexAT2.h"
 //#include "LKHit.h"
-//#include "MMChannel.h"
+//#include "GETChannel.h"
 //#include "TTEventHeader.h"
 
 /*
