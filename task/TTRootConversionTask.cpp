@@ -105,7 +105,7 @@ void TTRootConversionTask::Exec(Option_t *option)
             << Form("siL: %d | siR: %d | siC: %d | X6L: %d | X6R: %d  ->  %d", siLhit, siRhit, siChit, X6Lhit, X6Rhit, SiBLR)
             << std::endl;
         eventHeader -> SetIsGoodEvent(false);
-        //return;
+        return;
     }
 
     eventHeader -> SetIsGoodEvent(true);

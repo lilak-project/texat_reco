@@ -89,14 +89,16 @@ void TTEventPreviewTask::Exec(Option_t *option)
     eventHeader -> SetX6Rhit(X6Rhit);
     eventHeader -> SetSiBLR(SiBLR);
 
+    lk_info << "Event no. = " << frameHeader->GetEventNumber() << ", number of channels = " << numChannels << endl;
     if (SiBLR==9)  {
-        lk_info << "TTEventPreviewTask: Bad Event! "
-            << Form("siL: %d | siR: %d | siC: %d | X6L: %d | X6R: %d  ->  %d", siLhit, siRhit, siChit, X6Lhit, X6Rhit, SiBLR)
-            << std::endl;
+        lk_info << "Bad Event! " << Form("siL: %d | siR: %d | siC: %d | X6L: %d | X6R: %d  ->  %d", siLhit, siRhit, siChit, X6Lhit, X6Rhit, SiBLR) << std::endl;
         eventHeader -> SetIsGoodEvent(false);
+        fRun -> DoNotFillCurrentEvent();
     }
-
-    eventHeader -> SetIsGoodEvent(true);
+    else {
+        lk_info << "Good Event!" << endl;
+        eventHeader -> SetIsGoodEvent(true);
+    }
 }
 
 bool TTEventPreviewTask::EndOfRun()
