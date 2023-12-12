@@ -8,4 +8,5 @@ RawData/persistency true
 Hit/persistency true
 
 #################################################################################################
-TTRootConversionTask/inputFileName  {raw_data_path}/run_0801.root
+TTRootConversionTask/inputFileName  /mnt/CRIBdisk/o14apf17/ganacq_manip/o14apf17/acquisition/run/run_0801.root
+#TTRootConversionTask/inputFileName  {raw_data_path}/run_0801.root
