@@ -375,6 +375,8 @@ void LKFrameBuilder::Event(mfm::Frame& frame)
     //XXX
     waveforms->frameIdx = 0;
     waveforms->decayIdx = 0;
+    fChannelArray -> Clear("C");
+    fCountChannels = 0;
     if(frame.header().isLayeredFrame()) {
         for(int i = 0;i<frame.itemCount();i++) {
             //cout << "1isLayered=" << frame.header().isLayeredFrame() << ", itemCount=" << frame.itemCount() << ", frameIndex=" << i << endl;
@@ -4516,7 +4518,6 @@ void LKFrameBuilder::WriteChannels()
     auto eventHeader = (LKEventHeader *) fEventHeaderArray -> ConstructedAt(0);
     eventHeader -> SetEventNumber(int(eventID));
 
-    int countChannels = 0;
     for (UInt_t asad=0; asad<maxasad; asad++)
     {
         for (UInt_t aget=0; aget<4; aget++)
@@ -4533,7 +4534,7 @@ void LKFrameBuilder::WriteChannels()
                 {
                     if (readmode==1)
                     {
-                        auto channel = (GETChannel *) fChannelArray -> ConstructedAt(countChannels++);
+                        auto channel = (GETChannel *) fChannelArray -> ConstructedAt(fCountChannels++);
                         channel -> SetFrameNo(frameIdx);
                         channel -> SetDecayNo(decayIdx);
                         channel -> SetCobo(coboIdx);

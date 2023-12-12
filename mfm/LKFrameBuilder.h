@@ -181,6 +181,7 @@ class LKFrameBuilder : public mfm::FrameBuilder {
         TClonesArray *fEventHeaderArray = nullptr;
         LKTask *fMotherTask;
         TString fName;
+        int fCountChannels = 0;
 
     public:
         void processFrame(mfm::Frame & frame);
