@@ -114,7 +114,7 @@ bool TTMicromegas::Init()
 
 void TTMicromegas::Clear(Option_t *option)
 {
-    LKPadPlane::Clear(option);
+    LKDetectorPlane::Clear(option);
 }
 
 void TTMicromegas::Print(Option_t *option) const
@@ -146,7 +146,7 @@ Int_t TTMicromegas::FindChannelID(Int_t section, Int_t row, Int_t layer)
 TCanvas* TTMicromegas::GetCanvas(Option_t *option)
 {
     if (fCanvas==nullptr) {
-        fCanvas = LKWindowManager::GetWindowManager() -> CanvasResize("TTMicromegas","TTMicromegas",1100,700,0.9);
+        fCanvas = LKWindowManager::GetWindowManager() -> CanvasResize("TTMicromegas",1100,700,0.9);
         auto pad1 = new TPad("pad1","",0,230./700,0.5,1);
         pad1 -> SetMargin(0.12,0.15,0.1,0.1);
         pad1 -> SetNumber(1);

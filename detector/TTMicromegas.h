@@ -2,9 +2,12 @@
 #define TTMICROMEGASCENTERCHAIN_HH
 
 #include "LKLogger.h"
-#include "LKPadPlane.h"
-#include "TH2Poly.h"
+#include "LKDetectorPlane.h"
 #include "GETChannel.h"
+
+#include "TH2Poly.h"
+
+#include <map>
 
 /*
  * Remove this comment block after reading it through
@@ -55,7 +58,7 @@
  *
  */
 
-class TTMicromegas : public LKPadPlane
+class TTMicromegas : public LKDetectorPlane
 {
     public:
         static TTMicromegas* GetPlane();
