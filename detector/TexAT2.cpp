@@ -438,10 +438,10 @@ bool TexAT2::IsInBoundary(Double_t x, Double_t y, Double_t z)
 
 bool TexAT2::GetEffectiveDimension(Double_t &x1, Double_t &y1, Double_t &z1, Double_t &x2, Double_t &y2, Double_t &z2)
 {
-    x1 = -120;
-    x2 = +120;
-    y1 = 0;
-    y2 = 350;
+    x1 = -175;
+    x2 = +175;
+    y1 = -175;
+    y2 = +175;
     z1 = 150;
     z2 = 500;
     return true;
@@ -602,7 +602,7 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
             }
         }
         posy = 75/2; //should be checked
-        erry = -1; //Detector on xz-plane
+        erry = 0; //Detector on xz-plane
     }
     else if(type==TexAT2::eType::kForwardSi) //Forward Si
     {
@@ -633,7 +633,7 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
             posz = maxForwardSiZ;
             errx = 12.5;
             erry = 12.5;
-            errz = -1; //Detector on xy-plane
+            errz = 0; //Detector on xy-plane
         }
         else if(Aget==1) //Ohmic
         {
@@ -654,7 +654,7 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
             posz = maxForwardSiZ;
             errx = 25;
             erry = 25;
-            errz = -1; //Detector on xy-plane
+            errz = 0; //Detector on xy-plane
         }
     }
     else if(type==TexAT2::eType::kCENSX6) //X6
@@ -663,14 +663,14 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
         Int_t strip = fDetector -> GetX6strip(Asad,Aget,Chan);
         if(Aget==1 || Aget==2) //Junction
         {
-            Double_t posx = fDetector -> GetX6posx(det,strip-1);
-            Double_t posy = fDetector -> GetX6posy(det,strip-1);
-            Double_t posz = fDetector -> GetX6posz(det,strip-1);
+            posx = fDetector -> GetX6posx(det,strip-1);
+            posy = fDetector -> GetX6posy(det,strip-1);
+            posz = fDetector -> GetX6posz(det,strip-1);
             if(det<100) //Side
             {
                 if(det<19) posz += 2.5;
                 else if(det<29) posz -= 2.5;
-                errx = -1; //Detector on yz-plane
+                errx = 0; //Detector on yz-plane
                 erry = 1;
                 errz = 2.5;
             }
@@ -680,7 +680,7 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
                 {
                     posx += 2.5;
                     errx = 2.5;
-                    erry = -1; //Detector on xz-plane
+                    erry = 0; //Detector on xz-plane
                     errz = 1;
                 }
                 else
@@ -688,7 +688,7 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
                     if(det<109) posz -= 2.5;
                     else if(det<209) posz += 2.5;
                     errx = 1;
-                    erry = -1; //Detector on xz-plane
+                    erry = 0; //Detector on xz-plane
                     errz = 2.5;
                 }
             }
@@ -706,7 +706,7 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
                 else if(det<29) posx = maxSideX6X;
                 posy = (strip-2.5)*X6ActLong/4;
                 posz = minX6Z + (map+0.5)*X6AllShort;
-                errx = -1; //Detector on yz-plane
+                errx = 0; //Detector on yz-plane
                 erry = X6ActLong/8;
                 errz = X6ActShort/2;
             }
@@ -719,7 +719,7 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
                     posy = minBottomX6Y;
                     posz = minX6Z + 7*X6AllShort - X6AllLong/2 + (strip-2.5)*X6ActLong/4;
                     errx = X6ActShort/2;
-                    erry = -1; //Detector on xz-plane
+                    erry = 0; //Detector on xz-plane
                     errz = X6ActLong/8;
                 }
                 else
@@ -735,7 +735,7 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
                     posy = minBottomX6Y;
                     posz = minX6Z + (map+0.5)*X6AllShort;
                     errx = X6ActLong/8;
-                    erry = -1; //Detector on xz-plane
+                    erry = 0; //Detector on xz-plane
                     errz = X6ActShort/2;
                 }
             }
