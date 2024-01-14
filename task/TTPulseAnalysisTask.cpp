@@ -146,7 +146,7 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
             else                                          hit = (LKHit*) fHitArrayOthers -> ConstructedAt(countHitOthers++);
             hit -> SetHitID(countHits);
             hit -> SetChannelID(caac);
-            if(cobo==0) hit -> SetPosition(xPos,tb-175,zPos);
+            if(cobo==0) hit -> SetPosition(xPos,tb,zPos);
             else    	hit -> SetPosition(xPos,yPos,zPos);
             hit -> SetPositionError(xErr,yErr,zErr);
             hit -> SetCharge(amplitude);

@@ -440,8 +440,8 @@ bool TexAT2::GetEffectiveDimension(Double_t &x1, Double_t &y1, Double_t &z1, Dou
 {
     x1 = -175;
     x2 = +175;
-    y1 = -175;
-    y2 = +175;
+    y1 = 0;
+    y2 = 350;
     z1 = 150;
     z2 = 500;
     return true;
