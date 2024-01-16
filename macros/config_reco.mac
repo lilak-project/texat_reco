@@ -1,7 +1,23 @@
 <config_common config_common.mac
 
 #################################################################################################
-*LKRun/DataPath {reco_data_path}
+*LKRun/DataPath {lilak_data}
 
 #################################################################################################
-TTHTTrackingTask/use_transform_with_chain_strip_combination false
+TTHTTrackingTask/
+    use_transform_with_chain_strip_combination  false
+    numStripHitsCutForTransform     2 # number of chain hits should be larger than this cut to be reconstructed
+    numChainHitsCutForTransform     2 # number of strip hits should be larger than this cut to be reconstructed
+
+#################################################################################################
+#persistency/
+##RawData     false
+##FrameHeader false
+#    EventHeader true
+#    HitCenter   true
+#    HitLStrip   true
+#    HitLChain   true
+#    HitRStrip   true
+#    HitRChain   true
+#    HitOthers   true
+#    Track       true

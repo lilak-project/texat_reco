@@ -84,7 +84,8 @@ class TTHTTrackingTask : public LKTask
         const int    kRight = 1;
         //const int    kCenter = 2;
 
-        int          fNumHitsCutForTransform = 3;
+        int          fNumChainHitsCutForTransform = 3; ///< number of chain hits should be larger than this cut to be reconstructed
+        int          fNumStripHitsCutForTransform = 3; ///< number of strip hits should be larger than this cut to be reconstructed
 
         /* par-name: TTHTTrackingTask/use_transform_with_chain_strip_combination
          * If fUseTransformCSCombination is true, both chain- and strip-hits will be used for filling parameter space

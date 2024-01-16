@@ -6,12 +6,11 @@ void run_reco()
 
     auto run = new LKRun();
     run -> SetTag("reco");
-    run -> AddPar("config_conv.mac");
-    run -> AddParAfter("config_reco.mac");
-    run -> AddInputFile("~/data/texat/reco/texat_0801.conv.root");
-    //run -> AddInputFile("~/data/texat/reco/texat_0801.all.root");
-    //run -> AddInputFile("~/data/texat/conv/run_0801.root");
+    run -> AddPar("config_reco.mac");
+    run -> AddInputFile("texat_0801.27.conv.root");
     run -> AddDetector(new TexAT2());
+    run -> Add(new TTEventPreviewTask());
+    run -> Add(new TTPulseAnalysisTask());
     run -> Add(new TTHTTrackingTask());
 
     run -> Init();

@@ -93,7 +93,7 @@ void TTEventPreviewTask::Exec(Option_t *option)
     if (SiBLR==9)  {
         lk_info << "Bad Event! " << Form("siL: %d | siR: %d | siC: %d | X6L: %d | X6R: %d  ->  %d", siLhit, siRhit, siChit, X6Lhit, X6Rhit, SiBLR) << std::endl;
         eventHeader -> SetIsGoodEvent(false);
-        fRun -> DoNotFillCurrentEvent();
+        //fRun -> DoNotFillCurrentEvent();
     }
     else {
         lk_info << "Good Event!" << endl;

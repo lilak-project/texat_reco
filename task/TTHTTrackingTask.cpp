@@ -11,8 +11,9 @@ bool TTHTTrackingTask::Init()
 {
     lk_info << "Initializing TTHTTrackingTask" << std::endl;
 
-    if (fPar->CheckPar("TTHTTrackingTask/use_transform_with_chain_strip_combination"))
-        fUseTransformCSCombination = fPar -> GetParBool("TTHTTrackingTask/use_transform_with_chain_strip_combination");
+    fPar -> UpdatePar(fUseTransformCSCombination,  "TTHTTrackingTask/use_transform_with_chain_strip_combination");
+    fPar -> UpdatePar(fNumStripHitsCutForTransform,"TTHTTrackingTask/numStripHitsCutForTransform");
+    fPar -> UpdatePar(fNumChainHitsCutForTransform,"TTHTTrackingTask/numChainHitsCutForTransform");
 
     if (fUseTransformCSCombination) lk_info << "Flag, HT transform using Chain Strip combination is ON!" << endl;
     else lk_info << "Flag, HT transform using Chain Strip combination is OFF!" << endl;
@@ -80,7 +81,7 @@ bool TTHTTrackingTask::TransformAndSelectHits(LKHTLineTracker* trackerXY, LKHTLi
                 }
             }
         }
-        if (numCrossHits<=fNumHitsCutForTransform)
+        if (numCrossHits<=fNumChainHitsCutForTransform || numCrossHits<=fNumStripHitsCutForTransform)
             return false;
 
         trackerXY -> ClearPoints();
@@ -169,7 +170,7 @@ void TTHTTrackingTask::Exec(Option_t *option)
             iStrip = kRStrip;
             iChain = kRChain;
         }
-        if (fHitArray[iStrip]->GetEntries()>fNumHitsCutForTransform && fHitArray[iChain]->GetEntries()>fNumHitsCutForTransform)
+        if (fHitArray[iStrip]->GetEntries()>fNumStripHitsCutForTransform && fHitArray[iChain]->GetEntries()>fNumChainHitsCutForTransform)
         {
             for (auto iRegion : {iStrip ,iChain}) {
                 auto numHits = fHitArray[iRegion] -> GetEntries();

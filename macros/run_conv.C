@@ -7,8 +7,7 @@ void run_conv()
     auto run = new LKRun();
     run -> AddPar("config_conv.mac");
     run -> AddDetector(new TexAT2());
-    run -> Add(new TTRootConversionTask());
-    run -> Add(new TTPulseAnalysisTask());
+    run -> Add(new LKMFMConversionTask());
 
     run -> Init();
     run -> Run();

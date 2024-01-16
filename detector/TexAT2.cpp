@@ -364,9 +364,10 @@ bool TexAT2::InitChannelAnalyzer()
     if (fChannelAnalyzer[0]==nullptr)
         for (auto type=0; type<fNumPSAType; ++type)
         {
+            fChannelAnalyzer[type] = new LKChannelAnalyzer();
             TString parName1 = Form("TexAT2/pulseFile/%s",fTypeNames[type].Data());
             TString parName2 = Form("TexAT2/analysis/%s",fTypeNames[type].Data());
-
+            TString parName3 = Form("TexAT2/inverted/%s",fTypeNames[type].Data());
             TString pulseFileName = fPar -> GetParString(parName1);
             int dynamicRange = 4096;
             int threshold = 50;
@@ -378,19 +379,18 @@ bool TexAT2::InitChannelAnalyzer()
             double scaleTbStep = 0.2;
             int thresholdOneStep = 2;
             int numTbAcendingCut = 5;
-            if (fPar -> CheckPar(parName2)) {
-                dynamicRange = fPar -> GetParInt(parName2,0);
-                threshold = fPar -> GetParInt(parName2,1);
-                tbStart = fPar -> GetParInt(parName2,2);
-                tbMax = fPar -> GetParInt(parName2,3);
-                iterMax = fPar -> GetParInt(parName2,4);
-                tbStepCut = fPar -> GetParDouble(parName2,5);
-                tbStartCut = fPar -> GetParInt(parName2,6);
-                scaleTbStep = fPar -> GetParDouble(parName2,7);
-                thresholdOneStep = fPar -> GetParInt(parName2,8);
-                numTbAcendingCut = fPar -> GetParInt(parName2,9);
-            }
-            fChannelAnalyzer[type] = new LKChannelAnalyzer();
+            bool dataIsInverted = false;
+            fPar -> UpdatePar(dynamicRange,parName2,0);
+            fPar -> UpdatePar(threshold,parName2,1);
+            fPar -> UpdatePar(tbStart,parName2,2);
+            fPar -> UpdatePar(tbMax,parName2,3);
+            fPar -> UpdatePar(iterMax,parName2,4);
+            fPar -> UpdatePar(tbStepCut,parName2,5);
+            fPar -> UpdatePar(tbStartCut,parName2,6);
+            fPar -> UpdatePar(scaleTbStep,parName2,7);
+            fPar -> UpdatePar(thresholdOneStep,parName2,8);
+            fPar -> UpdatePar(numTbAcendingCut,parName2,9);
+            fPar -> UpdatePar(dataIsInverted,parName3);
             fChannelAnalyzer[type] -> SetPulse(pulseFileName);
             fChannelAnalyzer[type] -> SetDynamicRange(dynamicRange);
             fChannelAnalyzer[type] -> SetThreshold(threshold);
@@ -402,6 +402,7 @@ bool TexAT2::InitChannelAnalyzer()
             fChannelAnalyzer[type] -> SetScaleTbStep(scaleTbStep);
             fChannelAnalyzer[type] -> SetThresholdOneStep(thresholdOneStep);
             fChannelAnalyzer[type] -> SetNumTbAcendingCut(numTbAcendingCut);
+            fChannelAnalyzer[type] -> SetDataIsInverted(dataIsInverted);
         }
 
     return true;
