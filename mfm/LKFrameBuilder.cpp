@@ -1,6 +1,3 @@
-#include "GSpectra.h"
-#include "GNetServerRoot.h"
-//#include "WaveletNew.h"
 #include "mfm/BitField.h"
 #include "mfm/Field.h"
 #include "mfm/Frame.h"
@@ -10,34 +7,25 @@
 #include <sstream>
 #include <cstdio>
 #include <boost/utility/binary.hpp>
-const int no_cobos=3;
+
 using namespace std;
 
 #include "LKLogger.h"
 #include "LKFrameBuilder.h"
-#include "GETChannel.h"
 #include "LKEventHeader.h"
+#include "GETChannel.h"
 
-LKFrameBuilder::LKFrameBuilder(int port) {
+LKFrameBuilder::LKFrameBuilder()
+{
     fName = "LKFrameBuilder";
-    //lk_debug << endl;
-    //spectra_ = new GSpectra();
-    //lk_debug << endl;
-    //serv_ = new GNetServerRoot(port,spectra_);
-    //lk_debug << endl;
-    //serv_->StartServer();
-    //lk_debug << endl;
 }
 
-LKFrameBuilder::~LKFrameBuilder() {
-    //delete serv_;
-    //delete spectra_;
+LKFrameBuilder::~LKFrameBuilder()
+{
 }
 
 void LKFrameBuilder::processFrame(mfm::Frame &frame)
 {
-    //lk_debug << "New frame!" << endl;
-    //lk_debug << "isBlobFrame=" << frame.header().isBlobFrame() << ", frameType=" << frame.header().frameType() << endl;
     if (frame.header().isBlobFrame())
     {
         if (frame.header().frameType() == 0x7)
@@ -54,118 +42,147 @@ void LKFrameBuilder::processFrame(mfm::Frame &frame)
     else
     {
         ValidateEvent(frame);
-        goodsievt=1;
-        goodicevt=1;
+        Event(frame);
+        fMotherTask -> SignalNextEvent();
+    }
+}
 
-        if(goodsievt==1)
-        {
-            goodmmevt=1;
-            Event(frame);
-            fMotherTask -> SignalNextEvent();
+void LKFrameBuilder::SetPar(LKParameterContainer* par)
+{
+    fPar = par;
+
+    fPar -> UpdatePar(fSet2PMode     ,"LKFrameBuilder/Set2PMode");
+    fPar -> UpdatePar(fSetScaler     ,"LKFrameBuilder/SetScaler");
+    fPar -> UpdatePar(fMaxCobo       ,"LKFrameBuilder/MaxCobo");
+    fPar -> UpdatePar(fMaxAsad       ,"LKFrameBuilder/MaxAsad");
+    fPar -> UpdatePar(fMaxAget       ,"LKFrameBuilder/MaxAget");
+    fPar -> UpdatePar(fMaxChannels   ,"LKFrameBuilder/MaxChannels");
+    fPar -> UpdatePar(fFormatFileName,"LKFrameBuilder/FormatFileName");
+    fPar -> UpdatePar(fScalerFileName,"LKFrameBuilder/ScalerFileName");
+
+    if ( fPar -> CheckPar("LKFrameBuilder/Set2PMode"     )) { lk_info    << "2PMode          is updated = " << fSet2PMode      << endl; }
+    if ( fPar -> CheckPar("LKFrameBuilder/SetScaler"     )) { lk_info    << "Scaler          is updated = " << fSetScaler      << endl; }
+    if ( fPar -> CheckPar("LKFrameBuilder/MaxCobo"       )) { lk_info    << "MaxCobo         is updated = " << fMaxCobo        << endl; }
+    if ( fPar -> CheckPar("LKFrameBuilder/MaxAsad"       )) { lk_info    << "MaxAsad         is updated = " << fMaxAsad        << endl; }
+    if ( fPar -> CheckPar("LKFrameBuilder/MaxAget"       )) { lk_info    << "MaxAget         is updated = " << fMaxAget        << endl; }
+    if ( fPar -> CheckPar("LKFrameBuilder/MaxChannels"   )) { lk_info    << "MaxChannels     is updated = " << fMaxChannels    << endl; }
+    if ( fPar -> CheckPar("LKFrameBuilder/FormatFileName")) { lk_info    << "FormatFileName  is updated = " << fFormatFileName << endl; }
+    if ( fPar -> CheckPar("LKFrameBuilder/ScalerFileName")) { lk_info    << "ScalerFileName  is updated = " << fScalerFileName << endl; }
+
+    if (!fPar -> CheckPar("LKFrameBuilder/Set2PMode"     )) { lk_warning << "2PMode         NOT updated = " << fSet2PMode      << endl; }
+    if (!fPar -> CheckPar("LKFrameBuilder/SetScaler"     )) { lk_warning << "Scaler         NOT updated = " << fSetScaler      << endl; }
+    if (!fPar -> CheckPar("LKFrameBuilder/MaxCobo"       )) { lk_warning << "MaxCobo        NOT updated = " << fMaxCobo        << endl; }
+    if (!fPar -> CheckPar("LKFrameBuilder/MaxAsad"       )) { lk_warning << "MaxAsad        NOT updated = " << fMaxAsad        << endl; }
+    if (!fPar -> CheckPar("LKFrameBuilder/MaxAget"       )) { lk_warning << "MaxAget        NOT updated = " << fMaxAget        << endl; }
+    if (!fPar -> CheckPar("LKFrameBuilder/MaxChannels"   )) { lk_warning << "MaxChannels    NOT updated = " << fMaxChannels    << endl; }
+    if (!fPar -> CheckPar("LKFrameBuilder/FormatFileName")) { lk_warning << "FormatFileName NOT updated = " << fFormatFileName << endl; }
+    if (!fPar -> CheckPar("LKFrameBuilder/ScalerFileName")) { lk_warning << "ScalerFileName NOT updated = " << fScalerFileName << endl; }
+}
+
+bool LKFrameBuilder::Init()
+{
+    Bool_t missingEssentials = false;
+    if (fMotherTask==nullptr) {
+        missingEssentials = true;
+        lk_error << "Mother task should be set before Init()!" << endl;
+    }
+    if (fChannelArray==nullptr) {
+        missingEssentials = true;
+        lk_error << "Channel array should be set before Init()!" << endl;
+    }
+    if (fEventHeaderArray==nullptr) {
+        missingEssentials = true;
+        lk_error << "Event header array should be set before Init()!" << endl;
+    }
+    if (fPar==nullptr) {
+        missingEssentials = true;
+        lk_error << "Parameter container should be set before Init()!" << endl;
+    }
+
+    if (missingEssentials)
+        return false;
+
+    fIsFirstEvent = true;
+    fFirstEventIdx = -1;
+    fCurrEventIdx = -1;
+    fPrevEventIdx = 0;
+    fCountPrint = 0;
+    fMutantCounter = 0;
+
+    if (fAsadIsTriggered==nullptr)
+    {
+        fAsadIsTriggered = new Int_t*[fMaxCobo];
+        for (Int_t i=0; i<fMaxCobo; i++) {
+            fAsadIsTriggered[i] = new Int_t[fMaxAsad];
+            for (Int_t j=0; j<fMaxAsad; j++)
+                fAsadIsTriggered[i][j] = 0;
         }
     }
-}
-
-void LKFrameBuilder::Init(int mode, int d2pmode) {
-    //cout<<"INIT HIST SERVER"<<endl;
-    framecounter = 0;
-    enableroot = 0;
-    forcereadtree = 0;
-    enablecleantrack = 0;
-    energymethod = 0;
-    readrw = 0;
-    enable2pmode = d2pmode;
-    enablehist = 0;
-    enableupdatefast = 0;
-    maxasad = 4;
-    FirsteventIdx = 0;
-    IsFirstevent = true;
-    LasteventIdx = 0;
-    eventID = 0;
-    weventTime = 0;
-    coboIC=2;
-    asadIC=1;
-    chanIC=2;
-    valueIC_min=3500;
-    decoffset=500; //ofset value for Deconvolution Method
-    mm_minenergy = 0;
-    //mm_maxenergy = 4096;
-    //mm_minenergy = 0; //for AllChannelReading
-    //mm_minenergy = 0;
-    mm_maxenergy = 4096;
-    //mm_mintime = 130;
-    //mm_maxtime = 380;
-    mm_mintime = 0;
-    mm_maxtime = 350;
-    si_minenergy = 0;
-    si_maxenergy = 5000;
-    si_mintime = 0;
-    si_maxtime = 512;
-    //driftv = 0.0025; // mm/ns, for P5 at 100 Torr and -800V
-    driftv = 0.017; // mm/ns, for CO2 at 20 Torr and -800V
-    fTimePerBin = 1000.; // 100 ns per bin
-
-    lk_info << "Mode: " << mode << endl;
-
-    if(mode==1){
-        mfm::FrameDictionary::instance().addFormats("/usr/local/get/share/get-bench/format/CoboFormats.xcfg");
-        waveforms = new WaveForms();
-        InitWaveforms();
+    else {
+        for (Int_t i=0; i<fMaxCobo; i++)
+            for (Int_t j=0; j<fMaxAsad; j++)
+                fAsadIsTriggered[i][j] = 0;
     }
+
+    mfm::FrameDictionary::instance().addFormats(fFormatFileName.Data());
+
+    InitWaveforms();
+
+    return true;
 }
 
-void LKFrameBuilder::InitWaveforms() {
-    waveforms->waveform.resize(maxasad*4);
-    waveforms->hasSignal.resize(maxasad*4);
-    waveforms->hasHit.resize(maxasad*4); //default set to false
-    waveforms->hasFPN.resize(maxasad*4); //default set to false
-    waveforms->doneFPN.resize(maxasad*4); //default set to false
-    for(int i=0;i<maxasad;i++){
-        for(int j=0;j<4;j++){
-            waveforms->waveform[i*4+j].resize(68);
-            waveforms->hasSignal[i*4+j].resize(68); //default set to false
-            for(int k=0;k<68;k++){
-                waveforms->waveform[i*4+j][k].resize(bucketmax);
+void LKFrameBuilder::InitWaveforms()
+{
+    fWaveforms = new WaveForms();
+    fWaveforms->waveform.resize(fMaxAsad*fMaxAget);
+    fWaveforms->hasSignal.resize(fMaxAsad*fMaxAget);
+    fWaveforms->hasHit.resize(fMaxAsad*fMaxAget); //default set to false
+    fWaveforms->hasFPN.resize(fMaxAsad*fMaxAget); //default set to false
+    fWaveforms->doneFPN.resize(fMaxAsad*fMaxAget); //default set to false
+    for(Int_t i=0;i<fMaxAsad;i++){
+        for(Int_t j=0;j<fMaxAget;j++){
+            fWaveforms->waveform[i*fMaxAget+j].resize(fMaxChannels);
+            fWaveforms->hasSignal[i*fMaxAget+j].resize(fMaxChannels); //default set to false
+            for(Int_t k=0;k<fMaxChannels;k++){
+                fWaveforms->waveform[i*fMaxAget+j][k].resize(fMaxTimeBuckets);
             }
         }
     }
 }
 
-void LKFrameBuilder::ResetWaveforms() {
-    for(int i=0;i<maxasad;i++){
-        for(int j=0;j<4;j++){
-            if(waveforms->hasHit[i*4+j] || waveforms->hasFPN[i*4+j]){
-                for(int k=0;k<68;k++){
-                    if(waveforms->hasSignal[i*4+j][k]){
-                        waveforms->hasSignal[i*4+j][k] = false;
-                        fill(waveforms->waveform[i*4+j][k].begin(),
-                                waveforms->waveform[i*4+j][k].end(),0);
+void LKFrameBuilder::ResetWaveforms()
+{
+    for(Int_t i=0;i<fMaxAsad;i++){
+        for(Int_t j=0;j<fMaxAget;j++){
+            if(fWaveforms->hasHit[i*fMaxAget+j] || fWaveforms->hasFPN[i*fMaxAget+j]){
+                for(Int_t k=0;k<fMaxChannels;k++){
+                    if(fWaveforms->hasSignal[i*fMaxAget+j][k]){
+                        fWaveforms->hasSignal[i*fMaxAget+j][k] = false;
+                        fill(fWaveforms->waveform[i*fMaxAget+j][k].begin(),
+                                fWaveforms->waveform[i*fMaxAget+j][k].end(),0);
                     }
                 }
             }
-            waveforms->hasHit[i*4+j] = false;
-            waveforms->hasFPN[i*4+j] = false;
-            waveforms->doneFPN[i*4+j] = false;
+            fWaveforms->hasHit[i*fMaxAget+j] = false;
+            fWaveforms->hasFPN[i*fMaxAget+j] = false;
+            fWaveforms->doneFPN[i*fMaxAget+j] = false;
 
         }
     }
-    waveforms->ICenergy = 0;
-    waveforms->Sienergy = 0;
-    waveforms->SiX = 0;
-    waveforms->SiY = 0;
-    waveforms->SiZ = 0;
-    waveforms->isRejected = 0;
+    fWaveforms->ICenergy = 0;
+    fWaveforms->Sienergy = 0;
+    fWaveforms->SiX = 0;
+    fWaveforms->SiY = 0;
+    fWaveforms->SiZ = 0;
+    fWaveforms->isRejected = 0;
 }
 
 void LKFrameBuilder::ValidateEvent(mfm::Frame& frame)
 {
-    //lk_debug << "ValidateEvent" << endl;
     if(frame.header().isLayeredFrame())
     {
-        //lk_info << "Frame is layered frame" << endl;
-
         unique_ptr<mfm::Frame> subFrame;
-        for(int i = 0;i<frame.itemCount();i++)
+        for(Int_t i = 0;i<frame.itemCount();i++)
         {
             // frameAt ///////////////////////////////////////////////////////////////////////////////
             try { subFrame = frame.frameAt(i); }
@@ -176,7 +193,7 @@ void LKFrameBuilder::ValidateEvent(mfm::Frame& frame)
             }
 
             // subFrame.get, itemCount ///////////////////////////////////////////////////////////////
-            int numItems;
+            Int_t numItems;
             try { numItems = (*subFrame.get()).itemCount(); /*Make sure we have data*/ }
             catch (const std::exception& e){
                 e_debug << "Error at (*subFrame.get()).itemCount()" << endl;
@@ -188,7 +205,6 @@ void LKFrameBuilder::ValidateEvent(mfm::Frame& frame)
             try {
                 if(numItems>0) { ValidateFrame(*subFrame.get()); }
                 else{
-                    //lk_debug << "New subframe-" << i << " arrived, but item-count is 0!" << endl;
                 }
             }
             catch (const std::exception& e) {
@@ -205,13 +221,13 @@ void LKFrameBuilder::ValidateEvent(mfm::Frame& frame)
             ValidateFrame(frame);
         }
         else {
-            //lk_debug << "New frame arrived, but item-count is 0!" << endl;
         }
     }
 }
 
 void LKFrameBuilder::ValidateFrame(mfm::Frame& frame)
 {
+    /*
     UInt_t coboIdx = frame.headerField("coboIdx").value<UInt_t>();
     UInt_t asadIdx = frame.headerField("asadIdx").value<UInt_t>();
     UInt_t ceventIdx = (Int_t)frame.headerField("eventIdx").value<UInt_t>();
@@ -238,16 +254,14 @@ void LKFrameBuilder::ValidateFrame(mfm::Frame& frame)
     //000100000000000100000000001000000000000000000000010000000000100000000000
     //Si and IC data validation
     if(coboIdx==1 && asadIdx==0 && ((hitPat_0&SiMask)||(hitPat_1&SiMask)||(hitPat_2&SiMask)||(hitPat_3&SiMask))){
-        goodsievt=1;
-        goodevtidx = ceventIdx;
+        fGoodSiEvent = true;
     }
 
     //MM and IC data validation
     //if(coboIdx==0 && ((hitPat_0&MMMask)||(hitPat_1&MMMask)||(hitPat_2&MMMask)||(hitPat_3&MMMask)))
     if(coboIdx==0 && ((asadIdx==2||asadIdx==3) && hitPat_2&MMMask1) && (asadIdx==0 && (hitPat_0&MMMask)) && (asadIdx<2 && ((hitPat_1&MMMask)||(hitPat_2&MMMask)||(hitPat_3&MMMask))))
     {
-        goodmmevt=1;
-        goodevtidx = ceventIdx;
+        fGoodMMEvent = true;
     }
 
     //cout << coboIdx << " " << asadIdx << "(USB):" << endl;
@@ -266,8 +280,7 @@ void LKFrameBuilder::ValidateFrame(mfm::Frame& frame)
     //unsigned short SiMask = BOOST_BINARY( 111011111111111011111111110111111111111111111111101111111111011111111111 );
     SiMask = 0xEF; //USB 1byte
     if(coboIdx==1 && asadIdx==0 && ((hitPat_0&SiMask)||(hitPat_1&SiMask)||(hitPat_2&SiMask)||(hitPat_3&SiMask))){
-        goodsievt=1;
-        goodevtidx = ceventIdx;
+        fGoodSiEvent = true;
     }
 
     //MM and IC data validation
@@ -275,32 +288,31 @@ void LKFrameBuilder::ValidateFrame(mfm::Frame& frame)
     //if(coboIdx==0 && ((hitPat_0&MMMask)||(hitPat_1&MMMask)||(hitPat_2&MMMask)||(hitPat_3&MMMask)))
     if(coboIdx==0 && (asadIdx==0 && (hitPat_0&MMMask)) && (asadIdx<2 && ((hitPat_1&MMMask)||(hitPat_2&MMMask)||(hitPat_3&MMMask))))
     {
-        goodmmevt=1;
-        goodevtidx = ceventIdx;
+        fGoodMMEvent = true;
     }
-    if(coboIdx==1 && asadIdx==1 && (hitPat_0&IcMask)){
-        goodicevt=1;
+    if(coboIdx==1 && asadIdx==1 && (hitPat_0&IcMask))
+    {
+        fGoodICEvent = true;
     }
+    */
 }
 
 void LKFrameBuilder::Event(mfm::Frame& frame)
 {
-    //lk_debug << "Event" << endl;
-    //XXX
-    waveforms->frameIdx = 0;
-    waveforms->decayIdx = 0;
+    fWaveforms->frameIdx = 0;
+    fWaveforms->decayIdx = 0;
     fChannelArray -> Clear("C");
     fCountChannels = 0;
     if(frame.header().isLayeredFrame()) {
-        for(int i = 0;i<frame.itemCount();i++) {
+        for(Int_t i = 0;i<frame.itemCount();i++) {
             //cout << "1isLayered=" << frame.header().isLayeredFrame() << ", itemCount=" << frame.itemCount() << ", frameIndex=" << i << endl;
-            waveforms->frameIdx = 0;
-            waveforms->decayIdx = 0;
+            fWaveforms->frameIdx = 0;
+            fWaveforms->decayIdx = 0;
             try{
                 auto_ptr<mfm::Frame> subFrame = frame.frameAt(i);
                 if((*subFrame.get()).itemCount()>0){ //Make sure we have data
                     //cout << "2isLayered=" << frame.header().isLayeredFrame() << ", itemCount=" << frame.itemCount() << ", frameIndex=" << i << endl;
-                    waveforms->frameIdx = i;
+                    fWaveforms->frameIdx = i;
                     UnpackFrame(*subFrame.get());
                     WriteChannels();
                     ResetWaveforms();
@@ -331,96 +343,49 @@ void LKFrameBuilder::Event(mfm::Frame& frame)
 
 void LKFrameBuilder::UnpackFrame(mfm::Frame& frame)
 {
-    //XXX
+    Int_t prevWEventIdx = fCurrEventIdx;
     UInt_t coboIdx = frame.headerField("coboIdx").value<UInt_t>();
     UInt_t asadIdx = frame.headerField("asadIdx").value<UInt_t>();
-    Int_t prevweventIdx = eventID;
-    UInt_t frameSize = frame.headerField("frameSize").value<UInt_t>();
     UInt_t itemSize = frame.headerField("itemSize").value<UInt_t>();
-    eventID = (Int_t)frame.headerField("eventIdx").value<UInt_t>();
-    UInt_t prevweventTime = weventTime;
-    weventTime = (UInt_t)frame.headerField("eventTime").value<UInt_t>();
-    //cout<<"eventID=" << eventID << ", prevweventIdx+1=" << (prevweventIdx+1) << endl;
-    //if(eventID>prevweventIdx+1) return;
-    if(IsFirstevent) {
-        //lk_info<<"FIRST EVENT!!!!!"<<endl;
-        FirsteventIdx = eventID;
-        IsFirstevent=false;
+    UInt_t frameSize = frame.headerField("frameSize").value<UInt_t>();
+    fCurrEventIdx = (Int_t)frame.headerField("eventIdx").value<UInt_t>();
+    if(fIsFirstEvent) {
+        fFirstEventIdx = fCurrEventIdx;
+        fIsFirstEvent=false;
     }
 
-    //if(enableskipevent==1 && eventID<firsteventno) return;
-    //if(enableskipevent==2 && eventID<maxevtno){
-    //if(!evtmask[eventID]) return;
-    //}else if(enableskipevent==2 && eventID>=maxevtno){
-    //  //cout << Form("eventID >= %d!",maxevtno) << endl;
-    //}
-    //else cout << "eventID " << eventID << endl;
-
-    if((prevweventIdx != eventID))
+    if (prevWEventIdx != fCurrEventIdx)
     {
-        if(readmode==1)
+        if (fMultGET>0)
         {
-            if(wGETMul>0){
-                wGETEventIdx = prevweventIdx;
-                if(prevgoodmmevt==1 || 1){
-                    //lk_info << "In data: " << wGETEventIdx << ", enable2pmode: " << enable2pmode << endl;
-                    if(enable2pmode==1){
-                        //cout<<"mevtidx.size() = "<<mevtidx.size()<<endl;
-                        for(int i=prevmidx;i<mevtidx.size();i++){
-                            //cout<<mevtidx.at(i)<<"\t"<<wGETEventIdx<<endl;
-                            if(mevtidx.at(i)==wGETEventIdx){
-                                wGETD2PTime = md2ptime.at(i);
-                                wGETTimeStamp = mtstmp.at(i);
-                                //cout << "In data: " << i << " " << wGETEventIdx << " " << wGETD2PTime << " " << wGETTimeStamp << endl;
-                                //cout << "In data: " << i << " " << wGETEventIdx << " " << wGETD2PTime << " " << wGETTimeStamp << " " << prevweventTime << endl;
-                                prevmidx = i;
-                            }
-                        }
-                    }
-                    //XXX
-                    RootWReset();
-                    prevgoodmmevt = goodmmevt;
-                    prevgoodicevt = goodicevt;
-                    goodsievt=0;
-                    goodmmevt=0;
-                    goodicevt=0;
-                    goodevtidx=0;
-                }else{
-                    wGETEventIdx = prevweventIdx;
-                    RootWReset();
-                    prevgoodmmevt = goodmmevt;
-                    prevgoodicevt = goodicevt;
-                    goodsievt=0;
-                    goodmmevt=0;
-                    goodicevt=0;
-                    goodevtidx=0;
-                }
-                if((wGETEventIdx-FirsteventIdx)%50==0){
-                    if(wGETEventIdx==FirsteventIdx){
-                        //cout << Form("M%d:Starting from Event No. %d.",readmode,wGETEventIdx) << endl;
-                    }else{
-                        //cout << Form("M%d:Upto Event No. %d Converted..(from Event No. %d)",readmode,wGETEventIdx, FirsteventIdx) << endl;
+            fGETEventIdx = prevWEventIdx;
+
+            if(fSet2PMode)
+            {
+                for(Int_t i=fPrevEventIdx;i<fListOfEventIdx.size();i++)
+                {
+                    if(fListOfEventIdx.at(i)==fGETEventIdx)
+                    {
+                        fGETD2PTime = fListOfD2PTime.at(i);
+                        fGETTimeStamp = fListOfTimeStamp.at(i);
+                        fPrevEventIdx = i;
                     }
                 }
-                wGETEventIdx = eventID;
-                wGETMul=0;
-                wGETHit=0;
-                for(int i=0;i<16;i++) IsTrig[i]=0;
             }
+
+            fGETEventIdx = fCurrEventIdx;
+
+            fMultGET=0;
+            for (Int_t i=0; i<fMaxCobo; i++)
+                for (Int_t j=0; j<fMaxAsad; j++)
+                    fAsadIsTriggered[i][j] = 0;
         }
     }
-
-    //lk_info << "Frame type: " << frame.header().frameType() << ", eventIdx-" << eventID << endl;
-
-    //  if(eventID<3350){
-    //    return;
-    //  }
 
     mfm::Item item = frame.itemAt(0u);
     mfm::Field field = item.field("");
 
     const size_t numSamples = frame.itemCount();
-
     const size_t numChannels = 68u;
     const size_t numChips = 4u;
     vector<uint32_t> chanIdx_(numChips, 0u);
@@ -433,20 +398,20 @@ void LKFrameBuilder::UnpackFrame(mfm::Frame& frame)
         mfm::BitField buckIdxField = field.bitField("buckIdx");
         mfm::BitField sampleValueField = field.bitField("sample");
 
-        if(enable2pmode==1){
-            if(IsTrig[coboIdx*4+asadIdx]>0){
-                IsTrig[coboIdx*4+asadIdx]=2;
-                waveforms->decayIdx = 1;
+        if(fSet2PMode){
+            if(fAsadIsTriggered[coboIdx][asadIdx]>0){
+                fAsadIsTriggered[coboIdx][asadIdx]=2;
+                fWaveforms->decayIdx = 1;
             }else{
-                IsTrig[coboIdx*4+asadIdx]=1;
-                waveforms->decayIdx = 0;
+                fAsadIsTriggered[coboIdx][asadIdx]=1;
+                fWaveforms->decayIdx = 0;
             }
         }else{
-            IsTrig[coboIdx*4+asadIdx]=0;
-            waveforms->decayIdx = 0;
+            fAsadIsTriggered[coboIdx][asadIdx]=0;
+            fWaveforms->decayIdx = 0;
         }
-        //cout << "Type:" << frame.header().frameType() << " " <<  eventID << "  " << frameSize << " " << coboIdx << " " << asadIdx << " " << waveforms->frameIdx << " " << waveforms->decayIdx << " " << frame.itemCount() << endl;
-        int lastaget=-1;
+        //cout << "Type:" << frame.header().frameType() << " " <<  fCurrEventIdx << "  " << frameSize << " " << coboIdx << " " << asadIdx << " " << fWaveforms->frameIdx << " " << fWaveforms->decayIdx << " " << frame.itemCount() << endl;
+        Int_t lastaget=-1;
         for(UInt_t i=0; i<frame.itemCount(); i++) {
             item = frame.itemAt(i);
             field = item.field(field);
@@ -463,34 +428,30 @@ void LKFrameBuilder::UnpackFrame(mfm::Frame& frame)
             UInt_t buckIdx = buckIdxField.value<UInt_t>();
             UInt_t sampleValue = sampleValueField.value<UInt_t>();
 
-            waveforms->coboIdx = coboIdx;
-            waveforms->asadIdx = asadIdx;
+            fWaveforms->coboIdx = coboIdx;
+            fWaveforms->asadIdx = asadIdx;
 
-            if((ignoremm==0) || (ignoremm==1 && coboIdx>0)){ // skip MM waveform data
-                waveforms->hasSignal[asadIdx*4+agetIdx][chanIdx] = true;
-                //      cout<<"BEEP "<<coboIdx<<"\t"<<asadIdx<<"\t"<<agetIdx<<"\t"<<chanIdx<<endl;
-                if((chanIdx==11||chanIdx==22||chanIdx==45||chanIdx==56)) waveforms->hasFPN[asadIdx*4+agetIdx] = true;
-                else waveforms->hasHit[asadIdx*4+agetIdx] = true;
-                waveforms->waveform[asadIdx*4+agetIdx][chanIdx][buckIdx] = sampleValue;
-                //cout << "Type:" << frame.header().frameType() << " " <<  eventID << "  " << frameSize << " " << coboIdx << " " << asadIdx << " " << agetIdx << " " << chanIdx << " " << buckIdx <<  " " << sampleValue << endl;
+            {
+                fWaveforms->hasSignal[asadIdx*fMaxAget+agetIdx][chanIdx] = true;
+                fWaveforms->hasHit[asadIdx*fMaxAget+agetIdx] = true;
+                fWaveforms->waveform[asadIdx*fMaxAget+agetIdx][chanIdx][buckIdx] = sampleValue;
             }
         }
 
     }
     else if (frame.header().frameType() == 2u) {
-        if(enable2pmode==1){
-            if(IsTrig[coboIdx*4+asadIdx]>0){
-                IsTrig[coboIdx*4+asadIdx]=2;
-                waveforms->decayIdx = 1;
+        if(fSet2PMode){
+            if(fAsadIsTriggered[coboIdx][asadIdx]>0){
+                fAsadIsTriggered[coboIdx][asadIdx]=2;
+                fWaveforms->decayIdx = 1;
             }else{
-                IsTrig[coboIdx*4+asadIdx]=1;
-                waveforms->decayIdx = 0;
+                fAsadIsTriggered[coboIdx][asadIdx]=1;
+                fWaveforms->decayIdx = 0;
             }
         }else{
-            IsTrig[coboIdx*4+asadIdx]=0;
-            waveforms->decayIdx = 0;
+            fAsadIsTriggered[coboIdx][asadIdx]=0;
+            fWaveforms->decayIdx = 0;
         }
-        //cout << "Type:" << frame.header().frameType() << " " <<  eventID << " " << frameSize << " " << coboIdx << " " << asadIdx << " " << waveforms->frameIdx << " " << waveforms->decayIdx << " " << endl;
         // Decode first item
         if(numSamples>0) {
             mfm::Item item = frame.itemAt(0u);
@@ -501,14 +462,13 @@ void LKFrameBuilder::UnpackFrame(mfm::Frame& frame)
             const uint32_t agetIdx = agetIdxField.value<uint32_t>();
             const uint32_t sampleValue = sampleValueField.value<uint32_t>();
 
-            waveforms->coboIdx = coboIdx;
-            waveforms->asadIdx = asadIdx;
+            fWaveforms->coboIdx = coboIdx;
+            fWaveforms->asadIdx = asadIdx;
 
-            if((ignoremm==0) || (ignoremm==1 && coboIdx>0)){ // skip MM waveform data
-                waveforms->hasSignal[asadIdx*4+agetIdx][chanIdx_[agetIdx]] = true;
-                if((chanIdx_[agetIdx]==11||chanIdx_[agetIdx]==22||chanIdx_[agetIdx]==45||chanIdx_[agetIdx]==56)) waveforms->hasFPN[asadIdx*4+agetIdx] = true;
-                else waveforms->hasHit[asadIdx*4+agetIdx] = true;
-                waveforms->waveform[asadIdx*4+agetIdx][chanIdx_[agetIdx]][buckIdx_[agetIdx]] = sampleValue;
+            {
+                fWaveforms->hasSignal[asadIdx*fMaxAget+agetIdx][chanIdx_[agetIdx]] = true;
+                fWaveforms->hasHit[asadIdx*fMaxAget+agetIdx] = true;
+                fWaveforms->waveform[asadIdx*fMaxAget+agetIdx][chanIdx_[agetIdx]][buckIdx_[agetIdx]] = sampleValue;
             }
         }
         // Loop through other items
@@ -518,7 +478,7 @@ void LKFrameBuilder::UnpackFrame(mfm::Frame& frame)
             mfm::BitField agetIdxField = field.bitField(agetIdxField);
             mfm::BitField sampleValueField = field.bitField(sampleValueField);
 
-            if((ignoremm==0) || (ignoremm==1 && coboIdx>0)){ // skip MM waveform data
+            {
                 const uint32_t agetIdx = agetIdxField.value<uint32_t>();
                 if(chanIdx_[agetIdx]>=numChannels) {
                     chanIdx_[agetIdx] = 0u;
@@ -526,12 +486,9 @@ void LKFrameBuilder::UnpackFrame(mfm::Frame& frame)
                 }
                 const uint32_t sampleValue = sampleValueField.value<uint32_t>();
 
-                //if(itemId>57120) cout << itemId << " " << numSamples << " " << coboIdx << " " << asadIdx << " " << agetIdx << " " << chanIdx_[agetIdx] << " " << buckIdx_[agetIdx] << " " << sampleValue << endl;
-
-                waveforms->hasSignal[asadIdx*4+agetIdx][chanIdx_[agetIdx]] = true;
-                if((chanIdx_[agetIdx]==11||chanIdx_[agetIdx]==22||chanIdx_[agetIdx]==45||chanIdx_[agetIdx]==56)) waveforms->hasFPN[asadIdx*4+agetIdx] = true;
-                else waveforms->hasHit[asadIdx*4+agetIdx] = true;
-                waveforms->waveform[asadIdx*4+agetIdx][chanIdx_[agetIdx]][buckIdx_[agetIdx]] = sampleValue;
+                fWaveforms->hasSignal[asadIdx*fMaxAget+agetIdx][chanIdx_[agetIdx]] = true;
+                fWaveforms->hasHit[asadIdx*fMaxAget+agetIdx] = true;
+                fWaveforms->waveform[asadIdx*fMaxAget+agetIdx][chanIdx_[agetIdx]][buckIdx_[agetIdx]] = sampleValue;
                 chanIdx_[agetIdx]++;
             }
         }
@@ -560,51 +517,71 @@ void LKFrameBuilder::decodeCoBoTopologyFrame(mfm::Frame& frame) {
 
 void LKFrameBuilder::decodeMuTanTFrame(mfm::Frame & frame)
 {
-    mutantcounter++;
+    fMutantCounter++;
+
+    double scaler1;
+    double scaler1start;
+    double scaler1end;
+    double scaler2;
+    double scaler2start;
+    double scaler2end;
+    double scaler3;
+    double scaler3start;
+    double scaler3end;
+    //double scaler4;
+    //double scaler4start;
+    //double scaler4end;
+    //double scaler5;
+    //double scaler5start;
+    //double scaler5end;
+
     if (frame.header().frameType() == 0x8)
     {
         try
         {
-            if(enable2pmode==1){
-                mevtidx.push_back(frame.headerField(14u, 4u).value< uint32_t >());
-                md2ptime.push_back(frame.headerField(60u, 4u).value< uint32_t >()*10);
-                mtstmp.push_back(frame.headerField(8u, 6u).value< uint64_t >());
-                cout << "decoded: " << mevtidx.at(mevtidx.size()-1) << " " << md2ptime.at(md2ptime.size()-1) << " " << mtstmp.at(mtstmp.size()-1) << endl;
+            if(fSet2PMode){
+                fListOfEventIdx.push_back(frame.headerField(14u, 4u).value< uint32_t >());
+                fListOfD2PTime.push_back(frame.headerField(60u, 4u).value< uint32_t >()*10);
+                fListOfTimeStamp.push_back(frame.headerField(8u, 6u).value< uint64_t >());
+                cout << "decoded: " << fListOfEventIdx.at(fListOfEventIdx.size()-1) << " " << fListOfD2PTime.at(fListOfD2PTime.size()-1) << " " << fListOfTimeStamp.at(fListOfTimeStamp.size()-1) << endl;
             }else{
                 scaler1 = frame.headerField(48u, 4u).value< uint32_t >();
                 scaler2 = frame.headerField(52u, 4u).value< uint32_t >();
                 scaler3 = frame.headerField(56u, 4u).value< uint32_t >();
-                scaler4 = frame.headerField(40u, 4u).value< uint32_t >();
-                scaler5 = frame.headerField(44u, 4u).value< uint32_t >();
-                scevent = frame.headerField(24u, 4u).value< uint32_t >();
-                scevtidx = frame.headerField(14u, 4u).value< uint32_t >();
-                sctstmp = frame.headerField(8u, 6u).value< uint64_t >();
-                //if(scaler3>0 && (int)scaler3%1000000==0)
-                if(mutantcounter==100)
+                //scaler4 = frame.headerField(40u, 4u).value< uint32_t >();
+                //scaler5 = frame.headerField(44u, 4u).value< uint32_t >();
+                uint32_t scalerEvent = frame.headerField(24u, 4u).value< uint32_t >();
+                uint32_t scalerEventIdx = frame.headerField(14u, 4u).value< uint32_t >();
+                uint32_t scalerTimeStamp = frame.headerField(8u, 6u).value< uint64_t >();
+                //if(scaler3>0 && (Int_t)scaler3%1000000==0)
+                if(fMutantCounter==100)
                 {
                     scaler1end = scaler1;
                     scaler2end = scaler2;
                     scaler3end = scaler3;
                     cout << " Scaler 1 Rate = " << 100*(scaler1end-scaler1start)/(scaler3end-scaler3start) << ", " << (scaler1end-scaler1start) << " " << (scaler3end-scaler3start) << " " << scaler1end << " " << scaler1start << " " << scaler3end << " " << scaler3start << " or " << (100*scaler1end/scaler3end) << endl;
                     cout << " Scaler 2 Rate(Live) = " << 100*(scaler2end-scaler2start)/(scaler3end-scaler3start) << ", " << scaler2end << " " << scaler2start << " " << scaler3end << " " << scaler3start << " or " << (100*scaler2end/scaler3end) << endl;
-                    if(enablescaler==1){
-                        scalerout.open("scalers.txt", std::ofstream::out|std::ofstream::app);
-                        scalerout << sctstmp << " " << scevent << " " << scevtidx << " " << scaler1 << " " << scaler2 << " " << scaler3 << endl;
-                        scalerout.close();
+                    if(fSetScaler)
+                    {
+                        fFileScaler.open(fScalerFileName.Data(), std::ofstream::out|std::ofstream::app);
+                        fFileScaler << scalerTimeStamp << " " << scalerEvent << " " << scalerEventIdx << " " << scaler1 << " " << scaler2 << " " << scaler3 << endl;
+                        fFileScaler.close();
                     }
-                    mutantcounter=0;
+                    fMutantCounter=0;
                 }
-                //else if(scaler3>0 && (int)scaler3%1000000==1)
-                else if(mutantcounter==1)
+                //else if(scaler3>0 && (Int_t)scaler3%1000000==1)
+                else if(fMutantCounter==1)
                 {
                     scaler1start = scaler1;
                     scaler2start = scaler2;
                     scaler3start = scaler3;
                 }
-                if(enablescaler==0){
-                    printed++;
-                    if(printed>15){
-                        printed=0;
+                if(fSetScaler==false)
+                {
+                    fCountPrint++;
+                    if(fCountPrint>15)
+                    {
+                        fCountPrint=0;
                         cout << "Mutant: ";
                         cout << " TSTMP=" << frame.headerField(8u, 6u).value< uint64_t >() << ", ";
                         cout << " EVT_NO=" << frame.headerField(14u, 4u).value< uint32_t >() << ", ";
@@ -621,33 +598,9 @@ void LKFrameBuilder::decodeMuTanTFrame(mfm::Frame & frame)
                         cout << " SCA4="  << frame.headerField(40u, 4u).value< uint32_t >() << ", ";
                         cout << " SCA5="  << frame.headerField(44u, 4u).value< uint32_t >() << ", ";
                         cout << " D2P="  << frame.headerField(60u, 4u).value< uint32_t >() << endl;
-                        //cout << frame.headerField(8u, 6u).value< uint64_t >() << " ";
-                        //cout << frame.headerField(14u, 4u).value< uint32_t >() << " ";
-                        //cout << frame.headerField(24u, 4u).value< uint32_t >() << " ";
-                        //cout << frame.headerField(28u, 4u).value< uint32_t >() << " ";
-                        //cout << frame.headerField(32u, 4u).value< uint32_t >() << " ";
-                        //cout << frame.headerField(36u, 4u).value< uint32_t >() << " ";
-                        cout << scaler1 << " " << scaler2 << " " << scaler3 << ", IC_Rate=" << Form("%5.2f",(100*scaler1/scaler3)) << "pps, Live=" << Form("%5.2f",((100*scaler2)/scaler3)) << "\%" << endl;
-                        //double beamrate = scaler3/2000;
-                        //cout << "beamrate: " << scevent << " " << beamrate << endl;
-                        /*
-                           cout << "Mutant:" << endl;
-                           cout << " TIMESTAMP=" << frame.headerField(8u, 6u).value< uint32_t >() << endl;
-                           cout << " EVENT_NUMBER=" << frame.headerField(14u, 4u).value< uint32_t >() << endl;
-                           cout << " TRIGGER_INFO=" << hex << showbase << frame.headerField(18u, 2u).value< uint16_t >() << dec << endl;
-                           cout << " MULTIPLICITY_A_MEM="  << frame.headerField(20u, 2u).value< uint16_t >() << endl;
-                           cout << " MULTIPLICITY_B_MEM="  << frame.headerField(22u, 2u).value< uint16_t >() << endl;
-                           cout << " L0_EVT_COUNTER="  << frame.headerField(24u, 4u).value< uint32_t >() << endl;
-                           cout << " L1A_EVT_COUNTER="  << frame.headerField(28u, 4u).value< uint32_t >() << endl;
-                           cout << " L1B_EVT_COUNTER="  << frame.headerField(32u, 4u).value< uint32_t >() << endl;
-                           cout << " L2_EVT_COUNTER="  << frame.headerField(36u, 4u).value< uint32_t >() << endl;
-                           cout << " SCALER1_REG="  << frame.headerField(48u, 4u).value< uint32_t >() << endl;
-                           cout << " SCALER2_REG="  << frame.headerField(52u, 4u).value< uint32_t >() << endl;
-                           cout << " SCALER3_REG="  << frame.headerField(56u, 4u).value< uint32_t >() << endl;
-                           cout << " SCALER4_REG="  << frame.headerField(40u, 4u).value< uint32_t >() << endl;
-                           cout << " SCALER5_REG="  << frame.headerField(44u, 4u).value< uint32_t >() << endl;
-                           cout << " D2P_TIME="  << frame.headerField(60u, 4u).value< uint32_t >() << endl;
-                         */
+                        cout << scaler1 << " " << scaler2 << " " << scaler3
+                            << ", IC_Rate=" << Form("%5.2f",(100*scaler1/scaler3)) << "pps"
+                            << ", Live=" << Form("%5.2f",((100*scaler2)/scaler3)) << "\%" << endl;
                     }
                 }
             }
@@ -656,66 +609,41 @@ void LKFrameBuilder::decodeMuTanTFrame(mfm::Frame & frame)
     }
 }
 
-void LKFrameBuilder::RootWReset()
-{
-    for(int i=0;i<=wGETMul;i++){
-        wGETFrameNo[i] = 0;
-        wGETDecayNo[i] = 0;
-        wGETTime[i] = 0;
-        wGETEnergy[i] = 0;
-        wGETCobo[i] = 0;
-        wGETAsad[i] = 0;
-        wGETAget[i] = 0;
-        wGETChan[i] = 0;
-        for(int j=0;j<bucketmax;j++){
-            wGETWaveformX[i][j] = 0;
-            wGETWaveformY[i][j] = 0;
-        }
-    }
-}
-
 void LKFrameBuilder::WriteChannels()
 {
-    //lk_debug << "WriteChannels" << endl;
-
-    UInt_t frameIdx = waveforms->frameIdx;
-    UInt_t decayIdx = waveforms->decayIdx;
-    UInt_t coboIdx = waveforms->coboIdx;
+    UInt_t frameIdx = fWaveforms->frameIdx;
+    UInt_t decayIdx = fWaveforms->decayIdx;
+    UInt_t coboIdx = fWaveforms->coboIdx;
 
     auto eventHeader = (LKEventHeader *) fEventHeaderArray -> ConstructedAt(0);
-    eventHeader -> SetEventNumber(int(eventID));
+    eventHeader -> SetEventNumber(Int_t(fCurrEventIdx));
 
-    for (UInt_t asad=0; asad<maxasad; asad++)
+    for (UInt_t asad=0; asad<fMaxAsad; asad++)
     {
-        for (UInt_t aget=0; aget<4; aget++)
+        for (UInt_t aget=0; aget<fMaxAget; aget++)
         {
-            if (!waveforms->hasHit[asad*4+aget])
+            if (!fWaveforms->hasHit[asad*fMaxAget+aget])
                 continue; // Skip no fired agets.
 
-            for (UInt_t chan=0; chan<68; chan++)
+            for (UInt_t chan=0; chan<fMaxChannels; chan++)
             {
-                if (!waveforms->hasSignal[asad*4+aget][chan])
+                if (!fWaveforms->hasSignal[asad*fMaxAget+aget][chan])
                     continue; // Skip no fired channels.
 
                 if (coboIdx>=0)
                 {
-                    if (readmode==1)
-                    {
-                        auto channel = (GETChannel *) fChannelArray -> ConstructedAt(fCountChannels++);
-                        channel -> SetFrameNo(frameIdx);
-                        channel -> SetDecayNo(decayIdx);
-                        channel -> SetCobo(coboIdx);
-                        channel -> SetAsad(asad);
-                        channel -> SetAget(aget);
-                        channel -> SetChan(chan);
-                        channel -> SetTime(0);
-                        channel -> SetEnergy(0);
-                        channel -> SetWaveformY(waveforms->waveform[asad*4+aget][chan]);
+                    auto channel = (GETChannel *) fChannelArray -> ConstructedAt(fCountChannels++);
+                    channel -> SetFrameNo(frameIdx);
+                    channel -> SetDecayNo(decayIdx);
+                    channel -> SetCobo(coboIdx);
+                    channel -> SetAsad(asad);
+                    channel -> SetAget(aget);
+                    channel -> SetChan(chan);
+                    channel -> SetTime(0);
+                    channel -> SetEnergy(0);
+                    channel -> SetWaveformY(fWaveforms->waveform[asad*fMaxAget+aget][chan]);
 
-                        wGETMul++;
-                        if (chan!=11&&chan!=22&&chan!=45&&chan!=56)
-                            wGETHit++;
-                    }
+                    fMultGET++;
                 }
             }
         }

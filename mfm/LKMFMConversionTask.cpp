@@ -17,27 +17,18 @@ bool LKMFMConversionTask::Init()
     fEventHeaderArray = fRun -> RegisterBranchA("FrameHeader", "LKEventHeader", 1);
     fChannelArray     = fRun -> RegisterBranchA("RawData", "GETChannel", 1000);
 
-    int mode            = fPar -> GetParInt("LKMFMConversionTask/RunMode");
-    int readtype        = fPar -> GetParInt("LKMFMConversionTask/ReadType");
-    int converterPort   = fPar -> GetParInt("LKMFMConversionTask/ConverterPort");
-    int bucketSize      = fPar -> GetParInt("LKMFMConversionTask/BucketSize");
-    int scalerMode      = fPar -> GetParInt("LKMFMConversionTask/ScalerMode");
-    int d2pMode         = fPar -> GetParInt("LKMFMConversionTask/2pMode");
-    int updatefast      = fPar -> GetParInt("LKMFMConversionTask/UpdateFast");
-    auto inputFileName  = fPar -> GetParString("LKMFMConversionTask/InputFileName");
-
-    fFrameBuilder = new LKFrameBuilder(converterPort);
-    fFrameBuilder -> SetBucketSize(bucketSize);
-    fFrameBuilder -> Init(mode,d2pMode);
-    fFrameBuilder -> SetReadMode(mode);
-    fFrameBuilder -> SetReadType(readtype);
-    fFrameBuilder -> SetScaler(scalerMode);
-    fFrameBuilder -> Set2pMode(d2pMode);
-    fFrameBuilder -> SetUpdateSpeed(updatefast);
+    fFrameBuilder = new LKFrameBuilder();
+    fFrameBuilder -> SetPar(fPar);
+    fFrameBuilder -> SetMotherTask(this);
     fFrameBuilder -> SetChannelArray(fChannelArray);
     fFrameBuilder -> SetEventHeaderArray(fEventHeaderArray);
-    fFrameBuilder -> SetMotherTask(this);
+    auto initFB = fFrameBuilder -> Init();
+    if (initFB==false) {
+        lk_error << "LKFrameBuilder cannot be initialized!" << endl;
+        return false;
+    }
 
+    auto inputFileName  = fPar -> GetParString("LKMFMConversionTask/InputFileName");
     lk_info << "Opening file " << inputFileName << endl;
     lk_info << "Block size is " << matrixSize << endl;
     fFileStream.open(inputFileName.Data(), std::ios::binary | std::ios::in);
@@ -65,10 +56,8 @@ void LKMFMConversionTask::Exec(Option_t*)
     int filebuffer = 0;
     while (!fFileStream.eof() && fContinueEvent)
     {
-        //fFileStream.seekg(filebuffer, std::ios_base::cur);
         fFileStream.read(buffer,matrixSize);
         filebuffer += matrixSize;
-        //lk_debug << countAddDataChunk++ << endl;
 
         if(!fFileStream.eof()) {
             // addDataChunk ////////////////////////////////////////////////////////////////////////////////
