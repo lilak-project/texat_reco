@@ -71,10 +71,8 @@ void TTEventPreviewTask::Exec(Option_t *option)
     }
 
     // not considered about center,,,
-         if(siLhit==2) { if(siRhit<2 && X6Lhit<3 && X6Rhit<3) SiBLR=0; }
-    else if(siRhit==2) { if(siLhit<2 && X6Lhit<3 && X6Rhit<3) SiBLR=1; }
-    else if(X6Lhit==3) { if(siLhit<2 && siRhit<3 && X6Rhit<3) SiBLR=0; }
-    else if(X6Rhit==3) { if(siLhit<2 && siRhit<3 && X6Lhit<3) SiBLR=1; }
+         if(siLhit>=2 || X6Lhit>=3) { SiBLR=0; }
+    else if(siRhit>=2 || X6Rhit>=2) { SiBLR=1; }
     else if(siChit==2) SiBLR=2;
     else SiBLR = 9;
 
