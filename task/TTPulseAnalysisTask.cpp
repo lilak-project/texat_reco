@@ -87,9 +87,10 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
         if(electronicsID == 14) //fCsI
         {
             Int_t amplitude = 0;
+            Int_t timebin = 0;
             Int_t pedestal = 0;
             Int_t alpha = 0;
-            FindMaximum(data, false, amplitude);
+            FindMaximum(data, false, amplitude, timebin);
             fDetector -> CAACToGlobalPosition(cobo,asad,aget,chan, xPos,yPos,zPos,xErr,yErr,zErr);
 
             LKHit* hit = nullptr;
@@ -102,6 +103,7 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
             hit -> SetCharge(amplitude);
             hit -> SetPedestal(pedestal);
             hit -> SetAlpha(alpha);
+            hit -> SetTb(timebin);
 
             countHits++;
         }
@@ -152,6 +154,7 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
             hit -> SetCharge(amplitude);
             hit -> SetPedestal(pedestal);
             hit -> SetAlpha(alpha);
+            hit -> SetTb(tb);
 
             countHits++;
         }
@@ -165,11 +168,12 @@ bool TTPulseAnalysisTask::EndOfRun()
     return true;
 }
 
-void TTPulseAnalysisTask::FindMaximum(Int_t *data, Bool_t Positive, Int_t &MaxVal)
+void TTPulseAnalysisTask::FindMaximum(Int_t *data, Bool_t Positive, Int_t &MaxVal, Int_t &MaxBin)
 {
     if(Positive==false) for(Int_t i=0; i<512; i++) data[i] = 4096-data[i];
     MaxVal = -9999;
-    for(Int_t i=0; i<512; i++) if(MaxVal<data[i]) MaxVal = data[i];
+    for(Int_t i=0; i<512; i++)
+        if(MaxVal<data[i]) { MaxVal = data[i]; MaxBin = i; }
 
     //lazy type pedestal subtraction
     Int_t base = 0;
