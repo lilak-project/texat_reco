@@ -110,10 +110,8 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
         if(cobo==1 && asad==1) continue;
 
         for (auto tb=0; tb<350; ++tb)
-        {
-            if( (cobo==1 && asad==0 && aget==0) || (cobo==2 && (aget==1||aget==2)) || (cobo==2 && asad==1 && aget==3) ) buffer[tb] = 4096 - double(data[tb]);
-            else buffer[tb] = double(data[tb]);
-        }
+            buffer[tb] = double(data[tb]);
+
         auto ana = fDetector -> GetChannelAnalyzer(electronicsID);
         ana -> Analyze(buffer);
 
@@ -135,8 +133,6 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
             auto chi2NDF   = ana -> GetChi2NDF(iHit);
             auto ndf       = ana -> GetNDF(iHit);
             auto pedestal  = ana -> GetPedestal();
-            if(detType==TexAT2::eType::kForwardSi || detType==TexAT2::eType::kCENSX6)
-                if(tb>30) continue;
 
             LKHit* hit = nullptr;
                  if (detType==TexAT2::eType::kLowCenter ) hit = (LKHit*) fHitArrayCenter -> ConstructedAt(countHitCenter++);
