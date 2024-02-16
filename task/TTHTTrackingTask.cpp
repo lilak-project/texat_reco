@@ -1,4 +1,5 @@
 #include "TTHTTrackingTask.h"
+#include "LKGeoBox.h"
 
 ClassImp(TTHTTrackingTask);
 
@@ -12,8 +13,8 @@ bool TTHTTrackingTask::Init()
     lk_info << "Initializing TTHTTrackingTask" << std::endl;
 
     fPar -> UpdatePar(fUseTransformCSCombination,  "TTHTTrackingTask/use_transform_with_chain_strip_combination");
-    fPar -> UpdatePar(fNumStripHitsCutForTransform,"TTHTTrackingTask/numStripHitsCutForTransform");
-    fPar -> UpdatePar(fNumChainHitsCutForTransform,"TTHTTrackingTask/numChainHitsCutForTransform");
+    fPar -> UpdatePar(fNumStripHitsCutForTransform,"TTHTTrackingTask/numStripHitsCut");
+    fPar -> UpdatePar(fNumChainHitsCutForTransform,"TTHTTrackingTask/numChainHitsCut");
 
     if (fUseTransformCSCombination) lk_info << "Flag, HT transform using Chain Strip combination is ON!" << endl;
     else lk_info << "Flag, HT transform using Chain Strip combination is OFF!" << endl;
@@ -41,6 +42,7 @@ bool TTHTTrackingTask::Init()
         tk -> SetParamSpaceBins(nr, nt);
         tk -> SetCorrelateBoxBand();
         tk -> SetWFConst();
+        tk -> Print();
     };
 
     fTracker[kViewXY][kLeft] = new LKHTLineTracker();  SetTracker(fTracker[kViewXY][kLeft],  fX1, fY1, fNX, fX1, fX2, fNY, fY1, fY2, fNR, fNT);
@@ -99,40 +101,52 @@ bool TTHTTrackingTask::TransformAndSelectHits(LKHTLineTracker* trackerXY, LKHTLi
     return true;
 }
 
-bool TTHTTrackingTask::MakeTrack(LKLinearTrack* trackXY, LKLinearTrack* trackZY, double x1, double x2)
+bool TTHTTrackingTask::MakeTrack(int iLeftRight)
 {
-    if (trackXY!=nullptr && trackZY!=nullptr)
+    auto track = (LKLinearTrack*) fTrackArray -> ConstructedAt(fNumTracks++);
+    track -> Create3DTrack(fTrackXY, "xy", fTrackZY, "zy");
+
+    //if (0) {
+    //    double x2 = fX1;
+    //    if (iLeftRight==kRight)
+    //        x2 = fX2;
+    //    auto vertex1 = track -> GetPointAtX(0);
+    //    auto vertex2 = track -> GetPointAtX(x2);
+    //    track -> SetTrack(vertex1, vertex2);
+    //}
+    //else
     {
-        auto point1 = trackXY -> GetPoint1();
-        auto point2 = trackZY -> GetPoint2();
-        point1.SetXYZ(point1.X(), point1.Y(), 0);
-        point2.SetXYZ(0, point2.Y(), point2.X());
-        auto directionXY = trackXY -> Direction();
-        auto directionZY = trackZY -> Direction();
-        TVector3 normal1(-directionXY.Y(), directionXY.X(), 0);
-        TVector3 normal2(0, directionZY.X(), -directionZY.Y());
-        LKGeoPlaneWithCenter plane1(point1, normal1);
-        LKGeoPlaneWithCenter plane2(point2, normal2);
-        LKGeoLine lineL = plane1.GetCrossSectionLine(plane2);
-        auto vertex1 = lineL.GetPointAtX(x1);
-        auto vertex2 = lineL.GetPointAtX(x2);
-        auto track = (LKLinearTrack*) fTrackArray -> ConstructedAt(fNumTracks++);
-        track -> SetTrack(vertex1, vertex2);
+        LKGeoBox box(0.5*(0+fX1),0.5*(fY2+fY1),0.5*(fZ2+fZ1),0-fX1,fY2-fY1,fZ2-fZ1);
+        if (iLeftRight==kRight)
+            box = LKGeoBox(0.5*(fX2+0),0.5*(fY2+fY1),0.5*(fZ2+fZ1),fX2-0,fY2-fY1,fZ2-fZ1);
+        TVector3 point1, point2;
+        box.GetCrossingPoints(*track,point1,point2);
+        track -> SetTrack(point1, point2);
+    }
+
+    if (track->GetQuality()<0)
+    {
+        fTrackArray -> Remove(track);
+        fNumTracks--;
+        return false;
+    }
+    else
+    {
         track -> SetTrackID(fNumTracks);
+
         LKHit* hit;
         if (fUseTransformCSCombination) {
-            TIter nextXY(trackXY->GetHitArray());
+            TIter nextXY(fTrackXY->GetHitArray());
             while ((hit = (LKHit*)nextXY())) track -> AddHit(hit);
         }
         else {
-            TIter nextXY(trackXY->GetHitArray());
+            TIter nextXY(fTrackXY->GetHitArray());
             while ((hit = (LKHit*)nextXY())) track -> AddHit(hit);
-            TIter nextZY(trackZY->GetHitArray());
+            TIter nextZY(fTrackZY->GetHitArray());
             while ((hit = (LKHit*)nextZY())) track -> AddHit(hit);
         }
         return true;
     }
-    return false;
 }
 
 void TTHTTrackingTask::Exec(Option_t *option)
@@ -161,12 +175,9 @@ void TTHTTrackingTask::Exec(Option_t *option)
     // add transform and fit ------------------------------------------------------------------------
     for (auto iLeftRight : {kLeft, kRight})
     {
-        double x1 = 0;
-        double x2 = fX1;
         int iStrip = kLStrip;
         int iChain = kLChain;
         if (iLeftRight==kRight) {
-            x2 = fX2;
             iStrip = kRStrip;
             iChain = kRChain;
         }
@@ -189,7 +200,7 @@ void TTHTTrackingTask::Exec(Option_t *option)
                 }
             }
             TransformAndSelectHits(fTracker[kViewXY][iLeftRight], fTracker[kViewZY][iLeftRight]);
-            auto goodTrack = MakeTrack(fTrackXY,fTrackZY,x1,x2);
+            MakeTrack(iLeftRight);
         }
     }
 

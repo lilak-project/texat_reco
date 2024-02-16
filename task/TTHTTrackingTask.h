@@ -34,7 +34,7 @@ class TTHTTrackingTask : public LKTask
         bool EndOfRun();
 
         bool TransformAndSelectHits(LKHTLineTracker* trackerXY, LKHTLineTracker* trackerZY);
-        bool MakeTrack(LKLinearTrack* trackXY, LKLinearTrack* trackZY, double x1, double x2);
+        bool MakeTrack(int iLeftRight);
 
         LKHTLineTracker* GetTracker(int i, int j) { return fTracker[i][j]; }
 
@@ -58,7 +58,7 @@ class TTHTTrackingTask : public LKTask
         double       fX2 = 120;
         int          fNY = 110;
         double       fY1 = 0;
-        double       fY2 = 330;
+        double       fY2 = 350;
         int          fNZ = 141;
         double       fZ1 = 150;
         double       fZ2 = 500;
