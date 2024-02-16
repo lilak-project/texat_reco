@@ -1,21 +1,16 @@
 <config_common config_common.mac
 
 runNo 801 
-split 27
-data /mnt/CRIBdisk/o14apf17/ganacq_manip/o14apf17/acquisition/run/run_0{runNo}.dat.19-03-23_06h26m09s.{split}
+division 27
+data /mnt/CRIBdisk/o14apf17/ganacq_manip/o14apf17/acquisition/run/run_0{runNo}.dat.19-03-23_06h26m09s.{division}
 
-*LKRun/RunName texat {runNo} {split}.conv
+*LKRun/RunName texat {runNo} {division} conv
 *LKRun/DataPath {lilak_data}
 
 #################################################################################################
 LKMFMConversionTask/
-    RunMode         1       # MFMHistServer configfile mode (mode
-    ReadType        1       # 0:online, 1:offline with mfm file,
-    ConverterPort   9998    # needed for mfm2rootwf
-    BucketSize      512     # Time bucket size
     ScalerMode      0       # to print out scaler data more often
     2pMode          0       # reading data for 2p mode
-    UpdateFast      0       # save root tree more often in case o
     InputFileName   {data}
 
 #################################################################

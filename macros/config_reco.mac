@@ -6,8 +6,28 @@
 #################################################################################################
 TTHTTrackingTask/
     use_transform_with_chain_strip_combination  false
-    numStripHitsCutForTransform     2 # number of chain hits should be larger than this cut to be reconstructed
-    numChainHitsCutForTransform     2 # number of strip hits should be larger than this cut to be reconstructed
+    numStripHitsCut     2 # number of chain hits should be larger than this cut to be reconstructed
+    numChainHitsCut     2 # number of strip hits should be larger than this cut to be reconstructed
+
+beamx1   -20.58
+beamx2   20.58
+bnnx     143 -120 120
+bnny     110 0   350
+bnnz     141 150 500
+zt       0.5*({bnnz[1]}+{bnnz[2]})
+yt       {bnny[1]}-({bnny[2]}-{bnny[1]})
+bnnt     5   80  100
+bnnr     40  {bnny[1]}-{yt}  {bnny[2]}-{yt}
+
+#################################################################################################
+TTHTBeamTrackingTask/
+    num_track_hits_cut      10
+    num_beam_tracks_cut     4
+#    transform_center_zy     {zt} {yt}
+#    radius_binning          {bnnr}
+#    theta_binning           {bnnt}
+#    z_binning               {bnnz}
+#    y_binning               {bnny}
 
 #################################################################################################
 #persistency/

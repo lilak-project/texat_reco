@@ -1,0 +1,14 @@
+<config_common config_common.mac
+
+#################################################################################################
+*LKRun/DataPath {lilak_data}
+
+#################################################################################################
+persistency/
+    EventHeader true
+    HitCenter   true
+    HitLStrip   true
+    HitLChain   true
+    HitRStrip   true
+    HitRChain   true
+    HitOthers   true
