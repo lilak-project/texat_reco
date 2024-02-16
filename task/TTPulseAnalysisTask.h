@@ -53,7 +53,7 @@ class TTPulseAnalysisTask : public LKTask
         int fITypeLCenter;
         int fITypeHCenter;
 
-        void FindMaximum(Int_t *data, Bool_t Positive, Int_t &MaxVal);
+        void FindMaximum(Int_t *data, Bool_t Positive, Int_t &MaxVal, Int_t &MaxBin);
 
     ClassDef(TTPulseAnalysisTask,1);
 };
