@@ -8,6 +8,7 @@
 #include "LKTask.h"
 #include "TTEventHeader.h"
 #include "TexAT2.h"
+#include "TTMicromegas.h"
 //#include "LKHit.h"
 //#include "GETChannel.h"
 //#include "TTEventHeader.h"
@@ -44,7 +45,12 @@ class TTPulseAnalysisTask : public LKTask
         TClonesArray* fHitArrayRChain = nullptr;
         TClonesArray* fHitArrayOthers = nullptr;
 
+        double fTbToLength = 0.884; // mm/bin (0.0221 mm/ns * 40 ns/bin);
+        double fMMY = 64.78; // mm
+
         TexAT2 *fDetector;
+
+        TTMicromegas *fDetectorPlane = nullptr;
 
         int fITypeLStrip;
         int fITypeRStrip;

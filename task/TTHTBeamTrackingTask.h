@@ -48,8 +48,8 @@ class TTHTBeamTrackingTask : public LKTask
         double       fX1 = -20.58; // MMAllLong*6
         double       fX2 = 20.58; // MMAllLong*6
         int          fNY = 120;
-        double       fY1 = 0;
-        double       fY2 = 360;
+        double       fY1 = -300;
+        double       fY2 = 150;
         int          fNZ = 200;
         double       fZ1 = 156.7;
         double       fZ2 = 506.7;

@@ -32,6 +32,13 @@ bool TexAT2::Init()
     // Put intialization todos here which are not iterative job though event
     e_info << "Initializing TexAT2" << std::endl;
 
+    fPar -> UpdatePar(fX1,"TexAT2/x1");
+    fPar -> UpdatePar(fX2,"TexAT2/x2");
+    fPar -> UpdatePar(fY1,"TexAT2/y1");
+    fPar -> UpdatePar(fY2,"TexAT2/y2");
+    fPar -> UpdatePar(fZ1,"TexAT2/z1");
+    fPar -> UpdatePar(fZ2,"TexAT2/z2");
+
     // SetDetType()
     fmapmmFileName     = fPar -> GetParString("TexAT2/mapmmFileName");
     fmapsiFileName     = fPar -> GetParString("TexAT2/mapsiFileName");
@@ -441,8 +448,8 @@ bool TexAT2::GetEffectiveDimension(Double_t &x1, Double_t &y1, Double_t &z1, Dou
 {
     x1 = -175;
     x2 = +175;
-    y1 = 0;
-    y2 = 350;
+    y1 = -250;
+    y2 = 80;
     z1 = 150;
     z2 = 500;
     return true;

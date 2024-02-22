@@ -17,22 +17,18 @@ bool TTHTBeamTrackingTask::Init()
 
     fTrackArray = fRun -> RegisterBranchA("BeamTrack","LKLinearTrack",100);
 
+    fPar -> UpdatePar(fZT,"TTHTBeamTrackingTask/transform_center_zy", 0);
+    fPar -> UpdatePar(fYT,"TTHTBeamTrackingTask/transform_center_zy", 1);
+    fPar -> UpdateBinning("TTHTBeamTrackingTask/y_binning", fNY, fY1, fY2);
+    fPar -> UpdateBinning("TTHTBeamTrackingTask/z_binning", fNZ, fZ1, fZ2);
+    fZT = 0.5*(fZ1+fZ2);
+    fYT = fY1-(fY2-fY1);
+    fR1 = fY1-fYT;
+    fR2 = fY2-fYT;
     fPar -> UpdatePar(fNumTrackHitsCut,  "TTHTBeamTrackingTask/num_track_hits_cut");
     fPar -> UpdatePar(fNumBeamTracksCut, "TTHTBeamTrackingTask/num_beam_tracks_cut");
-    fPar -> UpdatePar(fZT,  "TTHTBeamTrackingTask/transform_center_zy", 0);
-    fPar -> UpdatePar(fYT,  "TTHTBeamTrackingTask/transform_center_zy", 1);
-    fPar -> UpdatePar(fNR,  "TTHTBeamTrackingTask/radius_binning",0);
-    fPar -> UpdatePar(fR1,  "TTHTBeamTrackingTask/radius_binning",1);
-    fPar -> UpdatePar(fR2,  "TTHTBeamTrackingTask/radius_binning",2);
-    fPar -> UpdatePar(fNT,  "TTHTBeamTrackingTask/theta_binning",0);
-    fPar -> UpdatePar(fT1,  "TTHTBeamTrackingTask/theta_binning",1);
-    fPar -> UpdatePar(fT2,  "TTHTBeamTrackingTask/theta_binning",2);
-    fPar -> UpdatePar(fNZ,  "TTHTBeamTrackingTask/z_binning",0);
-    fPar -> UpdatePar(fZ1,  "TTHTBeamTrackingTask/z_binning",1);
-    fPar -> UpdatePar(fZ2,  "TTHTBeamTrackingTask/z_binning",2);
-    fPar -> UpdatePar(fNY,  "TTHTBeamTrackingTask/y_binning",0);
-    fPar -> UpdatePar(fY1,  "TTHTBeamTrackingTask/y_binning",1);
-    fPar -> UpdatePar(fY2,  "TTHTBeamTrackingTask/y_binning",2);
+    fPar -> UpdateBinning("TTHTBeamTrackingTask/r_binning", fNR, fR1, fR2);
+    fPar -> UpdateBinning("TTHTBeamTrackingTask/t_binning", fNT, fT1, fT2);
 
     fTrackerZY = new LKHTLineTracker();
     fTrackerZY -> SetTransformCenter(fZT, fYT);

@@ -56,14 +56,26 @@ class TTHTTrackingTask : public LKTask
         int          fNX = 143;
         double       fX1 = -120;
         double       fX2 = 120;
+
         int          fNY = 110;
         double       fY1 = 0;
         double       fY2 = 350;
+
         int          fNZ = 141;
         double       fZ1 = 150;
         double       fZ2 = 500;
+
         int          fNR = 80;
+        double       fR1 = 0;
+        double       fR2 = 0;
+
         int          fNT = 100;
+        double       fT1 = 0;
+        double       fT2 = 0;
+
+        double       fTCX = fX1;
+        double       fTCY = fY1;
+        double       fTCZ = fZ1;
 
         const int    kCenter = 0;
         const int    kLStrip = 1;

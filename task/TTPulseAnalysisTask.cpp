@@ -17,6 +17,8 @@ bool TTPulseAnalysisTask::Init()
     fDetector = (TexAT2 *) fRun -> GetDetector();
     fDetector -> InitChannelAnalyzer();
 
+    fDetectorPlane = (TTMicromegas*) fDetector -> GetDetectorPlane();
+
     fChannelArray = fRun -> GetBranchA("RawData");
 
     fHitArrayCenter = fRun -> RegisterBranchA("HitCenter","LKHit",100);
@@ -34,6 +36,9 @@ bool TTPulseAnalysisTask::Init()
     fITypeHCenter = fDetector -> GetTypeNumber(TexAT2::eType::kHighCenter);
 
     fEventHeaderHolder = fRun -> KeepBranchA("EventHeader");
+
+    fPar -> UpdatePar(fTbToLength,"tb_to_length");
+    fPar -> UpdatePar(fMMY,"y_micromegas");
 
     return true;
 }
@@ -134,6 +139,8 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
             auto ndf       = ana -> GetNDF(iHit);
             auto pedestal  = ana -> GetPedestal();
 
+            auto y = fMMY - fTbToLength * tb;
+
             LKHit* hit = nullptr;
                  if (detType==TexAT2::eType::kLowCenter ) hit = (LKHit*) fHitArrayCenter -> ConstructedAt(countHitCenter++);
             else if (detType==TexAT2::eType::kHighCenter) hit = (LKHit*) fHitArrayCenter -> ConstructedAt(countHitCenter++);
@@ -144,7 +151,7 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
             else                                          hit = (LKHit*) fHitArrayOthers -> ConstructedAt(countHitOthers++);
             hit -> SetHitID(countHits);
             hit -> SetChannelID(caac);
-            if(cobo==0) hit -> SetPosition(xPos,tb,zPos);
+            if(cobo==0) hit -> SetPosition(xPos,y,zPos);
             else    	hit -> SetPosition(xPos,yPos,zPos);
             hit -> SetPositionError(xErr,yErr,zErr);
             hit -> SetCharge(amplitude);

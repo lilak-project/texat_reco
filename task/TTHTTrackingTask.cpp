@@ -15,6 +15,12 @@ bool TTHTTrackingTask::Init()
     fPar -> UpdatePar(fUseTransformCSCombination,  "TTHTTrackingTask/use_transform_with_chain_strip_combination");
     fPar -> UpdatePar(fNumStripHitsCutForTransform,"TTHTTrackingTask/numStripHitsCut");
     fPar -> UpdatePar(fNumChainHitsCutForTransform,"TTHTTrackingTask/numChainHitsCut");
+    fPar -> UpdateBinning("TTHTTrackingTask/x_binning", fNX, fX1, fX2);
+    fPar -> UpdateBinning("TTHTTrackingTask/y_binning", fNY, fY1, fY2);
+    fPar -> UpdateBinning("TTHTTrackingTask/z_binning", fNZ, fZ1, fZ2);
+    fPar -> UpdateBinning("TTHTTrackingTask/r_binning", fNR, fR1, fR2);
+    fPar -> UpdateBinning("TTHTTrackingTask/t_binning", fNT, fT1, fT2);
+    fPar -> UpdateV3("TTHTTrackingTask/transform_center", fTCX, fTCY, fTCZ);
 
     if (fUseTransformCSCombination) lk_info << "Flag, HT transform using Chain Strip combination is ON!" << endl;
     else lk_info << "Flag, HT transform using Chain Strip combination is OFF!" << endl;
@@ -36,19 +42,22 @@ bool TTHTTrackingTask::Init()
 
     fTrackArray = fRun -> RegisterBranchA("Track","LKLinearTrack",100);
 
-    auto SetTracker = [](LKHTLineTracker* tk, double tx, double ty, int nx, double x1, double x2, int ny, double y1, double y2, int nr, int nt) {
+    auto SetTracker = [](LKHTLineTracker* tk, double tx, double ty, int nx, double x1, double x2, int ny, double y1, double y2, int nr, double r1, double r2, int nt, double t1, double t2) {
         tk -> SetTransformCenter(tx, ty);
         tk -> SetImageSpaceRange(nx, x1, x2, ny, y1, y2);
-        tk -> SetParamSpaceBins(nr, nt);
+        if (r1==0&&r2==0&&t1==0&&t2==0)
+            tk -> SetParamSpaceBins(nr, nt);
+        else
+            tk -> SetParamSpaceRange(nr, r1, r2, nt, t1, t2);
         tk -> SetCorrelateBoxBand();
         tk -> SetWFConst();
         tk -> Print();
     };
 
-    fTracker[kViewXY][kLeft] = new LKHTLineTracker();  SetTracker(fTracker[kViewXY][kLeft],  fX1, fY1, fNX, fX1, fX2, fNY, fY1, fY2, fNR, fNT);
-    fTracker[kViewZY][kLeft] = new LKHTLineTracker();  SetTracker(fTracker[kViewZY][kLeft],  fZ1, fY1, fNZ, fZ1, fZ2, fNY, fY1, fY2, fNR, fNT);
-    fTracker[kViewXY][kRight] = new LKHTLineTracker(); SetTracker(fTracker[kViewXY][kRight], fX1, fY1, fNX, fX1, fX2, fNY, fY1, fY2, fNR, fNT);
-    fTracker[kViewZY][kRight] = new LKHTLineTracker(); SetTracker(fTracker[kViewZY][kRight], fZ1, fY1, fNZ, fZ1, fZ2, fNY, fY1, fY2, fNR, fNT);
+    fTracker[kViewXY][kLeft] = new LKHTLineTracker();  SetTracker(fTracker[kViewXY][kLeft],  fTCX, fTCY,  fNX, fX1, fX2,  fNY, fY1, fY2,  fNR, fR1, fR2,  fNT, fT1, fT2);
+    fTracker[kViewZY][kLeft] = new LKHTLineTracker();  SetTracker(fTracker[kViewZY][kLeft],  fTCZ, fTCY,  fNZ, fZ1, fZ2,  fNY, fY1, fY2,  fNR, fR1, fR2,  fNT, fT1, fT2);
+    fTracker[kViewXY][kRight] = new LKHTLineTracker(); SetTracker(fTracker[kViewXY][kRight], fTCX, fTCY,  fNX, fX1, fX2,  fNY, fY1, fY2,  fNR, fR1, fR2,  fNT, fT1, fT2);
+    fTracker[kViewZY][kRight] = new LKHTLineTracker(); SetTracker(fTracker[kViewZY][kRight], fTCZ, fTCY,  fNZ, fZ1, fZ2,  fNY, fY1, fY2,  fNR, fR1, fR2,  fNT, fT1, fT2);
 
     fCrossHitCollection = new TObjArray();
 

@@ -127,6 +127,13 @@ class TexAT2 : public LKDetector
                 Double_t &errx, Double_t &erry, Double_t &errz);
 
     private:
+        Double_t fX1 = -175;
+        Double_t fX2 = +175;
+        Double_t fY1 = -250;
+        Double_t fY2 = 80;
+        Double_t fZ1 = 150;
+        Double_t fZ2 = 500;
+
         const Int_t  fmmnum = 1024;       ///<  # of all channels
         const Int_t  fsinum = 45;         ///<  quadrant*9
         const Int_t  fX6num = 600;        ///<  20chan*30det
