@@ -1,6 +1,6 @@
 <config_common config_common.mac
 
-runNo 801 
+runNo 801
 division 27
 data /mnt/CRIBdisk/o14apf17/ganacq_manip/o14apf17/acquisition/run/run_0{runNo}.dat.19-03-23_06h26m09s.{division}
 

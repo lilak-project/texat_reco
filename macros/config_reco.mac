@@ -3,41 +3,35 @@
 #################################################################################################
 *LKRun/DataPath {lilak_data}
 
+bnnx     143,  120, 120
+bnny     110, -250, 100
+bnnz     141,  150, 500
+
+#beamx1   -20.58
+#beamx2   20.58
+#beam_zt  0.5*({bnnz[1]}+{bnnz[2]})
+#beam_yt  {bnny[1]}-({bnny[2]}-{bnny[1]})
+#bnnt     5   80  100
+#bnnr     40  {bnny[1]}-{yt}  {bnny[2]}-{yt}
+
+#################################################################################################
+TTHTBeamTrackingTask/
+    num_track_hits_cut      5
+    num_beam_tracks_cut     4
+#    transform_center_zy     {zt} {yt}
+#    z_binning           {bnnz}
+    y_binning           {bnny}
+#    r_binning           {bnnr}
+#    t_binning           {bnnt}
+
 #################################################################################################
 TTHTTrackingTask/
     use_transform_with_chain_strip_combination  false
     numStripHitsCut     2 # number of chain hits should be larger than this cut to be reconstructed
     numChainHitsCut     2 # number of strip hits should be larger than this cut to be reconstructed
-
-beamx1   -20.58
-beamx2   20.58
-bnnx     143 -120 120
-bnny     110 0   350
-bnnz     141 150 500
-zt       0.5*({bnnz[1]}+{bnnz[2]})
-yt       {bnny[1]}-({bnny[2]}-{bnny[1]})
-bnnt     5   80  100
-bnnr     40  {bnny[1]}-{yt}  {bnny[2]}-{yt}
-
-#################################################################################################
-TTHTBeamTrackingTask/
-    num_track_hits_cut      10
-    num_beam_tracks_cut     4
-#    transform_center_zy     {zt} {yt}
-#    radius_binning          {bnnr}
-#    theta_binning           {bnnt}
-#    z_binning               {bnnz}
-#    y_binning               {bnny}
-
-#################################################################################################
-#persistency/
-##RawData     false
-##FrameHeader false
-#    EventHeader true
-#    HitCenter   true
-#    HitLStrip   true
-#    HitLChain   true
-#    HitRStrip   true
-#    HitRChain   true
-#    HitOthers   true
-#    Track       true
+    y_binning           {bnny}
+#    x_binning           {bnnx}
+#    z_binning           {bnnz}
+#    r_binning           {bnnr}
+#    t_binning           {bnnt}
+#    transform_center    {bnnx[1]} {bnny[1]} {bnnz[1]}

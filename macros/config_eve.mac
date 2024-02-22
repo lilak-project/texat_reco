@@ -3,19 +3,20 @@
 Track/lineColor kRed
 BeamTrack/lineColor kGreen
 
-HitCenter/markerColor kGray+2
+HitCenter/markerColor kBlack
 HitLStrip/markerColor kBlue
 HitLChain/markerColor kGray+1
 HitRStrip/markerColor kBlue
 HitRChain/markerColor kGray+1
 HitOthers/markerColor kGreen
 
-HitCenter/markerSize 1
-HitLStrip/markerSize 1
-HitLChain/markerSize 1
-HitRStrip/markerSize 1
-HitRChain/markerSize 1
-HitOthers/markerSize 1
+HitCenter/markerSize 0.7
+HitLStrip/markerSize 0.7
+HitLChain/markerSize 0.7
+HitRStrip/markerSize 0.7
+HitRChain/markerSize 0.7
+HitOthers/markerSize 0.7
+
 HitCenter/lineColor {HitCenter/markerColor}
 HitLStrip/lineColor {HitLStrip/markerColor}
 HitLChain/lineColor {HitLChain/markerColor}

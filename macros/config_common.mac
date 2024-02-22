@@ -1,3 +1,8 @@
+y_micromegas    64.78   # mm
+drift_velocity  0.0221  # mm/ns
+sampling_time   40      # ns/bin
+TexAT2/tb_to_length     {drift_velocity}*{sampling_time}
+
 #################################################################################################
 TexAT2/
     mapmmFileName       {lilak_common}/mapchantomm.txt
