@@ -33,7 +33,7 @@ void LKFrameBuilder::processFrame(mfm::Frame &frame)
             lk_info << "Frame is blob frame 0x7" << endl;
             decodeCoBoTopologyFrame(frame);
         }
-        else if (frame.header().frameType()  == 0x8) {
+        else if (frame.header().frameType() == 0x8) {
             lk_info << "Frame is blob frame 0x8" << endl;
             decodeMuTanTFrame(frame);
         }
@@ -632,7 +632,8 @@ void LKFrameBuilder::WriteChannels()
 
                 if (coboIdx>=0)
                 {
-                    auto channel = (GETChannel *) fChannelArray -> ConstructedAt(fCountChannels++);
+                    auto channel = (GETChannel *) fChannelArray -> ConstructedAt(fCountChannels);
+                    channel -> SetChannelID(fCountChannels);
                     channel -> SetFrameNo(frameIdx);
                     channel -> SetDecayNo(decayIdx);
                     channel -> SetCobo(coboIdx);
@@ -643,6 +644,7 @@ void LKFrameBuilder::WriteChannels()
                     channel -> SetEnergy(0);
                     channel -> SetWaveformY(fWaveforms->waveform[asad*fMaxAget+aget][chan]);
 
+                    fCountChannels++;
                     fMultGET++;
                 }
             }
