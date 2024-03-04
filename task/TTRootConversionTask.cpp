@@ -147,7 +147,7 @@ void TTRootConversionTask::Exec(Option_t *option)
         channel -> SetChan2(dchan);
         channel -> SetTime(fmmTime[iChannel]);
         channel -> SetEnergy(fmmEnergy[iChannel]);
-        channel -> SetWaveformX(fmmWaveformX[iChannel]);
+        //channel -> SetWaveformX(fmmWaveformX[iChannel]);
         channel -> SetWaveformY(fmmWaveformY[iChannel]);
 
         //if (iChannel==0 || iChannel==1) channel -> Print();
