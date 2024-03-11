@@ -98,6 +98,8 @@ class TexAT2 : public LKDetector
 
         Double_t GetSiJpar0(int chan)            { return fSiJpar0[chan]; }
         Double_t GetSiJpar1(int chan)            { return fSiJpar1[chan]; }
+        Double_t GetSiJpar0(int det, int strip)  { return fSiJdet0[det][strip]; }
+        Double_t GetSiJpar1(int det, int strip)  { return fSiJdet1[det][strip]; }
         Double_t GetCsIpar0(int chan)            { return fCsIpar0[chan]; }
         Double_t GetCsIpar1(int chan)            { return fCsIpar1[chan]; }
 
@@ -175,6 +177,8 @@ class TexAT2 : public LKDetector
 
         Double_t fSiJpar0[68];
         Double_t fSiJpar1[68];
+        Double_t fSiJdet0[10][4];
+        Double_t fSiJdet1[10][4];
         Double_t fCsIpar0[10];
         Double_t fCsIpar1[10];
 

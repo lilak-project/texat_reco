@@ -308,6 +308,11 @@ bool TexAT2::Init()
     while(sical.good())
     {
         sical >> fSiJpar0[line] >> fSiJpar1[line];
+        if(fSiJpar0[line]!=0)
+        {
+            fSiJdet0[fSidet[0][0][line]][fSistrip[0][0][line]-1] = fSiJpar0[line];
+            fSiJdet1[fSidet[0][0][line]][fSistrip[0][0][line]-1] = fSiJpar1[line];
+        }
         line++;
         if(line==42) break;
     }
