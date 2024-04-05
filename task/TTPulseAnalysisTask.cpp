@@ -82,7 +82,7 @@ void TTPulseAnalysisTask::Exec(Option_t *option)
         auto asad = channel -> GetAsad();
         auto aget = channel -> GetAget();
         auto chan = channel -> GetChan();
-        auto dchan = channel -> GetChan2();
+        auto dchan = channel -> GetPadID();
         auto data = channel -> GetWaveformY();
         auto electronicsID = fDetector -> GetElectronicsID(cobo, asad, aget, chan);
         auto x = fDetector -> Getmmpx(asad, aget, dchan);

@@ -87,11 +87,11 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
     {
         auto channel = (GETChannel *) fChannelArray -> At(iChannel);
         Int_t chan = channel -> GetChan();
-        Int_t dchan = channel -> GetChan2();
+        Int_t dchan = channel -> GetPadID();
         Int_t mmCobo = channel -> GetCobo();
         Int_t mmAsad = channel -> GetAsad();
         Int_t mmAget = channel -> GetAget();
-        Int_t *mmWaveformY = channel -> GetWaveformY();
+        auto* mmWaveformY = channel -> GetWaveformY();
 
         if(mmCobo==0 && !(chan==11 || chan==22 || chan==45 || chan==56))
         {
@@ -151,11 +151,11 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
             {
                 auto channel = (GETChannel *) fChannelArray -> At(iChannel);
                 Int_t chan = channel -> GetChan();
-                Int_t dchan = channel -> GetChan2();
+                Int_t dchan = channel -> GetPadID();
                 Int_t mmCobo = channel -> GetCobo();
                 Int_t mmAsad = channel -> GetAsad();
                 Int_t mmAget = channel -> GetAget();
-                Int_t *mmWaveformY = channel -> GetWaveformY();
+                auto* mmWaveformY = channel -> GetWaveformY();
 
                 auto mmpx = fDetector -> Getmmpx(mmAsad,mmAget,dchan);
                 if(mmpx==whereisx && !(chan==11 || chan==22 || chan==45 || chan==56))
@@ -224,11 +224,11 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
             {
                 auto channel = (GETChannel *) fChannelArray -> At(iChannel);
                 Int_t chan = channel -> GetChan();
-                Int_t dchan = channel -> GetChan2();
+                Int_t dchan = channel -> GetPadID();
                 Int_t mmCobo = channel -> GetCobo();
                 Int_t mmAsad = channel -> GetAsad();
                 Int_t mmAget = channel -> GetAget();
-                Int_t *mmWaveformY = channel -> GetWaveformY();
+                auto* mmWaveformY = channel -> GetWaveformY();
 
                 auto mmpx = fDetector -> Getmmpx(mmAsad,mmAget,dchan);
                 if(mmpx==whereisx && !(chan==11 || chan==22 || chan==45 || chan==56))
@@ -331,11 +331,11 @@ void TTHitFindingHoughTask::Exec(Option_t *option)
             {
                 auto channel = (GETChannel *) fChannelArray -> At(iChannel);
                 Int_t chan = channel -> GetChan();
-                Int_t dchan = channel -> GetChan2();
+                Int_t dchan = channel -> GetPadID();
                 Int_t mmCobo = channel -> GetCobo();
                 Int_t mmAsad = channel -> GetAsad();
                 Int_t mmAget = channel -> GetAget();
-                Int_t *mmWaveformY = channel -> GetWaveformY();
+                auto* mmWaveformY = channel -> GetWaveformY();
 
                 auto mmpx = fDetector -> Getmmpx(mmAsad,mmAget,dchan);
                 auto mmpy = fDetector -> Getmmpy(mmAsad,mmAget,dchan);

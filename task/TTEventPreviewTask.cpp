@@ -52,7 +52,7 @@ void TTEventPreviewTask::Exec(Option_t *option)
         else if (chan>56) dchan = chan - 4;
 
         channel -> SetDetType(typeNumber);
-        channel -> SetChan2(dchan);
+        channel -> SetPadID(dchan);
 
         if(!(chan==11 || chan==22 || chan==45 || chan==56))
         {
