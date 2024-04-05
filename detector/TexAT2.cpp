@@ -308,6 +308,11 @@ bool TexAT2::Init()
     while(sical.good())
     {
         sical >> fSiJpar0[line] >> fSiJpar1[line];
+        if(fSiJpar0[line]!=0)
+        {
+            fSiJdet0[fSidet[0][0][line]][fSistrip[0][0][line]-1] = fSiJpar0[line];
+            fSiJdet1[fSidet[0][0][line]][fSistrip[0][0][line]-1] = fSiJpar1[line];
+        }
         line++;
         if(line==42) break;
     }
@@ -679,7 +684,8 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
                 if(det<19) posz += 2.5;
                 else if(det<29) posz -= 2.5;
                 errx = 0; //Detector on yz-plane
-                erry = 1;
+                erry = X6ActLong/2;
+                //erry = 1;
                 errz = 2.5;
             }
             else //Bottom
@@ -689,13 +695,15 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
                     posx += 2.5;
                     errx = 2.5;
                     erry = 0; //Detector on xz-plane
-                    errz = 1;
+                    errz = X6ActLong/2;
+                    //errz = 1;
                 }
                 else
                 {
                     if(det<109) posz -= 2.5;
                     else if(det<209) posz += 2.5;
-                    errx = 1;
+                    errx = X6ActLong/2;
+                    //errx = 1;
                     erry = 0; //Detector on xz-plane
                     errz = 2.5;
                 }
