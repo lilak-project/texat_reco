@@ -294,10 +294,12 @@ bool TexAT2::Init()
     fX6JFileName   = fPar -> GetParString("CalibrationParameter/fX6J_CalPar");
     fX6OFileName   = fPar -> GetParString("CalibrationParameter/fX6O_CalPar");
 
-    Double_t x6je0;
-    Double_t x6je1;
-    Double_t x6jp0;
-    Double_t x6jp1;
+    int iDet, iStrip;
+    Double_t x6jX;
+    Double_t x6jY;
+    Double_t x6jK;
+    Double_t x6jA;
+    Double_t x6jB;
     Double_t x6oe0;
     Double_t x6oe1;
 
@@ -338,11 +340,12 @@ bool TexAT2::Init()
     if(x6jcal.fail()==true) lk_error << "error: fX6Jcalpar " << fX6JFileName << endl;
     while(x6jcal.good())
     {
-        x6jcal >> x6je0 >> x6je1 >> x6jp0 >> x6jp1;
-        fX6JEpar0[(int)line/8][line%8] = x6je0;
-        fX6JEpar1[(int)line/8][line%8] = x6je1;
-        fX6JPpar0[(int)line/8][line%8] = x6jp0;
-        fX6JPpar1[(int)line/8][line%8] = x6jp1;
+        x6jcal >> iDet >> iStrip >> x6jY >> x6jX >> x6jK >> x6jA >> x6jB;
+        fX6JparX[(int)line/8][line%8] = x6jX;
+        fX6JparY[(int)line/8][line%8] = x6jY;
+        fX6JparK[(int)line/8][line%8] = x6jK;
+        fX6JparA[(int)line/8][line%8] = x6jA;
+        fX6JparB[(int)line/8][line%8] = x6jB;
 
         line++;
         if(line==240) break;

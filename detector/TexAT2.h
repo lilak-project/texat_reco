@@ -103,10 +103,12 @@ class TexAT2 : public LKDetector
         Double_t GetCsIpar0(int chan)            { return fCsIpar0[chan]; }
         Double_t GetCsIpar1(int chan)            { return fCsIpar1[chan]; }
 
-        Double_t GetX6JEpar0(int det, int strip) { return fX6JEpar0[det][strip]; }
-        Double_t GetX6JEpar1(int det, int strip) { return fX6JEpar1[det][strip]; }
-        Double_t GetX6JPpar0(int det, int strip) { return fX6JPpar0[det][strip]; }
-        Double_t GetX6JPpar1(int det, int strip) { return fX6JPpar1[det][strip]; }
+        Double_t GetX6JparX(int det, int strip) { return fX6JparX[det][strip]; }
+        Double_t GetX6JparY(int det, int strip) { return fX6JparY[det][strip]; }
+        Double_t GetX6JparK(int det, int strip) { return fX6JparK[det][strip]; }
+        Double_t GetX6JparA(int det, int strip) { return fX6JparA[det][strip]; }
+        Double_t GetX6JparB(int det, int strip) { return fX6JparB[det][strip]; }
+
         Double_t GetX6OEpar0(int det, int strip) { return fX6OEpar0[det][strip]; }
         Double_t GetX6OEpar1(int det, int strip) { return fX6OEpar1[det][strip]; }
 
@@ -182,10 +184,11 @@ class TexAT2 : public LKDetector
         Double_t fCsIpar0[10];
         Double_t fCsIpar1[10];
 
-        Double_t fX6JEpar0[30][8];
-        Double_t fX6JEpar1[30][8];
-        Double_t fX6JPpar0[30][8];
-        Double_t fX6JPpar1[30][8];
+        Double_t fX6JparX[30][8];
+        Double_t fX6JparY[30][8];
+        Double_t fX6JparK[30][8];
+        Double_t fX6JparA[30][8];
+        Double_t fX6JparB[30][8];
         Double_t fX6OEpar0[30][4];
         Double_t fX6OEpar1[30][4];
 
