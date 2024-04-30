@@ -340,7 +340,7 @@ bool TexAT2::Init()
     if(x6jcal.fail()==true) lk_error << "error: fX6Jcalpar " << fX6JFileName << endl;
     while(x6jcal.good())
     {
-        x6jcal >> iDet >> iStrip >> x6jY >> x6jX >> x6jK >> x6jA >> x6jB;
+        x6jcal >> iDet >> iStrip >> x6jY >> x6jX >> x6jK >> x6jB >> x6jA;
         fX6JparX[(int)line/8][line%8] = x6jX;
         fX6JparY[(int)line/8][line%8] = x6jY;
         fX6JparK[(int)line/8][line%8] = x6jK;
