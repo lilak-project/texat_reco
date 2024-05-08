@@ -11,6 +11,7 @@
 #include "LKLinearTrack.h"
 #include "LKHTLineTracker.h"
 #include "TTEventHeader.h"
+#include "TTEventEnder.h"
 //#include "EventHeader"
 
 /*
@@ -43,6 +44,7 @@ class TTHTTrackingTask : public LKTask
         TClonesArray *fHitArray[6];
         TClonesArray *fTrackArray = nullptr;
         TClonesArray* fEventHeaderHolder = nullptr;
+        TClonesArray* fEventEnderHolder = nullptr;
 
         TObjArray* fCrossHitCollection = nullptr;
 
@@ -61,8 +63,10 @@ class TTHTTrackingTask : public LKTask
         double       fY1 = 0;
         double       fY2 = 350;
 
-        int          fNZ = 141;
-        double       fZ1 = 150;
+        int          fNZ = 200;
+        double       fZ1 = 0;
+        //int          fNZ = 141;
+        //double       fZ1 = 150;
         double       fZ2 = 500;
 
         int          fNR = 80;
@@ -105,6 +109,9 @@ class TTHTTrackingTask : public LKTask
          * If fUseTransformCSCombination is false, both only chain-hits(strip-hits) will used for filling parameter space of XY-plane(ZY-plane).
          */
         bool         fUseTransformCSCombination = true;
+
+        double       minCharge = DBL_MIN;
+        double       maxCharge = DBL_MAX;
 
     ClassDef(TTHTTrackingTask,1);
 };

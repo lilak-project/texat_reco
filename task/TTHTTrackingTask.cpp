@@ -21,6 +21,10 @@ bool TTHTTrackingTask::Init()
     fPar -> UpdateBinning("TTHTTrackingTask/r_binning", fNR, fR1, fR2);
     fPar -> UpdateBinning("TTHTTrackingTask/t_binning", fNT, fT1, fT2);
     fPar -> UpdateV3("TTHTTrackingTask/transform_center", fTCX, fTCY, fTCZ);
+    
+    minCharge = fPar -> GetParDouble("TTHTTrackingTask/minCharge");
+    maxCharge = fPar -> GetParDouble("TTHTTrackingTask/maxCharge");
+    lk_info << "Hits with amplitude greater than "<<minCharge<<" and less than "<<maxCharge<<" are used for reco." << endl;
 
     if (fUseTransformCSCombination) lk_info << "Flag, HT transform using Chain Strip combination is ON!" << endl;
     else lk_info << "Flag, HT transform using Chain Strip combination is OFF!" << endl;
@@ -39,6 +43,7 @@ bool TTHTTrackingTask::Init()
     fHitArray[kRChain] = fRun -> GetBranchA("HitRChain");
     fHitArray[kOthers] = fRun -> GetBranchA("HitOthers");
     fEventHeaderHolder = fRun -> KeepBranchA("EventHeader");
+    fEventEnderHolder = fRun -> KeepBranchA("EventEnder");
 
     fTrackArray = fRun -> RegisterBranchA("Track","LKLinearTrack",100);
 
@@ -182,6 +187,17 @@ void TTHTTrackingTask::Exec(Option_t *option)
             fTracker[iView][iLeftRight] -> Clear();
 
     // add transform and fit ------------------------------------------------------------------------
+    auto firedDet = eventHeader -> GetFiredDet();
+    auto eventEnder = (TTEventEnder*) fEventEnderHolder -> At(0);
+    auto SiPos = eventEnder -> GetSiHit();
+    auto SiPosError = eventEnder -> GetSiHitError();
+    auto SiHit = new LKHit();
+    SiHit -> SetPosition(SiPos);
+    SiHit -> SetPositionError(SiPosError);
+    SiHit -> SetW(5000);
+    Int_t SiLeftRight = kLeft;
+    if(firedDet==0 || (firedDet>20 && firedDet<29) || firedDet>200) SiLeftRight = kRight;
+
     for (auto iLeftRight : {kLeft, kRight})
     {
         int iStrip = kLStrip;
@@ -190,12 +206,26 @@ void TTHTTrackingTask::Exec(Option_t *option)
             iStrip = kRStrip;
             iChain = kRChain;
         }
-        if (fHitArray[iStrip]->GetEntries()>fNumStripHitsCutForTransform && fHitArray[iChain]->GetEntries()>fNumChainHitsCutForTransform)
+
+        auto nStrips = fHitArray[iStrip] -> GetEntries();
+        auto nChains = fHitArray[iChain] -> GetEntries();
+        if(iLeftRight==SiLeftRight)
+        {
+            lk_info << "!!! Si hit added (0:left/1:right) -> " << iLeftRight << endl;
+            nStrips++;
+            nChains++;
+            fTracker[kViewXY][iLeftRight] -> AddHit(SiHit,LKVector3::kX,LKVector3::kY);
+            fTracker[kViewZY][iLeftRight] -> AddHit(SiHit,LKVector3::kZ,LKVector3::kY);
+        }
+
+        if (nStrips>fNumStripHitsCutForTransform && nChains>fNumChainHitsCutForTransform)
         {
             for (auto iRegion : {iStrip ,iChain}) {
                 auto numHits = fHitArray[iRegion] -> GetEntries();
                 for (auto iHit=0; iHit<numHits; ++iHit) {
                     auto hit = (LKHit*) fHitArray[iRegion] -> At(iHit);
+                    if(hit->GetCharge()<minCharge) continue;
+                    if(hit->GetCharge()>maxCharge) continue;
                     if (fUseTransformCSCombination) {
                         fTracker[kViewXY][iLeftRight] -> AddHit(hit,LKVector3::kX,LKVector3::kY);
                         fTracker[kViewZY][iLeftRight] -> AddHit(hit,LKVector3::kZ,LKVector3::kY);
