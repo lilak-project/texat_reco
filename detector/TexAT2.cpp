@@ -456,8 +456,8 @@ bool TexAT2::GetEffectiveDimension(Double_t &x1, Double_t &y1, Double_t &z1, Dou
 {
     x1 = -175;
     x2 = +175;
-    y1 = -250;
-    y2 = 80;
+    y1 = -100;
+    y2 = 100;
     z1 = 150;
     z2 = 500;
     return true;
@@ -575,6 +575,7 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
     Double_t maxForwardSiZ = 476.9;
 
     Double_t maxSideX6X = 146.8;
+    Double_t maxBottomX6X = 125.8;
     Double_t minBottomX6Y= -66.1;
     Double_t minX6Z = 147.9;
     Double_t X6AllLong = 93.1;
@@ -724,7 +725,7 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
                 if(det<19) posx = -maxSideX6X;
                 else if(det<29) posx = maxSideX6X;
                 posy = (strip-2.5)*X6ActLong/4;
-                posz = minX6Z + (map+0.5)*X6AllShort;
+                posz = minX6Z + map*X6AllShort + X6ActShort/2;
                 errx = 0; //Detector on yz-plane
                 erry = X6ActLong/8;
                 errz = X6ActShort/2;
@@ -736,7 +737,7 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
                     if(det==101) posx = -X6AllShort/2;
                     else posx = X6AllShort/2;
                     posy = minBottomX6Y;
-                    posz = minX6Z + 7*X6AllShort - X6AllLong/2 + (strip-2.5)*X6ActLong/4;
+                    posz = 422 + (strip-2.5)*X6ActLong/4;
                     errx = X6ActShort/2;
                     erry = 0; //Detector on xz-plane
                     errz = X6ActLong/8;
@@ -749,10 +750,10 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
                     else if(det<204) map = 207-det;
                     else map = 208-det;
 
-                    if(det<109) posx = - (X6AllShort + X6AllLong/2 + (strip-2.5)*X6ActLong/4);
-                    else posx = X6AllShort + X6AllLong/2 + (strip-2.5)*X6ActLong/4;
+                    if(det<109) posx = - (maxBottomX6X - X6ActLong/2 - (strip-2.5)*X6ActLong/4);
+                    else posx = maxBottomX6X - X6ActLong/2 - (strip-2.5)*X6ActLong/4;
                     posy = minBottomX6Y;
-                    posz = minX6Z + (map+0.5)*X6AllShort;
+                    posz = minX6Z + map*X6AllShort + X6ActShort/2;
                     errx = X6ActLong/8;
                     erry = 0; //Detector on xz-plane
                     errz = X6ActShort/2;
