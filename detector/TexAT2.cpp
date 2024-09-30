@@ -572,9 +572,11 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
     Double_t MMStripX = (MMAllX - MMBeamAllLong*6)/2;
     Double_t MMChainZ = MMAllZ;
 
-    Double_t maxForwardSiZ = 476.9;
+    Double_t maxForwardSiZ = 468.29;
+    //Double_t maxForwardSiZ = 476.9;
 
-    Double_t maxSideX6X = 146.8;
+    Double_t maxSideX6X = 171.5;
+    //Double_t maxSideX6X = 146.8;
     Double_t maxBottomX6X = 125.8;
     Double_t minBottomX6Y= -66.1;
     Double_t minX6Z = 147.9;
