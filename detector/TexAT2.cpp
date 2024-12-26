@@ -575,15 +575,15 @@ void TexAT2::CAACToGlobalPosition(Int_t Cobo, Int_t Asad, Int_t Aget, Int_t Chan
     Double_t maxForwardSiZ = 468.29;
     //Double_t maxForwardSiZ = 476.9;
 
-    Double_t maxSideX6X = 171.5;
-    //Double_t maxSideX6X = 146.8;
-    Double_t maxBottomX6X = 125.8;
-    Double_t minBottomX6Y= -66.1;
-    Double_t minX6Z = 147.9;
     Double_t X6AllLong = 93.1;
     Double_t X6AllShort = 45.2;
     Double_t X6ActLong = 75;
     Double_t X6ActShort = 40.3;
+
+    Double_t maxSideX6X = fDetector->GetX6posx(21, 0);
+    Double_t maxBottomX6X = fDetector->GetX6posx(201, 0) + X6ActLong / 2;
+    Double_t minBottomX6Y = fDetector->GetX6posy(201, 0);
+    Double_t minX6Z = fDetector->GetX6posz(208, 0);
 
     if(type==TexAT2::eType::kLeftStrip ||
        type==TexAT2::eType::kRightStrip ||
